@@ -1,0 +1,127 @@
+Given these are frozen pydantic models with no business logic, the test plan should be a repeatable checklist applied per message/payload pair, ideally via a shared base test class to avoid 17x duplication. Here's the standard:
+
+## Test categories (per message class)
+
+1. Identity / event_type
+- `event_type` matches the corresponding `Public*Signal.name`
+- `lifecycle_action` matches expected default (e.g. `DELETED`, `CREATED`, `UPDATED`)
+
+2. Required field validation
+- Constructing the message/payload without a required field (e.g. `correlation_id`, `organization_id`, `workspace_id`, `actor_id`, payload-specific UUIDs) raises `pydantic.ValidationError`
+- Invalid types for required fields raise `ValidationError` (e.g. non-UUID string for `*_id`, non-int for `schema_version`)
+
+3. Default values
+- `event_id` defaults to a `UUID` (auto-generated, unique across instances)
+- `timestamp` / `observed_at` default to current UTC `datetime`
+- `metadata` defaults to `{}`
+- `schema_version` constraint: `ge=1` rejects `0` / negatives
+- Payload-specific defaults (e.g. `reason` defaults to `DecisionReason.NOT_SPECIFIED`)
+
+4. Field overrides
+- Each meaningful field can be overridden via factory kwargs and the resulting instance reflects the override (one test per overridable field, not exhaustive combinations)
+
+5. Optional fields
+- Fields marked `Optional` accept `None` explicitly where the domain allows it (e.g. `reason=None`)
+
+6. Enum/constrained fields
+- Invalid enum values (e.g. bad `LifecycleAction`, `DecisionReason`) raise `ValidationError`
+
+7. Immutability
+- Mutating any top-level message field raises (frozen model)
+- Mutating any payload field raises (frozen model)
+
+8. Type identity
+- `isinstance(msg, <Message>)`
+- `isinstance(msg.payload, <Payload>)`
+
+9. Serialization round-trip
+- `model_dump_json()` ? `Message.model_validate_json(...)` reproduces an equal instance
+- `observed_at` serializes as UTC ISO 8601 string (per `field_serializer`)
+
+## Structural recommendation
+
+Create one shared mixin, e.g. `test/cynthus/messaging/_shared/signal_message_contract.py`, with parametrized tests for #2, #3 (base fields), #7, #8, #9 — driven off class attributes (`message_cls`, `payload_cls`, `factory`, `expected_event_type`, `expected_lifecycle_action`). Each per-message test file then subclasses this mixin and adds only the message-specific tests (#4–#6: domain field overrides, defaults, enum validation).
+
+This keeps the ~17 message test files focused on what's unique to each, while guaranteeing every message gets the same baseline coverage.
+
+Want me to draft the shared mixin file and refactor `test_meal_suggestion_rejected_message.py` as the first example?
+
+
+Mixins *are* inheritance — Python doesn't have a separate mechanism. A "mixin" is just a convention: a class designed to be combined with others via multiple inheritance, not used standalone.
+
+## Basic example
+
+```python
+class TimestampMixin:
+    def age_seconds(self) -> float:
+        return (datetime.now(timezone.utc) - self.timestamp).total_seconds()
+
+class FrozenMixin:
+    def assert_frozen(self, instance, field, value):
+        with pytest.raises(Exception):
+            setattr(instance, field, value)
+
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+class Dog(Animal, TimestampMixin, FrozenMixin):
+    pass
+```
+
+`Dog` gets `__init__` from `Animal` plus methods from both mixins, all merged via MRO (method resolution order — `Dog.__mro__` shows the lookup chain left-to-right).
+
+## How it differs from "regular" inheritance
+
+Nothing mechanically — the difference is *intent*:
+- Regular inheritance: `Dog(Animal)` — "a Dog *is an* Animal," one parent, models a real hierarchy.
+- Mixin: a small class that's never instantiated alone, has no `__init__` of its own usually, and exists purely to bolt on a bundle of behavior to multiple unrelated classes. You combine several.
+
+A class can do both: one real base + N mixins, as `Dog` does above.
+
+## With pytest
+
+The key thing: pytest discovers tests by scanning every class starting with `Test` for methods starting with `test_` — including inherited ones. So:
+
+```python
+# shared/signal_message_contract.py
+class SignalMessageContractMixin:
+    message_cls: type
+    payload_cls: type
+    expected_event_type: str
+
+    def test_event_type(self, message):
+        assert message.event_type == self.expected_event_type
+
+    def test_message_is_frozen(self, message):
+        with pytest.raises(Exception):
+            message.actor_id = "x"
+
+    def test_payload_type(self, message):
+        assert isinstance(message.payload, self.payload_cls)
+```
+
+```python
+# test_meal_suggestion_rejected_message.py
+class TestMealSuggestionRejectedMessage(SignalMessageContractMixin):
+    message_cls = MealSuggestionRejectedMessage
+    payload_cls = MealSuggestionRejectedPayload
+    expected_event_type = PublicMealSuggestionRejectedSignal.name
+
+    @fixture
+    def message(self, meal_suggestion_rejected_message):
+        return meal_suggestion_rejected_message()
+
+    # message-specific tests below...
+    def test_default_reason_is_too_tired(self, message):
+        assert message.payload.reason == "I'm too tired to cook"
+```
+
+Things to watch for:
+
+1. Don't prefix the mixin class with `Test`. If `SignalMessageContractMixin` started with `Test`, pytest would try to collect *it* directly too, and fail because `message` fixture/class attrs aren't defined on it.
+2. Fixtures are resolved per-class via normal pytest fixture lookup, so a fixture defined in the subclass (`message`) is visible to test methods inherited from the mixin — no special wiring needed.
+3. Class attributes (`message_cls`, `expected_event_type`) are just plain Python attribute lookup — `self.expected_event_type` works because of normal MRO, pytest doesn't need to know about them.
+4. Put the mixin file in a location pytest won't try to collect as a test module on its own (e.g. don't name it `test_*.py` if it has no `Test*` classes — fine either way, but `_shared/` or a non-`test_` filename avoids confusion).
+
+That's really it — pytest doesn't need anything special, because "a test class that inherits shared test methods" is just... a class that inherits methods.
