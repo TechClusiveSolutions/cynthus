@@ -72,8 +72,9 @@ def verify(local: Path) -> None:
         result = subprocess.run(command, cwd=local, capture_output=True, text=True, encoding='utf-8', shell=sys.platform == 'win32')
 
         if result.returncode != 0:
-            raise SystemExit(f'{" ".join(command[:3])} failed:
-{result.stdout}{result.stderr}')
+            name = ' '.join(command[:3])
+
+            raise SystemExit(f'{name} failed:\n{result.stdout}{result.stderr}')
 
 
 def main() -> int:
