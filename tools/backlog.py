@@ -154,9 +154,9 @@ def body(summary: str, criteria: list[str], docs: str) -> str:
 
 
 def existing_titles(repo: str) -> set[str]:
-    out = gh('api', f'repos/{ORG}/{repo}/issues?state=all&per_page=100')
+    pages = json.loads(gh('api', '--paginate', '--slurp', f'repos/{ORG}/{repo}/issues?state=all&per_page=100'))
 
-    return {item['title'] for item in json.loads(out)}
+    return {item['title'] for page in pages for item in page}
 
 
 def main() -> int:

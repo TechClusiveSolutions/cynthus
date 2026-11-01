@@ -40,6 +40,7 @@ class Tracker:
         fields = json.loads(gh('project', 'field-list', str(PROJECT_NUMBER), '--owner', ORG, '--format', 'json',
                                '--limit', '50'))['fields']
         self._fields = {field['name']: field for field in fields}
+        self._milestones: dict[str, dict[str, int]] = {}
 
     def _option_id(self, field: str, option: str) -> str:
         for candidate in self._fields[field]['options']:
@@ -52,11 +53,14 @@ class Tracker:
         if isinstance(milestone, int):
             return milestone
 
-        for item in json.loads(gh('api', f'repos/{ORG}/{repo}/milestones?state=all&per_page=50')):
-            if item['title'] == milestone:
-                return item['number']
+        if repo not in self._milestones:
+            items = json.loads(gh('api', '--paginate', '--slurp', f'repos/{ORG}/{repo}/milestones?state=all&per_page=100'))
+            self._milestones[repo] = {item['title']: item['number'] for page in items for item in page}
 
-        raise KeyError(f'{repo} has no milestone {milestone!r}')
+        try:
+            return self._milestones[repo][milestone]
+        except KeyError:
+            raise KeyError(f'{repo} has no milestone {milestone!r}') from None
 
     def add_to_project(self, repo: str, number: int) -> str:
         """Add the issue to the project and return the project item id."""

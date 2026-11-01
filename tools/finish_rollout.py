@@ -64,11 +64,24 @@ def tidy_markdown(local: Path) -> None:
             path.write_text(updated, encoding='utf-8', newline='')
 
 
+def verify(local: Path) -> None:
+    """Run the lint checks the PR body claims; raise if either fails."""
+
+    for command in ([sys.executable, '-m', 'ruff', 'check', str(local)],
+                    ['npx', '--yes', 'markdownlint-cli2', '--config', '.markdownlint-cli2.jsonc', 'docs/**/*.md', '.github/**/*.md', '*.md']):
+        result = subprocess.run(command, cwd=local, capture_output=True, text=True, encoding='utf-8', shell=sys.platform == 'win32')
+
+        if result.returncode != 0:
+            raise SystemExit(f'{" ".join(command[:3])} failed:
+{result.stdout}{result.stderr}')
+
+
 def main() -> int:
     repo, evidence = sys.argv[1], sys.argv[2]
     local = ROOT / LOCAL_NAMES.get(repo, repo)
     number = find_issue(repo)
     tidy_markdown(local)
+    verify(local)
 
     lint = run([sys.executable, '-m', 'markdownlint'], cwd=local) if False else ''
     del lint
@@ -82,7 +95,7 @@ def main() -> int:
     url = gh('pr', 'create', '-R', f'{ORG}/{repo}', '--base', 'dev', '--head', branch, '--title',
              f'Adopt the Cynthus CI, lint and pull-request workflow (#{number})', '--body', body, '--assignee',
              'blindtechmage', '--milestone', MILESTONE).strip()
-    subprocess.run(['gh', 'pr', 'edit', url, '--add-reviewer', '@copilot'], capture_output=True)
+    gh('pr', 'edit', url, '--add-reviewer', '@copilot')
     print(url)
 
     return 0

@@ -2,6 +2,9 @@
 
 Usage:  python tools/rollout_repo.py <repo-name> [--no-merge]
 
+Bootstrap only: this is the one place that pushes to ``dev`` directly (creating or fast-forwarding it so the first
+feature branch has a base). Every later change reaches ``dev`` through a pull request.
+
 The repository must already have the issue titled ``Adopt the Cynthus CI, lint and pull-request workflow``.
 """
 

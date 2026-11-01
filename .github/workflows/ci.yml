@@ -39,7 +39,8 @@ jobs:
 
   lint:
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    # If change detection itself fails, run everything: a skipped required check would otherwise pass silently.
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.code == 'true') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -50,7 +51,8 @@ jobs:
   # This repository holds documentation, templates and the cross-repository tooling scripts.
   test:
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    # If change detection itself fails, run everything: a skipped required check would otherwise pass silently.
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.code == 'true') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -67,7 +69,7 @@ jobs:
 
   docs-lint:
     needs: changes
-    if: needs.changes.outputs.docs == 'true'
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.docs == 'true') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
