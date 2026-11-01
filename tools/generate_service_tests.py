@@ -1767,11 +1767,15 @@ def generate(spec, dry_run):
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--dry-run', action='store_true')
+    parser.add_argument('--repo', help='only generate for this repository, for example cynthus-core')
     args = parser.parse_args()
 
     total = 0
 
     for spec in CONTAINERS:
+        if args.repo and spec['repo'] != args.repo:
+            continue
+
         print(label(spec))
         total += len(generate(spec, args.dry_run))
 
