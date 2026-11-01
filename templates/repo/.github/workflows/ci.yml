@@ -57,6 +57,8 @@ jobs:
                 (cd "${dir}" && python -m pytest --cov=src --cov-fail-under=75 -q)
               fi
             done
-          else
+          elif [ -d test ]; then
             python -m pytest --cov=src --cov-fail-under=75 -q
+          else
+            echo "No unit tests in this repository."
           fi

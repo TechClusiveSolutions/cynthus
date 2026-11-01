@@ -126,7 +126,10 @@ import pytest
 PACKAGE = '@@PKG@@'
 CONTAINER_DIR = Path(__file__).resolve().parents[1]
 SRC_DIR = CONTAINER_DIR / 'src'
-MESSAGING_CORE_SRC = Path(__file__).resolve().parents[4] / 'cynthus-messaging-core' / 'src'
+MESSAGING_CORE_SRC = Path(
+    os.environ.get('CYNTHUS_MESSAGING_CORE_SRC')
+    or Path(__file__).resolve().parents[4] / 'cynthus-messaging-core' / 'src'
+)
 
 for _path in (SRC_DIR, MESSAGING_CORE_SRC):
     if _path.exists() and str(_path) not in sys.path:
