@@ -19,7 +19,9 @@ def main() -> int:
     repo = sys.argv[1]
     local = ROOT / LOCAL_NAMES.get(repo, repo)
     number = find_issue(repo) if repo != 'cynthus' else 1
-    branch = gh('issue', 'develop', '--list', str(number), '-R', f'{ORG}/{repo}').split()[0]
+    linked = gh('issue', 'develop', '--list', str(number), '-R', f'{ORG}/{repo}').split()
+    # the link is eventually consistent; fall back to the local branch GitHub generated for the issue
+    branch = linked[0] if linked else git(local, 'branch', '--list', f'{number}-*', '--format=%(refname:short)').split()[0]
     git(local, 'checkout', branch)
 
     if '--custom-ci' not in sys.argv:
@@ -28,7 +30,7 @@ def main() -> int:
     docs_workflow = local / '.github' / 'workflows' / 'docs.yml'
 
     if docs_workflow.exists():
-        git(local, 'rm', '-q', '-f', '.github/workflows/docs.yml')
+        docs_workflow.unlink()
 
     ignore = local / '.gitignore'
 
