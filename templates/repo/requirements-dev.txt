@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+httpx
+pydantic
+sqlalchemy
+redis
+celery
+faststream[redis]
+faststream-azure-servicebus>=0.2.1,<0.3
+azure-servicebus>=7.14,<8
+azure-identity
+pyjwt
+factory_boy
+pytest
+pytest-asyncio
+pytest-cov

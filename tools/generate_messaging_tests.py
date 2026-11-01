@@ -9,9 +9,7 @@ Usage:  python tools/generate_messaging_tests.py [--dry-run]
 
 import argparse
 import sys
-
 from pathlib import Path
-
 
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / 'cynthus-core').is_dir())
 REPO = ROOT / 'cynthus-messaging'

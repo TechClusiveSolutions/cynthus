@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, dev]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+  push:
+    branches: [main, dev]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - name: Run ruff
+        run: uvx ruff@0.15.20 check .
+
+  # This repository holds documentation, templates and the cross-repository tooling scripts.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Scripts compile
+        run: python -m compileall -q tools
+      - name: Bootstrap script copies the template
+        run: |
+          mkdir -p /tmp/target/.git
+          python tools/bootstrap_repo.py /tmp/target
+          test -f /tmp/target/.github/workflows/ci.yml
