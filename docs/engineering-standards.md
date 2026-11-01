@@ -34,8 +34,8 @@ class InventorySnapshotBuilder:
 
 ## 3. Linting
 
-- **Python:** `ruff check .` (configuration in `pyproject.toml`). CI runs it as the `lint` job.
-- **Documentation:** `markdownlint-cli2` over the Markdown files the repository owns (`docs.yml`).
+- **Python:** `ruff check .` (configuration in `pyproject.toml`). CI runs it as the `lint` job; `test` runs the unit tests with the coverage gate.
+- **Documentation:** `markdownlint-cli2` over the Markdown files the repository owns (the `docs-lint` job in `ci.yml`).
 - Fix findings; do not blanket-disable rules. A targeted `# noqa: <rule>` needs a reason in the same comment.
 
 ## 4. HTTP endpoints
