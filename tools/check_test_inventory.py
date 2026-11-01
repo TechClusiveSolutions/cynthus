@@ -11,9 +11,7 @@ Usage:  python tools/check_test_inventory.py            # report, exit 1 when an
 
 import argparse
 import sys
-
 from pathlib import Path
-
 
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / 'cynthus-core').is_dir())
 

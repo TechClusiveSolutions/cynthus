@@ -9,9 +9,7 @@ Usage:  python tools/generate_messaging_tests.py [--dry-run]
 
 import argparse
 import sys
-
 from pathlib import Path
-
 
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / 'cynthus-core').is_dir())
 REPO = ROOT / 'cynthus-messaging'
@@ -43,6 +41,7 @@ CONFTEST = '''"""Root conftest for the cynthus-messaging test suite."""
 @@MARKER@@
 
 import importlib
+import os
 import sys
 
 from pathlib import Path
@@ -50,9 +49,9 @@ from pathlib import Path
 import pytest
 
 
-ROOT = next(p for p in Path(__file__).resolve().parents if (p / 'cynthus-core').is_dir())
+ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / 'src'
-MESSAGING_CORE_SRC = ROOT.parent / 'cynthus-messaging-core' / 'src'
+MESSAGING_CORE_SRC = Path(os.environ.get('CYNTHUS_MESSAGING_CORE_SRC') or ROOT.parent / 'cynthus-messaging-core' / 'src')
 
 for path in (SRC, MESSAGING_CORE_SRC):
     if path.exists() and str(path) not in sys.path:

@@ -13,9 +13,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-
 from pathlib import Path
-
 
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / 'cynthus-core').is_dir())
 PYTHON = sys.executable

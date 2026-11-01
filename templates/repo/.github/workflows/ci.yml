@@ -1,0 +1,126 @@
+name: CI
+
+# One workflow owns every required check so the names are unambiguous: `lint`, `test` and `docs-lint`.
+# A job whose input did not change is skipped (a skipped required check counts as passing), so documentation-only
+# pull requests are not blocked by the Python jobs and code-only pull requests are not blocked by markdownlint.
+
+on:
+  pull_request:
+    branches: [main, dev]
+  push:
+    branches: [main, dev]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            code:
+              - "**/*.py"
+              - "**/requirements*.txt"
+              - "pyproject.toml"
+              - "containers/**"
+              - "configs/**"
+              - "src/**"
+              - "test/**"
+              - ".github/workflows/ci.yml"
+            docs:
+              - "**/*.md"
+              - "docs/**"
+              - ".markdownlint-cli2.jsonc"
+              - ".github/workflows/ci.yml"
+
+  lint:
+    needs: changes
+    # If change detection itself fails, run everything: a skipped required check would otherwise pass silently.
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.code == 'true') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - name: Run ruff
+        run: uvx ruff@0.15.20 check .
+
+  test:
+    needs: changes
+    # If change detection itself fails, run everything: a skipped required check would otherwise pass silently.
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.code == 'true') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The shared messaging contracts live in a sibling repository. Services import them as `cynthus.messaging...`;
+      # the generated conftest files read CYNTHUS_MESSAGING_CORE_SRC to find them.
+      - name: Check out cynthus-messaging-core
+        uses: actions/checkout@v4
+        with:
+          repository: TechClusiveSolutions/cynthus-messaging-core
+          ref: dev
+          path: .deps/cynthus-messaging-core
+          persist-credentials: false
+          token: ${{ secrets.CYNTHUS_CI_TOKEN || github.token }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install test dependencies
+        run: pip install -r requirements-dev.txt
+
+      # Each suite runs in its own interpreter: several containers define a package with the same name.
+      # A container with source but no test suite fails the job, and so does a run that executed no suite at all.
+      - name: Unit tests with coverage gate
+        env:
+          CYNTHUS_MESSAGING_CORE_SRC: ${{ github.workspace }}/.deps/cynthus-messaging-core/src
+          PYTHONPATH: ${{ github.workspace }}/.deps/cynthus-messaging-core/src
+        run: |
+          set -e
+          suites=0
+          if [ -d containers ]; then
+            for dir in containers/*/; do
+              if [ -d "${dir}src" ] && [ ! -d "${dir}test" ]; then
+                echo "::error::${dir} has source code but no test suite"
+                exit 1
+              fi
+              if [ -d "${dir}test" ]; then
+                echo "=== ${dir} ==="
+                (cd "${dir}" && python -m pytest --cov=src --cov-fail-under=75 -q)
+                suites=$((suites + 1))
+              fi
+            done
+          elif [ -d test ]; then
+            python -m pytest --cov=src --cov-fail-under=75 -q
+            suites=1
+          fi
+          if [ "$suites" -eq 0 ] && find . -name '*.py' -path '*/src/*' -not -path './.deps/*' | grep -q .; then
+            echo "::error::Python source exists but no test suite was executed"
+            exit 1
+          fi
+
+  docs-lint:
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.docs == 'true') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          config: .markdownlint-cli2.jsonc
+          globs: |
+            docs/**/*.md
+            .github/**/*.md
+            *.md

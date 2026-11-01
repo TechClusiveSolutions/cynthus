@@ -1,0 +1,19 @@
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = [".venv", ".deps", "node_modules"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+# Long lines are reported by the reviewers, not the linter; the formatter is not enforced.
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Packages re-export their public classes from __init__.py (engineering standards, section 1).
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["cynthus"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
