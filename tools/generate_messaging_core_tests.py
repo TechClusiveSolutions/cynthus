@@ -219,7 +219,7 @@ from pathlib import Path
 import pytest
 
 
-ROOT = next(p for p in Path(__file__).resolve().parents if (p / 'cynthus-core').is_dir())
+ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / 'src'
 
 if str(SRC) not in sys.path:
@@ -815,7 +815,7 @@ FACTORIES = [
     # module stem, message class stem, signal class, lifecycle, payload defaults check
     ('suggestion_accepted', 'MealSuggestionAccepted', 'PublicMealSuggestionAcceptedSignal', 'UPDATED',
      'payload.reason == DecisionReason.NOT_SPECIFIED'),
-    ('suggestion_generated', 'MealSuggestionGenerated', 'PublicMealSuggestionGeneratedSignal', 'CREATED', 'True'),
+    ('suggestion_generated', 'MealSuggestionGenerated', 'PublicMealSuggestionGeneratedSignal', 'CREATED', 'payload is not None'),
     ('suggestion_rejected', 'MealSuggestionRejected', 'PublicMealSuggestionRejectedSignal', 'UPDATED',
      'payload.reason == DecisionReason.NOT_SPECIFIED'),
     ('suggestion_requested', 'MealSuggestionRequested', 'PublicMealSuggestionRequestedSignal', 'CREATED',
@@ -1940,11 +1940,13 @@ EXPECTED = @@EXPECTED@@
 
 
 def _require_importable(shim, known_broken):
-    if shim[@@SHIM_KEY@@] is not None:
-        if '@@DOTTED@@' in known_broken:
-            pytest.xfail(f'@@DOTTED@@ cannot be imported: {shim[@@SHIM_KEY@@]}')
+    reason = shim[@@SHIM_KEY@@]
 
-        pytest.fail(f'@@DOTTED@@ cannot be imported: {shim[@@SHIM_KEY@@]}')
+    if reason is not None:
+        if '@@DOTTED@@' in known_broken:
+            pytest.xfail(f'@@DOTTED@@ cannot be imported: {reason}')
+
+        pytest.fail(f'@@DOTTED@@ cannot be imported: {reason}')
 
 
 def test_package_imports_without_stand_ins(shim, known_broken):

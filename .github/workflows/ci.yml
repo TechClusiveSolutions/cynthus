@@ -1,19 +1,41 @@
 name: CI
 
+# One workflow owns every required check so the names are unambiguous: `lint`, `test` and `docs-lint`.
+# A job whose input did not change is skipped (a skipped required check counts as passing), so documentation-only
+# pull requests are not blocked by the Python jobs and code-only pull requests are not blocked by markdownlint.
+
 on:
   pull_request:
     branches: [main, dev]
-    paths-ignore:
-      - "docs/**"
-      - "*.md"
   push:
     branches: [main, dev]
-    paths-ignore:
-      - "docs/**"
-      - "*.md"
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            code:
+              - "tools/**"
+              - "templates/**"
+              - "pyproject.toml"
+              - ".github/workflows/ci.yml"
+            docs:
+              - "**/*.md"
+              - "docs/**"
+              - ".markdownlint-cli2.jsonc"
+              - ".github/workflows/ci.yml"
+
   lint:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +45,8 @@ jobs:
 
   # This repository holds documentation, templates and the cross-repository tooling scripts.
   test:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,3 +60,23 @@ jobs:
           mkdir -p /tmp/target/.git
           python tools/bootstrap_repo.py /tmp/target
           test -f /tmp/target/.github/workflows/ci.yml
+
+  docs-lint:
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          config: .markdownlint-cli2.jsonc
+          globs: |
+            docs/engineering-standards.md
+            docs/adr/**/*.md
+            docs/architecture/**/*.md
+            templates/**/*.md
+            tools/TESTING.md
+            tools/FIX-LOG.md
+            .github/**/*.md
+            README.md

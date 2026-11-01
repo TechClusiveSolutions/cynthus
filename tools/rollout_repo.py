@@ -72,8 +72,14 @@ def main() -> int:
         git(local, 'push', 'origin', 'main:dev')
     elif git(local, 'rev-list', '--count', 'origin/main..origin/dev') == '0':
         git(local, 'push', 'origin', 'main:dev')
+    elif not git(local, 'diff', '--stat', 'origin/main...origin/dev'):
+        # dev only holds merge commits of an older main: bring it up to date with a merge, never a force-push
+        git(local, 'checkout', '-B', 'dev', 'origin/dev')
+        git(local, 'merge', '--no-edit', 'origin/main')
+        git(local, 'push', 'origin', 'dev')
+        git(local, 'checkout', 'main')
     else:
-        raise SystemExit(f'{repo}: origin/dev has commits that main lacks; reconcile before rolling out')
+        raise SystemExit(f'{repo}: origin/dev has changes that main lacks; reconcile before rolling out')
 
     gh('issue', 'develop', str(number), '-R', f'{ORG}/{repo}', '--base', 'dev')
     branch = gh('issue', 'develop', '--list', str(number), '-R', f'{ORG}/{repo}').split()[0]
