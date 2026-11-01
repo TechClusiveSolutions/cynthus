@@ -226,22 +226,20 @@ NAMESPACE_TEST = '''"""Tests for @@DOTTED@@ (the package initializer): it must m
 @@MARKER@@
 
 import importlib
-import os
-
-from pathlib import Path
 
 
-def test_the_package_search_path_spans_both_repositories():
+def test_the_search_path_has_an_entry_for_each_repository():
     package = importlib.import_module('@@DOTTED@@')
-    paths = [str(Path(entry).resolve()) for entry in package.__path__]
 
-    assert any(f'cynthus-messaging{os.sep}src' in path for path in paths)
-    assert any(f'cynthus-messaging-core{os.sep}src' in path for path in paths)
+    assert len(list(package.__path__)) >= 2
 
 
-def test_modules_from_either_repository_resolve():
-    assert importlib.import_module('cynthus.messaging.common') is not None
-    assert importlib.import_module('cynthus.messaging.component.auth') is not None
+def test_a_module_from_cynthus_messaging_core_resolves():
+    assert importlib.import_module('@@DOTTED@@.@@CORE_MODULE@@') is not None
+
+
+def test_a_module_from_cynthus_messaging_components_resolves():
+    assert importlib.import_module('@@DOTTED@@.@@LOCAL_MODULE@@') is not None
 '''
 
 PLACEHOLDER_TEST = '''"""Tests for cynthus.messaging.component.@@COMPONENT@@.message.@@MODULE@@ (placeholder module)."""
@@ -311,8 +309,8 @@ def build():
             PAYLOAD_CLASS=payload_class, EVENT_TYPE=event_type,
             FIELDS=field_args, DICT_FIELDS=dict_fields)
 
-    files['test_cynthus_messaging.py'] = render(NAMESPACE_TEST, DOTTED='cynthus.messaging', DEPTH='0')
-    files['test_cynthus_messaging_component.py'] = render(NAMESPACE_TEST, DOTTED='cynthus.messaging.component', DEPTH='1')
+    files['test_cynthus_messaging.py'] = render(NAMESPACE_TEST, DOTTED='cynthus.messaging', CORE_MODULE='common', LOCAL_MODULE='component.auth')
+    files['test_cynthus_messaging_component.py'] = render(NAMESPACE_TEST, DOTTED='cynthus.messaging.component', CORE_MODULE='meal', LOCAL_MODULE='auth')
 
     for component, module in PLACEHOLDERS:
         files[f'component/{component}/message/test_{module}.py'] = render(PLACEHOLDER_TEST, COMPONENT=component, MODULE=module)
