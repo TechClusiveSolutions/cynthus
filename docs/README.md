@@ -27,6 +27,12 @@ These need a decision or a missing source from the document owner. None has been
 2. **Companion citations disagree.** The registry cites PRD v4.1; the PRD is 4.2. ADD 6.0 cites PRD 4.2 and registry
    v1.1.
 3. **Services the catalog uses that ADD 6.0 does not name:** `cynthus-shopping`, `cynthus-notification`,
-   `spire-agent`, `spire-server`. The `cynthus-messaging` name covers two services. Details are in
+   `spire-agent`, `spire-server`. Details are in
    [signals/signal-list-by-service.md](signals/signal-list-by-service.md).
-4. **Roadmap dates** are the PRD's. Phase 7 depends on regulatory approval.
+4. **Group chat has no owner.** `cynthus-messaging` is the communication library, not a service, yet the catalog uses
+   it as the group-chat publisher and consumer (12 rows), and ADD 6.0 lists a `cynthus-messaging-engine` hub.
+5. **Chat transport conflicts.** ADD 6.0 has `cynthus-core-api` route user sessions to `cynthus-chat` over VNet peering and
+   gRPC. The owner recalls the chat service talking to the user's device directly through an API, and says all
+   communication goes over Service Bus topics. Not resolved.
+6. **`cynthus-device` location.** Expected in `cynthus-health`; HUD and video data are not health-specific.
+7. **Roadmap dates** are the PRD's. Phase 7 depends on regulatory approval.

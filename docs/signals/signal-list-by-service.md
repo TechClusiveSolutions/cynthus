@@ -28,7 +28,7 @@
 | `cynthus-analysis` | 7 | 19 |
 | `cynthus-video` | 4 | 0 |
 | `cynthus-health-api` | 5 | 2 |
-| `cynthus-messaging` | 4 | 5 |
+| `cynthus-messaging` (catalog name; not a service) | 4 | 5 |
 | `cynthus-billing-api` | 4 | 5 |
 | `cynthus-partner-api` | 11 | 9 |
 | `spire-agent` | 2 | 0 |
@@ -523,9 +523,13 @@ UI renderer for clinical interactions.
 
 No signals in the catalog.
 
-### `cynthus-messaging`
+### `cynthus-device`
 
-Device telemetry hub.
+Device telemetry aggregator (provisional: expected in the `cynthus-health` repository; HUD and video data may need a different home). No signals in the catalog.
+
+### `cynthus-messaging` (catalog name; not a service)
+
+The catalog uses this name for the group-chat component (FT-MS-001 to 003). `cynthus-messaging` is the private communication library, not a service, so these signals have no owner yet. See the discrepancies below.
 
 **Publishes (4 signals)**
 
@@ -677,7 +681,7 @@ Revokes SVIDs.
 These are for the document owner to decide. Nothing here has been changed in the catalog or ADD 6.0.
 
 1. **`cynthus-shopping` and `cynthus-notification`** are publishers or consumers in the catalog (21 and 41 signals) but are not in the ADD 6.0 service tables. `cynthus-shopping` also exists as a container in the `cynthus-core` repository.
-2. **`cynthus-messaging`** is used in the catalog both for group-chat and interactive-card signals (ADD name: `cynthus-messaging-engine`) and as the device telemetry hub (ADD name: `cynthus-messaging`, in Health). One name, two services.
+2. **`cynthus-messaging` is a library, not a service** (owner, 2026-11-03). The catalog still uses it as publisher or consumer of the group-chat signals (FT-MS-001 to 003, vote, group and live-session signals: 12 rows). ADD 6.0 names a `cynthus-messaging-engine` WebSocket hub for group chat, which may contradict the rule that no service relays messages between services. Who publishes and consumes group-chat signals is undecided. The device telemetry aggregator is now `cynthus-device`.
 3. **`cynthus-inventory` and `cynthus-logistics`** are in ADD 6.0 but publish nothing in the catalog. Inventory signals are published by `cynthus-core-api` (13), `cynthus-scheduler` (4), `cynthus-partner-api` (2) and `cynthus-worker` (1). The older handling matrix had `cynthus-inventory` publishing the inventory topic.
 4. **`cynthus-identity`** publishes nothing in the catalog (13 signals consumed). The older matrix had it publishing the Auth and System topics. The SVID signals are published by `spire-agent` and `spire-server`, which are not in ADD 6.0.
 5. **Cache and database services, `cynthus-core-web`, `cynthus-health-web`** have no signals, as expected for stores and renderers.

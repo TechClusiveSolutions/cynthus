@@ -59,7 +59,7 @@ Every phase keeps two commitments from Phase 1: `organization_id` and `workspace
 ### Phase 7 - Clinical integration (H2 2029, pending regulatory approval)
 
 - **Go-live depends on:** SaMD regulatory strategy review, BAA execution with provider partners, HIPAA penetration testing, FDA SaMD classification for wearable-assisted RPM.
-- **Services:** `cynthus-health-api`, `cynthus-health-web`, `cynthus-messaging` (telemetry hub), `cynthus-audit` (PHI access logging), `cynthus-health-db`.
+- **Services:** `cynthus-health-api`, `cynthus-health-web`, `cynthus-device` (telemetry aggregator), `cynthus-audit` (PHI access logging), `cynthus-health-db`.
 - **Features:** FT-CL-001, 002; FT-RM-005; FT-AC-001, 003.
 
 ### Phase 8 - Enterprise scale and compliance (2030)
