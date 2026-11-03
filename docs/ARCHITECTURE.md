@@ -63,7 +63,7 @@ To protect proprietary intellectual property and prevent exposure of clinical, c
 
 - **`vnet-cynthus-core`:** Publicly routed subnet. Hosts `cynthus-core-api` and `cynthus-core-web`. Accepts external connections over HTTPS and WebSocket protocols. All community-contributed open-source services run here.
 - **`vnet-cynthus-intelligence`:** Private dark subnet. No public IP allocations. No public endpoints. Hosts `cynthus-chat`, `cynthus-analysis`, and `cynthus-video`. Reachable only via Azure VNet Peering from Core. The Intelligence subnet makes no outbound runtime calls to Core services — it receives only pre-assembled context payloads.
-- **`vnet-cynthus-health`:** DMZ subnet. Hosts `cynthus-health-api`, `cynthus-health-web`, and `cynthus-messaging`. Enforces HIPAA consent token verification and immutable audit emission before any data exchange with external clinical partners.
+- **`vnet-cynthus-health`:** DMZ subnet. Hosts `cynthus-health-api`, `cynthus-health-web`, and `cynthus-device`. Enforces HIPAA consent token verification and immutable audit emission before any data exchange with external clinical partners.
 
 Cross-VNet conversational streaming: `cynthus-core-api` routes user WebSocket sessions to `cynthus-chat` via private IP over the VNet Peering bridge, bypassing Service Bus latency. Internal AI-to-AI queries between `cynthus-chat` and `cynthus-analysis` run via synchronous gRPC within the private Intelligence namespace.
 
@@ -121,7 +121,7 @@ DMZ subnet hosting external healthcare provider and clinical partner interfaces.
 | Service | Function |
 |---|---|
 | `cynthus-health-api` | Primary edge for clinical integrations. Enforces HIPAA consent token verification and read-only data access. |
-| `cynthus-messaging` | Device telemetry hub. Ingests wearable and biometric data streams. Routes hot-path raw data to time-series buffers and summarizes warm-path events for the Service Bus. |
+| `cynthus-device` | Device telemetry aggregator (provisional: expected in the `cynthus-health` repository; HUD and video data are not health-specific, so its home may change). Ingests wearable and biometric data streams. Routes hot-path raw data to time-series buffers and summarizes warm-path events for the Service Bus. |
 | `cynthus-health-web` | Clinical dashboard UI renderer for authorized B2B healthcare partners. |
 | `cynthus-health-cache` | High-speed caching layer for Health domain services. |
 | `cynthus-health-db` | PHI-isolated persistent storage implementing field-level encryption for all biometric and patient data (`vesta_clinical` schema). |
@@ -269,6 +269,10 @@ This eliminates bidirectional runtime dependencies between Core and Intelligence
 
 ## 5. Messaging, Component & Signal Contracts
 
+### 5.0 The messaging library
+
+"Messaging" names a library, not a service. `cynthus-messaging-core` (public) and `cynthus-messaging` (private) are repositories of that library: the signal schemas and the translation helpers. Every non-infrastructure service imports it for common schema definitions and helper functions. There is no orchestrator or relay service: services communicate only by broadcasting signals on the Azure Service Bus topics they are bound to.
+
 ### 5.1 Three-Topic Service Bus Architecture
 
 The Service Bus is partitioned into three distinct topics aligned to visibility boundaries and compliance requirements. Access policies are enforced at the topic level, not just at the subscription filter level.
@@ -382,7 +386,7 @@ To support wearable device ingestion without overloading the centralized topic b
 ```
 
 1. **Hot Path:** Continuously streaming sensors (live heart rate, CGM readings, smart glasses video frames) push raw data intervals over WebSockets or WebRTC directly to high-throughput time-series buffers or the `cynthus-video` pipeline, bypassing the Service Bus entirely.
-2. **Warm Path:** `cynthus-messaging` summarizes hot path data into structured time-slice snapshots (`public.device.telemetry.streamed`) or emits anomaly flags (`internal.video.anomaly.detected`) onto the choreography bus for downstream analytical processing.
+2. **Warm Path:** `cynthus-device` summarizes hot path data into structured time-slice snapshots (`public.device.telemetry.streamed`) or emits anomaly flags (`internal.video.anomaly.detected`) onto the choreography bus for downstream analytical processing.
 
 ---
 
