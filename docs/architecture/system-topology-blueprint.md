@@ -13,16 +13,12 @@
 * `cynthus-worker`: Manages background parallel data transformations, ingestion buffers, and async tasks.
 * `cynthus-core-db` & `cynthus-core-cache`: Dedicated persistence and Redis storage arrays.
 
-
-
 ### 2. Cynthus Infrastructure (The Messaging Pipe)
 
 * **Repository:** `cynthus-infra` (Segment: Open-Source Public)
 * **Services:**
 * `cynthus-messaging`: Azure Service Bus emulator workspace.
 * `cynthus-store`: SQL Server backing the local messaging state emulator.
-
-
 
 ### 3. Cynthus Intelligence (The Analytical Brains)
 
@@ -33,16 +29,12 @@
 * `cynthus-vision`: **[NEW]** Real-time computer vision proxy. Ingests smart glasses frame streams for spatial navigation mapping.
 * `cynthus-intel-db` & `cynthus-intel-cache`: Secure, private memory and persistence structures.
 
-
-
 ### 4. Cynthus Identity (Sovereign Trust & IAM)
 
 * **Repository:** `cynthus-identity` (Segment: Proprietary Closed-Source)
 * **Services:**
 * `cynthus-identity-api`: Authoritative multi-tenant access control and encryption clearinghouse.
 * `cynthus-identity-db` & `cynthus-identity-cache`: Protected data layer isolation.
-
-
 
 ### 5. Cynthus Portal (Clinical Remote Care)
 
@@ -52,8 +44,6 @@
 * `cynthus-portal-web`: Specialized user interface renderer tailored for clinical workflows.
 * `cynthus-portal-db` & `cynthus-portal-cache`: HIPAA-compliant, auditable persistence layers.
 
-
-
 ### 6. Cynthus Commerce (B2B Billing & Vendor Exchanges)
 
 * **Repository:** `cynthus-commerce` (Segment: Proprietary Closed-Source)
@@ -62,16 +52,12 @@
 * `cynthus-partner-portal`: **[NEW]** Ingress API and web interface for device vendors and asset suppliers to manage promotions.
 * `cynthus-commerce-db`: **[NEW]** Ledger tracking B2B transactions, affiliate referral balances, and corporate accounts.
 
-
-
 ### 7. Cynthus Auditing (Compliance Ledger)
 
 * **Repository:** `cynthus-audit` (Segment: Proprietary Closed-Source)
 * **Services:**
 * `cynthus-audit-api`: Cryptographic security tracing tool that enforces immutable logging controls.
 * `cynthus-audit-db`: WORM (Write Once, Read Many) secure audit database engine.
-
-
 
 ---
 
@@ -103,7 +89,7 @@ class ActorModel:
 
 class ResourceModel:
     id: str                 # Reference ID string of the underlying resource asset
-    type: str               # Resource enum: INVENTORY_LOCATION, INVENTORY_SHELF, RECIPE_LIBRARY, 
+    type: str               # Resource enum: INVENTORY_LOCATION, INVENTORY_SHELF, RECIPE_LIBRARY,
                             # SERVICE_REGISTRY, ENGAGEMENT_SPACE, USER_GROUP
     role: str               # Utility label: PRIMARY_STORAGE, SHARED_ARCHIVE, CLINICAL_WORKSPACE, EVENT_VENUE
 
@@ -132,8 +118,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `action_type: str` — Options: `GRANTED`, `REVOKED`, `MUTATED`
 * `role_level: str` — Options: `ADMIN`, `MANAGER`, `CONTRIBUTOR`, `VIEWER`
 
-
-
 #### `public.identity.session.invalidated`
 
 * **Initiating Event:** A client logs out, an identity session window times out, or active authorization parameters change.
@@ -144,8 +128,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `session_id: str` — Tracking key string.
 * `user_id: str` — Targeted actor ID signature.
 * `invalidation_reason: str` — Options: `USER_LOGOUT`, `TOKEN_EXPIRED`, `REVOKED_BY_ADMIN`
-
-
 
 ---
 
@@ -168,8 +150,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `max_value: float` — Maximum calculated metric.
 * `mean_value: float` — Average calculated metric.
 
-
-
 #### `public.device.threshold.breached`
 
 * **Initiating Event:** High-frequency time-series processing flags an out-of-bounds biometric reading or environmental danger parameter.
@@ -184,8 +164,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `severity_level: str` — Options: `CRITICAL_LOW`, `CRITICAL_HIGH`
 * `requires_escalation: bool` — Routing priority indicator.
 
-
-
 #### `public.device.battery.reported`
 
 * **Initiating Event:** A connected wearable peripheral pushes diagnostic data layers into the platform interface wrapper.
@@ -196,8 +174,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `device_id: str` — Core identity of target unit.
 * `battery_percent: int` — Integer parsing (`ge=0, le=100`).
 * `is_charging: bool` — Circuit connection state flag.
-
-
 
 ---
 
@@ -216,8 +192,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `current_quantity: int` — Resulting metric total post-mutation (`ge=0`).
 * `mutation_reason: str` — Options: `ITEM_REPLENISHED`, `ITEM_CONSUMED`, `WASTE_DISCARDED`
 
-
-
 #### `public.inventory.threshold.dropped`
 
 * **Initiating Event:** An inventory calculation step registers that a core item has fallen below a user's defined minimum safety threshold.
@@ -230,8 +204,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `remaining_quantity: int` — Current stock level.
 * `target_minimum: int` — Configured floor baseline limit.
 
-
-
 #### `public.inventory.item.expired`
 
 * **Initiating Event:** A background task parses storage arrays and flags an active item that has passed its shelf-life expiration date.
@@ -243,8 +215,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `item_id: str` — Target product SKU index.
 * `expiration_date: datetime` — Recorded shelf limit time.
 * `quantity_affected: int` — Total item volume impacted.
-
-
 
 ---
 
@@ -264,8 +234,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `structured_ingredients: list[dict]` — List containing items (`item_name`, `quantity`, `unit`).
 * `raw_text_payload: str` — Clean unstructured transcription engine output block.
 
-
-
 ---
 
 ### Supply Chain & Commerce Domain (`public.logistics.*`)
@@ -283,8 +251,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `total_cost: float` — Total cost tracking index.
 * `items_ordered: list[dict]` — Elements parsing objects (`item_id`, `quantity`, `unit_cost`).
 
-
-
 #### `public.logistics.promotion.registered`
 
 * **Initiating Event:** A corporate merchant updates their promotion cache or targets a discount profile code toward specific item shortages.
@@ -297,8 +263,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `target_item_sku: str` — Impacted catalog code.
 * `discount_value: float` — Percentage drop value parameters.
 * `expiration_timestamp: datetime` — Active campaign duration window.
-
-
 
 ---
 
@@ -316,8 +280,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `sender_id: str` — ID string of the speaker.
 * `content_body: str` — Structural message content or link card object string.
 
-
-
 #### `public.group.meal.proposed`
 
 * **Initiating Event:** A household member triggers a dining selection card to initiate a democratic dinner vote.
@@ -331,8 +293,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `meal_id: str` — Target meal identifier.
 * `recipe_id: str` — Structural index mapping the chosen recipe variation.
 
-
-
 #### `public.group.vote.cast`
 
 * **Initiating Event:** An individual group participant selects Yes or No on an active in-line voting card.
@@ -345,8 +305,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `voter_id: str` — Profile executing the transaction.
 * `vote_choice: str` — Options: `YES`, `NO`
 
-
-
 #### `public.group.vote.concluded`
 
 * **Initiating Event:** A meal vote meets absolute consensus thresholds or its timer duration window expires.
@@ -358,8 +316,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `group: ResourceModel` — Target group boundary context.
 * `final_status: str` — Options: `CONSENSUS_REACHED`, `STALEMATE_DETECTED`, `PROPOSAL_EXPIRED`
 * `vote_tally: dict` — Execution balance summary (e.g., `{"yes": 3, "no": 1}`).
-
-
 
 ---
 
@@ -377,8 +333,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `target_resource: ResourceModel` — Target item context evaluated.
 * `numerical_rating: float` — Sliding validation metric, populated if type is `RATED` (`ge=0.0, le=1.0`).
 
-
-
 #### `public.user.stamina.reported`
 
 * **Initiating Event:** A user pushes a qualitative statement or logs their physical energy level into the client UI.
@@ -389,8 +343,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `user_id: str` — Profile tracking identifier.
 * `stamina_score: int` — Value score scaling tracking bounds (`ge=1, le=5`).
 * `operational_override: str` — Options: `NEED_ALTERNATIVE_MEAL_OPTION`, `DELEGATE_LOGISTICS_TASKS`
-
-
 
 ---
 
@@ -409,8 +361,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `accessed_data_layers: list[str]` — Exact string list of data parameters decrypted.
 * `consent_token_signature: str` — Base64 access control verification token validation hash.
 
-
-
 ---
 
 ### Accessibility & LLM Management Domain (`internal.chat.*`)
@@ -426,8 +376,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `user_id: str` — Active user conversation tracking identifier.
 * `session_state: str` — Options: `INITIALIZED`, `CONTEXT_SHIFTED`, `TERMINATED_AND_COMPILED`
 
-
-
 #### `internal.chat.accessibility.compiled`
 
 * **Initiating Event:** A live dialogue window closes, prompting the platform to structure the output for clean screen reader execution.
@@ -439,8 +387,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `user_id: str` — Target profile identity.
 * `linear_text_tree: str` — Structured string payload completely stripped of layout visual indicators for clean linear screen-reader tree parsing.
 * `model_configuration_hash: str` — System compliance hash capturing active LLM architecture parameters.
-
-
 
 ---
 
@@ -459,8 +405,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `task_completion_ratio: float` — Evaluation index processing execution speeds.
 * `workload_variance_score: float` — Imbalance check measuring distribution gaps across actors.
 
-
-
 #### `internal.lifestyle.sentiment.pattern_matched`
 
 * **Initiating Event:** The pattern recognition engine identifies long-term variations in user behavior logs.
@@ -472,8 +416,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `detected_pattern: str` — Options: `SUSTAINED_LOW_ENERGY`, `TASTE_FATIGUE_DETECTED`, `VOTING_ISOLATION`
 * `confidence_score: float` — Accuracy measurement scaling tracking values (`ge=0.0, le=1.0`).
 * `source_interaction_ids: list[str]` — Array linking back to public interaction events that triggered the match.
-
-
 
 ---
 
@@ -492,8 +434,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `stream_source: str` — Options: `SMART_GLASSES`, `MOBILE_CAMERA`, `WEB_PORTAL`
 * `session_type: str` — Options: `CO_COOKING_HUMAN`, `ASSISTIVE_AI_VISION`
 
-
-
 #### `internal.video.spatial.mapped`
 
 * **Initiating Event:** The computer vision engine processes a frame from smart glasses and maps an asset's position relative to the user.
@@ -507,8 +447,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `relative_clock_position: int` — Angular tracking parameter mapping coordinates (`ge=1, le=12`).
 * `distance_metric_cm: float` — Spatial depth calculation from lens arrays.
 
-
-
 #### `internal.video.anomaly.detected`
 
 * **Initiating Event:** Real-time visual tracking detects a cooking hazard or a product selection mismatch during recipe assembly.
@@ -521,8 +459,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `active_recipe_step_id: str` — Active task module configuration step under review.
 * `observed_discrepancy: str` — Options: `INCORRECT_INGREDIENT_GRABBED`, `SAFETY_HAZARD_BURN_RISK`
 * `object_details: str` — Description details string (e.g., `HEAVY_CREAM_INSTEAD_OF_WHOLE_MILK`).
-
-
 
 ---
 
@@ -538,8 +474,6 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `session_id: str` — Validated session signature tracking identifier.
 * `transient_vault_key: str` — Short-lived cryptographic seed token string.
 
-
-
 #### `internal.system.subscription.updated`
 
 * **Initiating Event:** A billing event logs a transaction update, a tier shift, or activates a component booster upgrade.
@@ -550,4 +484,3 @@ This reference guide maps the exact interaction flow across the entire platform.
 * `account_id: str` — Sovereign account identification key string.
 * `structural_tier: str` — Options: `BASIC`, `PREMIUM`, `PROFESSIONAL`, `ENTERPRISE`
 * `active_boosters: list[dict]` — Array mapping objects detailing custom capacity limits (`booster_type`, `capacity_limit`).
-
