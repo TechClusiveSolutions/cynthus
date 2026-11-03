@@ -33,7 +33,7 @@ The Cynthus Life Ecosystem uses an asynchronous Choreographer Architecture. Micr
 
 ### 2.1 Deployment Network Boundaries
 
-To protect proprietary  intellectual property and prevent exposure of clinical, corporate, or financial operational resources, the system partitions cloud network space into isolated Azure Virtual Networks (VNets).
+To protect proprietary intellectual property and prevent exposure of clinical, corporate, or financial operational resources, the system partitions cloud network space into isolated Azure Virtual Networks (VNets).
 
 ```
                               [ Public Internet ]
@@ -54,7 +54,7 @@ To protect proprietary  intellectual property and prevent exposure of clinical, 
         | (Private IP)  |                             |
         v               v                             v
 +-----------------------------------------------+-----------------------------+
-| VNET-CYNTHUS-                      |                             |
+| VNET-CYNTHUS-INTELLIGENCE          |                             |
 | (Dark Subnet — No Public IPs — Closed Source)  |  Azure Service Bus          |
 |                                               |  (3-Topic Choreographer)    |
 | cynthus-chat   cynthus-analysis   cynthus-video|                             |
@@ -62,10 +62,10 @@ To protect proprietary  intellectual property and prevent exposure of clinical, 
 ```
 
 - **`vnet-cynthus-core`:** Publicly routed subnet. Hosts `cynthus-core-api` and `cynthus-core-web`. Accepts external connections over HTTPS and WebSocket protocols. All community-contributed open-source services run here.
-- **`vnet-cynthus-`:** Private dark subnet. No public IP allocations. No public endpoints. Hosts `cynthus-chat`, `cynthus-analysis`, and `cynthus-video`. Reachable only via Azure VNet Peering from Core. The  subnet makes no outbound runtime calls to Core services — it receives only pre-assembled context payloads.
+- **`vnet-cynthus-intelligence`:** Private dark subnet. No public IP allocations. No public endpoints. Hosts `cynthus-chat`, `cynthus-analysis`, and `cynthus-video`. Reachable only via Azure VNet Peering from Core. The Intelligence subnet makes no outbound runtime calls to Core services — it receives only pre-assembled context payloads.
 - **`vnet-cynthus-health`:** DMZ subnet. Hosts `cynthus-health-api`, `cynthus-health-web`, and `cynthus-messaging`. Enforces HIPAA consent token verification and immutable audit emission before any data exchange with external clinical partners.
 
-Cross-VNet conversational streaming: `cynthus-core-api` routes user WebSocket sessions to `cynthus-chat` via private IP over the VNet Peering bridge, bypassing Service Bus latency. Internal AI-to-AI queries between `cynthus-chat` and `cynthus-analysis` run via synchronous gRPC within the private  namespace.
+Cross-VNet conversational streaming: `cynthus-core-api` routes user WebSocket sessions to `cynthus-chat` via private IP over the VNet Peering bridge, bypassing Service Bus latency. Internal AI-to-AI queries between `cynthus-chat` and `cynthus-analysis` run via synchronous gRPC within the private Intelligence namespace.
 
 ---
 
@@ -90,7 +90,7 @@ Governed by open-source community contribution. Handles physical data domains, l
 
 | Service | Function |
 |---|---|
-| `cynthus-core-api` | Primary public HTTPS/REST and WebSocket edge. Handles user sessions, context assembly, and request routing to . |
+| `cynthus-core-api` | Primary public HTTPS/REST and WebSocket edge. Handles user sessions, context assembly, and request routing to Intelligence. |
 | `cynthus-inventory` | Predictive state management for pantry, fridge, and freezer items. Processes physical asset mutations (<200ms latency). |
 | `cynthus-recipe` | Recipe library management, external recipe ingestion, OCR parsing, and constraint-filtered recipe query API. |
 | `cynthus-logistics` | Purchase manifests, automated reorders, delivery tracking, and external supplier integrations. |
@@ -102,7 +102,7 @@ Governed by open-source community contribution. Handles physical data domains, l
 | `cynthus-core-cache` | High-speed caching layer for Core domain services. |
 | `cynthus-core-db` | Clustered persistent storage with schema-isolated partitions per Core service. |
 
-#### Cynthus  — Closed-Source
+#### Cynthus Intelligence — Closed-Source
 
 Private dark subnet. Contains no public IP allocations. All inbound data arrives as pre-assembled context payloads via VNet Peering from Core. Makes no outbound runtime calls to Core services.
 
@@ -111,8 +111,8 @@ Private dark subnet. Contains no public IP allocations. All inbound data arrives
 | `cynthus-chat` | Runtime for the Astri AI persona. Processes pre-assembled context payloads and generates streaming conversational responses. |
 | `cynthus-analysis` | Autonomous AI agent executing predictive lifestyle analysis, biometric trend modeling, Harmony index computation, and sentiment analysis. |
 | `cynthus-video` | Smart glasses HUD pipeline. Processes real-time video frames, calculates spatial coordinates, and generates clock-face orientation guidance for low-vision users. |
-| `cynthus-intel-cache` | High-speed caching layer for  domain services. |
-| `cynthus-intel-db` | Clustered persistent storage with schema-isolated partitions per  service. |
+| `cynthus-intel-cache` | High-speed caching layer for Intelligence domain services. |
+| `cynthus-intel-db` | Clustered persistent storage with schema-isolated partitions per Intelligence service. |
 
 #### Cynthus Health — Closed-Source
 
@@ -213,7 +213,7 @@ Processing sensitive workspace or clinical telemetry requires a localized key ex
 
 ## 4. Context Assembly Pattern
 
-The context assembly pattern is the critical boundary between open-source Core and closed-source . It ensures the  subnet remains dark and dependency-free while still giving Astri everything she needs to generate accurate, safe, and personalized responses.
+The context assembly pattern is the critical boundary between open-source Core and closed-source Intelligence. It ensures the Intelligence subnet remains dark and dependency-free while still giving Astri everything she needs to generate accurate, safe, and personalized responses.
 
 ### 4.1 Responsibilities
 
@@ -256,14 +256,14 @@ Streaming token response --> cynthus-core-api --> User (WebSocket)
 
 The constraint-filtered recipe query (`GET /recipe/candidates`) applies the allergy hard-filter inside `cynthus-recipe` using the constraint set retrieved from `cynthus-profile`. No recipe result set is ever passed to `cynthus-chat` that has not already been validated against the user's hard constraints. Astri cannot suggest an unsafe recipe because unsafe candidates are never present in the context payload she receives.
 
-### 4.3  Isolation Guarantee
+### 4.3 Intelligence Isolation Guarantee
 
-`cynthus-chat` has no HTTP clients, service discovery configurations, or network routes pointing to any Core service at runtime. The only inbound path to the  VNet is:
+`cynthus-chat` has no HTTP clients, service discovery configurations, or network routes pointing to any Core service at runtime. The only inbound path to the Intelligence VNet is:
 
 - Assembled context payloads via VNet Peering from `cynthus-core-api` (conversational).
 - Aggregated warm-path telemetry events from the Service Bus (analytical, handled by `cynthus-analysis`).
 
-This eliminates bidirectional runtime dependencies between Core and , protecting closed-source IP and enabling community contributors to develop and test Core context assembly logic independently.
+This eliminates bidirectional runtime dependencies between Core and Intelligence, protecting closed-source IP and enabling community contributors to develop and test Core context assembly logic independently.
 
 ---
 
@@ -490,7 +490,7 @@ Every write to a user's hard-constraint profile in `cynthus-profile` emits an `i
 
 ### 8.3 AI Governance & Transparency
 
-To satisfy applicable state-level AI governance frameworks (e.g., TRAIGA), any automated clinical insights or lifestyle assessments generated by  services must append a `model_configuration_hash` metadata block certifying the exact LLM configuration version utilized. This disclosure is mandatory within any medical context and is enforced at the `cynthus-chat` response serialization layer.
+To satisfy applicable state-level AI governance frameworks (e.g., TRAIGA), any automated clinical insights or lifestyle assessments generated by Intelligence services must append a `model_configuration_hash` metadata block certifying the exact LLM configuration version utilized. This disclosure is mandatory within any medical context and is enforced at the `cynthus-chat` response serialization layer.
 
 ---
 
@@ -522,7 +522,7 @@ All Astri response payloads are subject to the following formatting constraints 
 
 - ✅ Complete protection of closed-source intellectual property.
 - ✅ Decoupled release management cycles for Core vs.  layers.
-- ✅ Full type safety inside the dark  subnet.
+- ✅ Full type safety inside the dark Intelligence subnet.
 - ⚠️ Open-source pass-through services lose compile-time IDE auto-completion for private signal inner fields.
 
 ---
