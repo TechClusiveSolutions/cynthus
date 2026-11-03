@@ -2,6 +2,7 @@
 
 Design documents, engineering standards and shared tooling for the Cynthus Life platform.
 
+- [`docs/README.md`](docs/README.md): index of the master PRD, architecture, roadmap, feature map and signal map.
 - [`docs/engineering-standards.md`](docs/engineering-standards.md): how we write, test, review and merge code.
 - [`docs/adr/`](docs/adr): architecture decision records.
 - [`docs/architecture/web-app-conversion-plan.md`](docs/architecture/web-app-conversion-plan.md): moving the prototype

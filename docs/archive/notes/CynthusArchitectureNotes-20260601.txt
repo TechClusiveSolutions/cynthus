@@ -1,0 +1,270 @@
+The short answer is **no, you do not need to manually connect, disconnect, or yield the Azure Service Bus router inside your custom `lifespan` function** like you do with the standard `aioredis` client.
+
+Because you are using FastStream's `AzureServiceBusRouter`, FastStream automatically hooks into FastAPI's lifespan orchestration behind the scenes. When you call `application.include_router(event)`, FastStream registers its own internal startup and shutdown hooks to handle the AMQP connections, connection pools, and listener loops seamlessly.
+
+However, you *do* have to make a slight modification to how you construct your `FastAPI` instance so that FastStream can properly inject those lifespan hooks without completely stepping on your existing Redis/Postgres lifespan logic.
+
+Here is how you should update your initialization script to switch smoothly:
+
+### The Updated Startup Code
+
+Instead of passing your raw `lifespan` directly to `FastAPI()`, you wrap your custom lifespan inside FastStream's context manager using `event.lifespan`. This gracefully chains your Redis pooling together with the Service Bus connection state.
+
+```python
+"""Analysis initialization script for the Cynthus project"""
+
+import logging
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from os import environ
+from redis import asyncio as aioredis
+
+# Assuming event is your new AzureServiceBusRouter
+from analysis.routes import event, system
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def custom_lifespan(application: FastAPI):
+    # --- Keep your existing Redis/Postgres initialization here ---
+    host = environ.get('CACHE_HOST')
+    port = environ.get('CACHE_PORT')
+    username = environ.get('CACHE_USERNAME')
+    password = environ.get('CACHE_PASSWORD')
+    url = f'redis://{username}:{password}@{host}:{port}/0'
+    client = aioredis.from_url(url)
+
+    application.state.redis = client
+
+    # Hand control over to the application (and FastStream's internal hooks)
+    yield
+
+    # --- Shutdown: Close Redis pool ---
+    await application.state.redis.close()
+
+
+def initialize():
+    logger.debug('Configuring API application')
+
+    # 1. Create your FastAPI app, linking FastStream's chained lifespan
+    application = FastAPI(lifespan=event.lifespan(custom_lifespan))
+
+    # 2. Include your routers normally
+    application.include_router(event)
+    application.include_router(system)
+
+    return application
+
+
+app = initialize()
+
+```
+
+### What changes here?
+
+1. **`event.lifespan(custom_lifespan)`**: This is the magic wrapper. It tells FastStream: *"Hey, run your Azure Service Bus connection logic and spin up the background consumer threads, but also execute my custom Redis startup/shutdown logic right alongside it."*
+2. **State Sharing**: FastStream safely preserves `application.state`, so your endpoints and event handlers can still access `request.app.state.redis` or your database engines exactly as they do today.
+3. **Clean Shutdown**: When FastAPI receives a termination signal (`SIGTERM`), FastStream will gracefully drain any active messages currently being processed by your handlers, close the AMQP channels to the Azure emulator, and then execute your `await application.state.redis.close()` cleanup step.
+
+
+Since you are already using `FastStream`'s brilliant FastAPI integration for Redis, transitioning this logic to Azure Service Bus is incredibly smooth. FastStream has first-class support for Azure Service Bus, allowing you to drop in an `AzureServiceBusRouter` in place of your `RedisRouter`.
+
+To handle the workflow where you receive an event on a subscription and then publish a new event out to the topic, you can leverage FastStream's built-in `@publisher` decorator right alongside the subscriber.
+
+Here is how you can adapt your current code to run seamlessly with the Azure Service Bus emulator:
+
+### 1. Install the Azure Service Bus Dependency
+
+First, make sure you have the required Azure Service Bus extra installed for FastStream:
+
+```bash
+pip install "faststream[azure]"
+
+```
+
+### 2. The Updated Router Code
+
+Here is how to rewrite your router to connect to the local emulator, subscribe to a specific subscription on your topic, parse the event, and publish a response event.
+
+```python
+"""Event routes for the Cynthus project utilizing Azure Service Bus"""
+
+import logging
+from os import environ
+from typing import Dict, Any
+
+from faststream.azure.fastapi import AzureServiceBusRouter
+from faststream.azure import AzureServiceBusTopic, AzureServiceBusSubscription
+
+logger = logging.getLogger(__name__)
+
+def get_connection_string() -> str:
+    # Default to the local emulator connection string structure if env vars aren't set
+    return environ.get(
+        'SERVICE_BUS_CONNECTION_STRING',
+        'Endpoint=sb://localhost:5672;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;'
+    )
+
+# Initialize the Azure Service Bus Router
+event = AzureServiceBusRouter(get_connection_string())
+
+
+@event.subscriber(
+    # The subscription this specific microservice instance listens to
+    subscription=AzureServiceBusSubscription(
+        name="cynthus-analysis-sub",
+        topic=AzureServiceBusTopic(name="cynthus-events-topic")
+    )
+)
+@event.publisher(
+    # Where this handler will automatically send its return value
+    topic=AzureServiceBusTopic(name="cynthus-events-topic")
+)
+async def handle_suggestion_accepted_event(data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Receives an event from the subscription, processes it, 
+    and publishes the downstream event automatically.
+    """
+    logger.info(f"Received a suggestion accepted event: {data}")
+    
+    # Process your business logic here (e.g., Celery task invocation or Postgres mutation)
+    # user_id = data.get("user_id")
+    # ...
+    
+    logger.info("Processing complete. Dispatching downstream event.")
+
+    # Returning a dictionary here automatically publishes it to the target 
+    # topic defined in the @event.publisher decorator above.
+    return {
+        "event_type": "meal.suggestion.processing.started",
+        "status": "initiated",
+        "payload": {
+            "details": "Triggering downstream choreography slice."
+        }
+    }
+
+```
+
+---
+
+### How this works under the hood:
+
+1. **The Core Topic Setup:** Both the subscriber and publisher target `"cynthus-events-topic"`. This matches the single-aggregate-topic choreography pattern we established in your `service-bus.json`.
+2. **The Virtual Queue (`subscription`):** The subscriber specifically listens to `"cynthus-analysis-sub"`. The local emulator will ensure that only messages copied into that specific subscription are pulled by this worker.
+3. **Pipelined Publishing:** The `@event.publisher(...)` decorator intercepts the `return` statement of your function. Whatever dictionary or Pydantic model you return from the function is instantly serialized and kicked back out into the Service Bus ecosystem as a new message.
+
+### Including the Router in your Main FastAPI App
+
+Just like you did with Redis, you'll want to make sure your main FastAPI application includes this router so its lifespan startup/shutdown hooks handle the AMQP connections properly:
+
+```python
+from fastapi import FastAPI
+from my_project.routes import event
+
+app = FastAPI()
+
+# Include the faststream router into your FastAPI instance
+app.include_router(event)
+
+```
+
+Would you like to see how to apply FastStream's runtime `Filter` syntax here so this handler *only* executes when the incoming message has a specific event type flag attached to it?
+
+
+To filter messages efficiently in FastStream using Azure Service Bus, you can leverage **Custom Application Properties** (often called message headers or user properties) alongside FastStream's runtime `filter` argument.
+
+When a message is published, we attach an `event_type` property to it. The subscriber then looks at that metadata *before* executing the function body, ensuring your worker doesn’t waste resources processing unrelated events.
+
+Here is how you can implement filtering natively using FastStream:
+
+### 1. The Filtered Subscriber & Publisher Code
+
+We will use FastStream's built-in `Filter` utility to inspect the `message.properties` before hitting your handler.
+
+```python
+"""Event routes with metadata filtering for Cynthus"""
+
+import logging
+from typing import Dict, Any
+from os import environ
+
+from faststream.azure.fastapi import AzureServiceBusRouter
+from faststream.azure import AzureServiceBusTopic, AzureServiceBusSubscription
+# Import the Message object to inspect headers/properties
+from faststream.azure import AzureServiceBusMessage 
+
+logger = logging.getLogger(__name__)
+
+event = AzureServiceBusRouter(
+    environ.get('SERVICE_BUS_CONNECTION_STRING', 'Endpoint=sb://localhost:5672;...')
+)
+
+# 1. Define a reusable filter function
+def filter_suggestion_accepted(msg: AzureServiceBusMessage) -> bool:
+    """Only returns True if the message metadata matches our target event type."""
+    # Custom application properties live inside msg.properties
+    event_type = msg.properties.get(b"event_type", b"").decode("utf-8")
+    return event_type == "suggestion.accepted"
+
+
+# 2. Apply the filter to the subscriber
+@event.subscriber(
+    subscription=AzureServiceBusSubscription(
+        name="cynthus-analysis-sub",
+        topic=AzureServiceBusTopic(name="cynthus-events-topic")
+    ),
+    filter=filter_suggestion_accepted # High-performance Python-side filter
+)
+@event.publisher(
+    topic=AzureServiceBusTopic(name="cynthus-events-topic")
+)
+async def handle_suggestion_accepted_event(data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    This code ONLY runs if filter_suggestion_accepted returns True.
+    """
+    logger.info(f"Processing filtered 'suggestion.accepted' payload: {data}")
+    
+    # Process your core business logic...
+    
+    # 3. Explicitly set application properties on the outbound message
+    # In FastStream, you can return an AzureServiceBusMessage object 
+    # to control headers/properties on publish.
+    from faststream.azure import AzureServiceBusMessage as PublishMessage
+    
+    response_payload = {
+        "status": "initiated",
+        "payload": {"details": "Triggering downstream choreography slice."}
+    }
+    
+    return PublishMessage(
+        body=response_payload,
+        properties={
+            "event_type": "meal.suggestion.processing.started"
+        }
+    )
+
+```
+
+---
+
+### What’s Happening Under the Hood?
+
+* **The Python-Side Filter (`filter=...`)**: FastStream pulls messages from the local subscription `cynthus-analysis-sub`. Before decoding the JSON payload, it hands the raw message to your `filter_suggestion_accepted` function. If it doesn't match, FastStream immediately drops or skips it (depending on your setup) without spinning up resources or hitting your handler code.
+* **Property Serialization**: Notice that Azure Service Bus properties are often read as `bytes` keys/values depending on the AMQP client layer, which is why we safely check for `b"event_type"` and call `.decode("utf-8")`.
+* **Outbound Metadata**: By wrapping our return value in an explicit `PublishMessage`, we guarantee that the *next* microservice listening down the chain can read the new `"event_type": "meal.suggestion.processing.started"` flag instantly.
+
+### Alternative: Pure Cloud-Side SQL Filters
+
+While FastStream's Python filters work out of the box with the local emulator without any extra setup, in a **production cloud Azure environment**, you would ideally offload this to Azure's infrastructure using a **SQL Filter Rule** directly on the Service Bus subscription itself:
+
+```sql
+-- This runs on Azure hardware, preventing unwanted messages 
+-- from ever traveling over the network to your FastAPI container.
+sys.To IS NULL AND event_type = 'suggestion.accepted'
+
+```
+
+If you plan to deploy this infrastructure via tools like Terraform or the Azure CLI later, you can configure those SQL rules on the cloud subscriptions, allowing your FastStream code to remain completely pristine and focused just on the data payload.
+
+Do you want to take a look at how to structure a quick integration test using FastStream's `TestAzureServiceBus` context manager to verify this routing logic locally?
