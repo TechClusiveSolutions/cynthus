@@ -1043,6 +1043,12 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 | FT-AM-001 | `audit.account.contact_updated` | audit | `cynthus-core-api` | `cynthus-audit` | User changed their name, email, or phone number |
 | FT-AM-002 | `internal.profile.soft_preferences.updated` | internal | `cynthus-profile` | `cynthus-chat`, `cynthus-audit` | Soft preferences updated (cuisine, portion size, Energy Banker baseline, venue) |
 | FT-AM-002 | `audit.profile.hard_constraint.updated` | audit | `cynthus-profile` | `cynthus-audit` | Hard constraint changed (allergen added or removed, medical condition updated); safety-critical; requires immutable audit entry |
+| FT-AM-002 | `public.profile.profile.requested` | public | `cynthus-core-api` | `cynthus-profile`, `cynthus-audit` | A caller asked to create, get, update or delete their own profile; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Profile service |
+| FT-AM-002 | `public.profile.profile.responded` | public | `cynthus-profile` | `cynthus-core-api`, `cynthus-audit` | The Profile service's answer with an HTTP-style status and the profile or error; the API relays it only to the caller who asked |
+| FT-AM-002 | `public.profile.profile.created` | public | `cynthus-profile` | `cynthus-audit` | A profile was created; names which parts were set, not their contents |
+| FT-AM-002 | `public.profile.profile.updated` | public | `cynthus-profile` | `cynthus-audit` | A profile was changed; names which parts changed, not their contents |
+| FT-AM-002 | `public.profile.profile.deleted` | public | `cynthus-profile` | `cynthus-audit` | A profile was deleted; names which parts it held, not their contents |
+| FT-AM-002 | `public.profile.snapshot.published` | public | `cynthus-profile` | `cynthus-analysis`, `cynthus-audit` | A user signed in and has a profile: the profile (allergies, likes, dislikes, favorites, conditions) is pushed for the Analysis engine to correlate with inventory and shopping patterns |
 | FT-AM-003 | *(handled by billing signals; see FT-BL-001)* | — | — | — | Subscription preference changes route through cynthus-billing-api |
 | FT-AM-004, FT-AM-005, FT-AM-006, FT-AM-007 | `audit.account.business_profile_updated` | audit | `cynthus-core-api` | `cynthus-audit` | Business or partner profile details changed |
 | FT-AM-008 | `internal.account.deletion_requested` | internal | `cynthus-core-api` | `cynthus-scheduler`, `cynthus-audit` | User submitted account deletion request; 30-day grace period clock started |
@@ -1051,6 +1057,8 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 | FT-AM-009 | `internal.profile.notification_preferences.updated` | internal | `cynthus-profile` | `cynthus-notification`, `cynthus-scheduler` | User updated notification channel, per-type toggles, quiet hours, or batching preferences |
 | FT-AM-010 | `internal.account.onboarding_started` | internal | `cynthus-core-api` | `cynthus-audit` | First-run wizard launched for new user |
 | FT-AM-010 | `internal.account.onboarding_completed` | internal | `cynthus-core-api` | `cynthus-chat`, `cynthus-audit` | Onboarding wizard completed; Astri greeting session triggered |
+
+**Profile request and response.** The profile request, response, fact and snapshot signals are `public.*` by decision, although the other profile signals above are `internal.*`. Allergies and medical conditions are hard constraints: the Profile service publishes `audit.profile.hard_constraint.updated` before it commits a change to them, and refuses the change if it cannot. Profile signal bodies hold health information and are never logged.
 
 ### Sample Payloads — Account Management
 
@@ -1443,7 +1451,7 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 | FT-SI-001 | `audit.identity.svid.revoked` | audit | `spire-server` | `cynthus-audit` | SVID revoked; potential container compromise or policy violation |
 | FT-SI-002 | `audit.identity.token_exchanged` | audit | `cynthus-core-api` | `cynthus-audit` | External JWT successfully exchanged for internal context headers |
 | FT-SI-002 | `audit.identity.token_exchange_failed` | audit | `cynthus-core-api` | `cynthus-audit`, `cynthus-notification` | Token exchange rejected (invalid, expired, or tampered JWT); security event |
-| FT-SI-004 | `audit.identity.user.authenticated` | audit | `cynthus-identity` | `cynthus-audit` | A user signed in with correct credentials. Carries the user id and username; never the password |
+| FT-SI-004 | `audit.identity.user.authenticated` | audit | `cynthus-identity` | `cynthus-audit`, `cynthus-profile` | A user signed in with correct credentials. Carries the user id and username; never the password |
 | FT-SI-004 | `audit.identity.user.rejected` | audit | `cynthus-identity` | `cynthus-audit` | A sign-in was refused. Carries the username that was tried and no tenant (nil UUID); never the password |
 | FT-SI-004 | `audit.identity.token.issued` | audit | `cynthus-identity` | `cynthus-audit` | An access token was issued. Carries the token id (`jti`), signing key id, lifetime, roles and permissions; never the token |
 | FT-SI-005 | `audit.identity.access.granted` | audit | `cynthus-core-api`, `cynthus-inventory` | `cynthus-audit` | A request carried a valid token that grants the permission it needs (HTTP 2xx path) |
