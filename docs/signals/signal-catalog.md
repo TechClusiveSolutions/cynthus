@@ -192,6 +192,9 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 | FT-IM-001 | `public.inventory.location.created` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | A new named inventory location was created |
 | FT-IM-001 | `public.inventory.location.updated` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | Location metadata (name, type, config) was changed |
 | FT-IM-001 | `public.inventory.location.deleted` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-shopping`, `cynthus-audit` | Location was removed; shopping service clears any procurement links |
+| FT-IM-001 | `public.inventory.shelf.created` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | A new shelf was created within a location |
+| FT-IM-001 | `public.inventory.shelf.updated` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | Shelf name or position was changed |
+| FT-IM-001 | `public.inventory.shelf.deleted` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | Shelf was removed along with its items and owners |
 | FT-IM-002 | `audit.inventory.location.role_assigned` | audit | `cynthus-core-api` | `cynthus-audit` | RBAC role granted on an inventory location |
 | FT-IM-002 | `audit.inventory.location.role_revoked` | audit | `cynthus-core-api` | `cynthus-audit` | RBAC role revoked on an inventory location |
 | FT-IM-003 | `public.inventory.item.added` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item added to a location; cache updated; scheduler registers expiry watch |

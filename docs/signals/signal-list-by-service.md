@@ -1,7 +1,7 @@
 # Signals by service
 
 **Version:** 1.0 (2026-11-03)  
-**Generated from:** `signal-catalog.md` v1.0 (175 signals with a publisher and consumers; 35 more features are synchronous or in-process and publish nothing). The tables are derived from the catalog: when the catalog changes, update them to match.  
+**Generated from:** `signal-catalog.md` v1.0 (178 signals with a publisher and consumers; 35 more features are synchronous or in-process and publish nothing). The tables are derived from the catalog: when the catalog changes, update them to match.  
 **Supersedes:** `signal-handling-matrix.md` (2026-06-01, topic-level), now in `archive/signals/`.
 
 ## How to read this
@@ -14,8 +14,8 @@
 
 | Service | Publishes | Consumes |
 |---|---|---|
-| `cynthus-core-api` | 64 | 21 |
-| `cynthus-core-cache` | 1 | 7 |
+| `cynthus-core-api` | 67 | 21 |
+| `cynthus-core-cache` | 1 | 10 |
 | `cynthus-recipe` | 15 | 8 |
 | `cynthus-profile` | 8 | 1 |
 | `cynthus-shopping` | 21 | 3 |
@@ -40,7 +40,7 @@
 
 Primary edge for user interactions; context assembly.
 
-**Publishes (64 signals)**
+**Publishes (67 signals)**
 
 | Signal | Topic | Consumers |
 |---|---|---|
@@ -58,6 +58,9 @@ Primary edge for user interactions; context assembly.
 | `public.inventory.location.created` | public | `cynthus-core-cache`, `cynthus-audit` |
 | `public.inventory.location.updated` | public | `cynthus-core-cache`, `cynthus-audit` |
 | `public.inventory.location.deleted` | public | `cynthus-core-cache`, `cynthus-shopping`, `cynthus-audit` |
+| `public.inventory.shelf.created` | public | `cynthus-core-cache`, `cynthus-audit` |
+| `public.inventory.shelf.updated` | public | `cynthus-core-cache`, `cynthus-audit` |
+| `public.inventory.shelf.deleted` | public | `cynthus-core-cache`, `cynthus-audit` |
 | `audit.inventory.location.role_assigned` | audit | `cynthus-audit` |
 | `audit.inventory.location.role_revoked` | audit | `cynthus-audit` |
 | `public.inventory.item.added` | public | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` |
@@ -151,13 +154,16 @@ Caching for core services.
 |---|---|---|
 | `internal.cache.sync.invalidated` | internal | `cynthus-core-api` |
 
-**Consumes (7 signals)**
+**Consumes (10 signals)**
 
 | Signal | Publisher |
 |---|---|
 | `public.inventory.location.created` | `cynthus-core-api` |
 | `public.inventory.location.updated` | `cynthus-core-api` |
 | `public.inventory.location.deleted` | `cynthus-core-api` |
+| `public.inventory.shelf.created` | `cynthus-core-api` |
+| `public.inventory.shelf.updated` | `cynthus-core-api` |
+| `public.inventory.shelf.deleted` | `cynthus-core-api` |
 | `public.inventory.item.added` | `cynthus-core-api` |
 | `public.inventory.item.updated` | `cynthus-core-api` |
 | `public.inventory.item.removed` | `cynthus-core-api` |
