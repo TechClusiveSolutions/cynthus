@@ -189,17 +189,17 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 
 | Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
 |---|---|---|---|---|---|
-| FT-IM-001 | `public.inventory.location.created` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | A new named inventory location was created |
-| FT-IM-001 | `public.inventory.location.updated` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | Location metadata (name, type, config) was changed |
-| FT-IM-001 | `public.inventory.location.deleted` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-shopping`, `cynthus-audit` | Location was removed; shopping service clears any procurement links |
-| FT-IM-001 | `public.inventory.shelf.created` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | A new shelf was created within a location |
-| FT-IM-001 | `public.inventory.shelf.updated` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | Shelf name or position was changed |
-| FT-IM-001 | `public.inventory.shelf.deleted` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | Shelf was removed along with its items and owners |
+| FT-IM-001 | `public.inventory.location.created` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | A new named inventory location was created |
+| FT-IM-001 | `public.inventory.location.updated` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | Location metadata (name, type, config) was changed |
+| FT-IM-001 | `public.inventory.location.deleted` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-shopping`, `cynthus-audit` | Location was removed; shopping service clears any procurement links |
+| FT-IM-001 | `public.inventory.shelf.created` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | A new shelf was created within a location |
+| FT-IM-001 | `public.inventory.shelf.updated` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | Shelf name or position was changed |
+| FT-IM-001 | `public.inventory.shelf.deleted` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | Shelf was removed along with its items and owners |
 | FT-IM-002 | `audit.inventory.location.role_assigned` | audit | `cynthus-core-api` | `cynthus-audit` | RBAC role granted on an inventory location |
 | FT-IM-002 | `audit.inventory.location.role_revoked` | audit | `cynthus-core-api` | `cynthus-audit` | RBAC role revoked on an inventory location |
-| FT-IM-003 | `public.inventory.item.added` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item added to a location; cache updated; scheduler registers expiry watch |
-| FT-IM-003 | `public.inventory.item.updated` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item quantity or metadata changed |
-| FT-IM-003 | `public.inventory.item.removed` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item removed from location |
+| FT-IM-003 | `public.inventory.item.added` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item added to a location; cache updated; scheduler registers expiry watch |
+| FT-IM-003 | `public.inventory.item.updated` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item quantity or metadata changed |
+| FT-IM-003 | `public.inventory.item.removed` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item removed from location |
 | FT-IM-004 | `internal.inventory.location.subscription_created` | internal | `cynthus-core-api` | `cynthus-notification`, `cynthus-audit` | User subscribed to alerts for a specific location |
 | FT-IM-004 | `internal.inventory.location.subscription_removed` | internal | `cynthus-core-api` | `cynthus-notification`, `cynthus-audit` | User unsubscribed from location alerts |
 | FT-IM-005, FT-IM-006 | `public.inventory.item.low` | public | `cynthus-scheduler` | `cynthus-notification`, `cynthus-chat`, `cynthus-shopping`, `cynthus-audit` | Item quantity crossed below the user-defined minimum threshold; notification fans out to owner and location subscribers; shopping service auto-appends to active procurement list |
@@ -1431,7 +1431,15 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 | FT-SI-001 | `audit.identity.svid.revoked` | audit | `spire-server` | `cynthus-audit` | SVID revoked; potential container compromise or policy violation |
 | FT-SI-002 | `audit.identity.token_exchanged` | audit | `cynthus-core-api` | `cynthus-audit` | External JWT successfully exchanged for internal context headers |
 | FT-SI-002 | `audit.identity.token_exchange_failed` | audit | `cynthus-core-api` | `cynthus-audit`, `cynthus-notification` | Token exchange rejected (invalid, expired, or tampered JWT); security event |
+| FT-SI-004 | `audit.identity.user.authenticated` | audit | `cynthus-identity` | `cynthus-audit` | A user signed in with correct credentials. Carries the user id and username; never the password |
+| FT-SI-004 | `audit.identity.user.rejected` | audit | `cynthus-identity` | `cynthus-audit` | A sign-in was refused. Carries the username that was tried and no tenant (nil UUID); never the password |
+| FT-SI-004 | `audit.identity.token.issued` | audit | `cynthus-identity` | `cynthus-audit` | An access token was issued. Carries the token id (`jti`), signing key id, lifetime, roles and permissions; never the token |
+| FT-SI-005 | `audit.identity.access.granted` | audit | `cynthus-core-api`, `cynthus-inventory` | `cynthus-audit` | A request carried a valid token that grants the permission it needs (HTTP 2xx path) |
+| FT-SI-005 | `audit.identity.access.rejected` | audit | `cynthus-core-api`, `cynthus-inventory` | `cynthus-audit` | A request had no valid token: missing, malformed, expired, forged or for another caller (HTTP 401); security event |
+| FT-SI-005 | `audit.identity.access.denied` | audit | `cynthus-core-api`, `cynthus-inventory` | `cynthus-audit` | A valid token lacked the permission the request needs (HTTP 403): the role-based access violation; security event |
 | FT-SI-003 | `audit.system.ledger.entry_written` | audit | `cynthus-audit` | SIEM / archive system | Audit entry committed to write-once ledger; consumed by external SIEM integrations |
+
+**Reading the access signals.** `audit.identity.access.rejected` means the caller could not be identified (401). `audit.identity.access.denied` means the caller was identified but their role does not allow the request (403), so it is the signal that shows a role-based access violation. Signals about an unknown caller carry the nil UUID as organization, workspace and actor. The `identity` publisher is the auth container; the API and Inventory services publish the access signals for the requests they check, so a request the API forwards to Inventory is recorded by both.
 
 ### Sample Payloads — Security and Identity
 

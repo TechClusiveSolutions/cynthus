@@ -1,7 +1,7 @@
 # Signals by service
 
 **Version:** 1.0 (2026-11-03)  
-**Generated from:** `signal-catalog.md` v1.0 (178 signals with a publisher and consumers; 35 more features are synchronous or in-process and publish nothing). The tables are derived from the catalog: when the catalog changes, update them to match.  
+**Generated from:** `signal-catalog.md` v1.0 (184 signals with a publisher and consumers; 35 more features are synchronous or in-process and publish nothing). The tables are derived from the catalog: when the catalog changes, update them to match.  
 **Supersedes:** `signal-handling-matrix.md` (2026-06-01, topic-level), now in `archive/signals/`.
 
 ## How to read this
@@ -14,16 +14,17 @@
 
 | Service | Publishes | Consumes |
 |---|---|---|
-| `cynthus-core-api` | 67 | 21 |
+| `cynthus-core-api` | 61 | 21 |
 | `cynthus-core-cache` | 1 | 10 |
+| `cynthus-inventory` | 12 | 0 |
 | `cynthus-recipe` | 15 | 8 |
 | `cynthus-profile` | 8 | 1 |
 | `cynthus-shopping` | 21 | 3 |
 | `cynthus-scheduler` | 9 | 13 |
 | `cynthus-worker` | 11 | 7 |
 | `cynthus-notification` | 0 | 41 |
-| `cynthus-identity` | 0 | 13 |
-| `cynthus-audit` | 1 | 127 |
+| `cynthus-identity` | 3 | 13 |
+| `cynthus-audit` | 1 | 133 |
 | `cynthus-chat` | 9 | 34 |
 | `cynthus-analysis` | 7 | 19 |
 | `cynthus-video` | 4 | 0 |
@@ -40,7 +41,7 @@
 
 Primary edge for user interactions; context assembly.
 
-**Publishes (67 signals)**
+**Publishes (61 signals)**
 
 | Signal | Topic | Consumers |
 |---|---|---|
@@ -55,17 +56,8 @@ Primary edge for user interactions; context assembly.
 | `public.meal.vote.initiated` | public | `cynthus-messaging`, `cynthus-notification`, `cynthus-audit` |
 | `public.meal.vote.cast` | public | `cynthus-analysis`, `cynthus-messaging`, `cynthus-audit` |
 | `public.meal.vote.resolved` | public | `cynthus-chat`, `cynthus-notification`, `cynthus-audit` |
-| `public.inventory.location.created` | public | `cynthus-core-cache`, `cynthus-audit` |
-| `public.inventory.location.updated` | public | `cynthus-core-cache`, `cynthus-audit` |
-| `public.inventory.location.deleted` | public | `cynthus-core-cache`, `cynthus-shopping`, `cynthus-audit` |
-| `public.inventory.shelf.created` | public | `cynthus-core-cache`, `cynthus-audit` |
-| `public.inventory.shelf.updated` | public | `cynthus-core-cache`, `cynthus-audit` |
-| `public.inventory.shelf.deleted` | public | `cynthus-core-cache`, `cynthus-audit` |
 | `audit.inventory.location.role_assigned` | audit | `cynthus-audit` |
 | `audit.inventory.location.role_revoked` | audit | `cynthus-audit` |
-| `public.inventory.item.added` | public | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` |
-| `public.inventory.item.updated` | public | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` |
-| `public.inventory.item.removed` | public | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` |
 | `internal.inventory.location.subscription_created` | internal | `cynthus-notification`, `cynthus-audit` |
 | `internal.inventory.location.subscription_removed` | internal | `cynthus-notification`, `cynthus-audit` |
 | `public.inventory.order.initiated` | public | `cynthus-partner-api`, `cynthus-billing-api`, `cynthus-audit` |
@@ -111,6 +103,9 @@ Primary edge for user interactions; context assembly.
 | `internal.worker.job.queued` | internal | `cynthus-worker` |
 | `audit.identity.token_exchanged` | audit | `cynthus-audit` |
 | `audit.identity.token_exchange_failed` | audit | `cynthus-audit`, `cynthus-notification` |
+| `audit.identity.access.granted` | audit | `cynthus-audit` |
+| `audit.identity.access.rejected` | audit | `cynthus-audit` |
+| `audit.identity.access.denied` | audit | `cynthus-audit` |
 
 **Consumes (21 signals)**
 
@@ -158,15 +153,15 @@ Caching for core services.
 
 | Signal | Publisher |
 |---|---|
-| `public.inventory.location.created` | `cynthus-core-api` |
-| `public.inventory.location.updated` | `cynthus-core-api` |
-| `public.inventory.location.deleted` | `cynthus-core-api` |
-| `public.inventory.shelf.created` | `cynthus-core-api` |
-| `public.inventory.shelf.updated` | `cynthus-core-api` |
-| `public.inventory.shelf.deleted` | `cynthus-core-api` |
-| `public.inventory.item.added` | `cynthus-core-api` |
-| `public.inventory.item.updated` | `cynthus-core-api` |
-| `public.inventory.item.removed` | `cynthus-core-api` |
+| `public.inventory.location.created` | `cynthus-inventory` |
+| `public.inventory.location.updated` | `cynthus-inventory` |
+| `public.inventory.location.deleted` | `cynthus-inventory` |
+| `public.inventory.shelf.created` | `cynthus-inventory` |
+| `public.inventory.shelf.updated` | `cynthus-inventory` |
+| `public.inventory.shelf.deleted` | `cynthus-inventory` |
+| `public.inventory.item.added` | `cynthus-inventory` |
+| `public.inventory.item.updated` | `cynthus-inventory` |
+| `public.inventory.item.removed` | `cynthus-inventory` |
 | `public.inventory.mutation.recorded` | `cynthus-core-api` |
 
 ### `cynthus-core-db`
@@ -179,7 +174,22 @@ No signals in the catalog.
 
 Inventory management.
 
-No signals in the catalog.
+**Publishes (12 signals)**
+
+| Signal | Topic | Consumers |
+|---|---|---|
+| `public.inventory.location.created` | public | `cynthus-core-cache`, `cynthus-audit` |
+| `public.inventory.location.updated` | public | `cynthus-core-cache`, `cynthus-audit` |
+| `public.inventory.location.deleted` | public | `cynthus-core-cache`, `cynthus-shopping`, `cynthus-audit` |
+| `public.inventory.shelf.created` | public | `cynthus-core-cache`, `cynthus-audit` |
+| `public.inventory.shelf.updated` | public | `cynthus-core-cache`, `cynthus-audit` |
+| `public.inventory.shelf.deleted` | public | `cynthus-core-cache`, `cynthus-audit` |
+| `public.inventory.item.added` | public | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` |
+| `public.inventory.item.updated` | public | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` |
+| `public.inventory.item.removed` | public | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` |
+| `audit.identity.access.granted` | audit | `cynthus-audit` |
+| `audit.identity.access.rejected` | audit | `cynthus-audit` |
+| `audit.identity.access.denied` | audit | `cynthus-audit` |
 
 ### `cynthus-recipe`
 
@@ -281,7 +291,7 @@ Shopping lists (named in the catalog and the code, not in ADD 6.0).
 
 | Signal | Publisher |
 |---|---|
-| `public.inventory.location.deleted` | `cynthus-core-api` |
+| `public.inventory.location.deleted` | `cynthus-inventory` |
 | `public.inventory.item.low` | `cynthus-scheduler` |
 | `internal.shopping_list.generation.completed` | `cynthus-chat` |
 
@@ -311,9 +321,9 @@ Periodic time-based task management.
 | `public.meal.plan.created` | `cynthus-core-api` |
 | `public.meal.plan.updated` | `cynthus-core-api` |
 | `public.meal.plan.deleted` | `cynthus-core-api` |
-| `public.inventory.item.added` | `cynthus-core-api` |
-| `public.inventory.item.updated` | `cynthus-core-api` |
-| `public.inventory.item.removed` | `cynthus-core-api` |
+| `public.inventory.item.added` | `cynthus-inventory` |
+| `public.inventory.item.updated` | `cynthus-inventory` |
+| `public.inventory.item.removed` | `cynthus-inventory` |
 | `internal.shopping_list.procurement_target.set` | `cynthus-shopping` |
 | `internal.shopping_list.autopurchase.schedule_configured` | `cynthus-shopping` |
 | `public.shopping_list.autopurchase.cancelled` | `cynthus-shopping` |
@@ -371,6 +381,14 @@ Notifications (named in the catalog, not in ADD 6.0).
 
 Identity management and authentication.
 
+**Publishes (3 signals)**
+
+| Signal | Topic | Consumers |
+|---|---|---|
+| `audit.identity.user.authenticated` | audit | `cynthus-audit` |
+| `audit.identity.user.rejected` | audit | `cynthus-audit` |
+| `audit.identity.token.issued` | audit | `cynthus-audit` |
+
 **Consumes (13 signals)**
 
 | Signal | Publisher |
@@ -399,7 +417,7 @@ Auditing and compliance.
 |---|---|---|
 | `audit.system.ledger.entry_written` | audit | - |
 
-**Consumes (127 signals)**, by domain: AI Companion 3; Access Control 5; Account Management 9; Billing Management 3; Clinical Monitoring 5; Contribution Management 1; Engagement Management 6; Group Management 8; Inventory Management 17; Live Companion 2; Meal Planning 12; Messaging 4; Rating Management 2; Recipe Management 13; Security and Identity 5; Service and Resource Management 11; Shopping List 18; Tag Management 3.
+**Consumes (133 signals)**, by domain: AI Companion 3; Access Control 5; Account Management 9; Billing Management 3; Clinical Monitoring 5; Contribution Management 1; Engagement Management 6; Group Management 8; Inventory Management 17; Live Companion 2; Meal Planning 12; Messaging 4; Rating Management 2; Recipe Management 13; Security and Identity 11; Service and Resource Management 11; Shopping List 18; Tag Management 3.
 
 ### `cynthus-trust-cache`
 
