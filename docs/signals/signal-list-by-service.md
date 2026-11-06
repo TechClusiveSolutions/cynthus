@@ -1,7 +1,7 @@
 # Signals by service
 
 **Version:** 1.0 (2026-11-03)  
-**Generated from:** `signal-catalog.md` v1.0 (200 signals with a publisher and consumers; 35 more features are synchronous or in-process and publish nothing). The tables are derived from the catalog: when the catalog changes, update them to match.  
+**Generated from:** `signal-catalog.md` v1.0 (202 signals with a publisher and consumers; 35 more features are synchronous or in-process and publish nothing). The tables are derived from the catalog: when the catalog changes, update them to match.  
 **Supersedes:** `signal-handling-matrix.md` (2026-06-01, topic-level), now in `archive/signals/`.
 
 ## How to read this
@@ -16,7 +16,7 @@
 |---|---|---|
 | `cynthus-core-api` | 67 | 27 |
 | `cynthus-core-cache` | 1 | 10 |
-| `cynthus-inventory` | 17 | 5 |
+| `cynthus-inventory` | 19 | 5 |
 | `cynthus-recipe` | 15 | 8 |
 | `cynthus-profile` | 13 | 3 |
 | `cynthus-shopping` | 21 | 3 |
@@ -24,7 +24,7 @@
 | `cynthus-worker` | 11 | 7 |
 | `cynthus-notification` | 0 | 41 |
 | `cynthus-identity` | 3 | 13 |
-| `cynthus-audit` | 1 | 149 |
+| `cynthus-audit` | 1 | 151 |
 | `cynthus-chat` | 9 | 34 |
 | `cynthus-analysis` | 7 | 20 |
 | `cynthus-video` | 4 | 0 |
@@ -186,7 +186,7 @@ No signals in the catalog.
 
 Inventory management.
 
-**Publishes (17 signals)**
+**Publishes (19 signals)**
 
 | Signal | Topic | Consumers |
 |---|---|---|
@@ -199,6 +199,8 @@ Inventory management.
 | `public.inventory.item.added` | public | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` |
 | `public.inventory.item.updated` | public | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` |
 | `public.inventory.item.removed` | public | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` |
+| `public.inventory.owner.added` | public | `cynthus-audit` |
+| `public.inventory.owner.removed` | public | `cynthus-audit` |
 | `audit.identity.access.granted` | audit | `cynthus-audit` |
 | `audit.identity.access.rejected` | audit | `cynthus-audit` |
 | `audit.identity.access.denied` | audit | `cynthus-audit` |
@@ -451,7 +453,7 @@ Auditing and compliance.
 |---|---|---|
 | `audit.system.ledger.entry_written` | audit | - |
 
-**Consumes (149 signals)**, by domain: AI Companion 3; Access Control 5; Account Management 15; Billing Management 3; Clinical Monitoring 5; Contribution Management 1; Engagement Management 6; Group Management 8; Inventory Management 27; Live Companion 2; Meal Planning 12; Messaging 4; Rating Management 2; Recipe Management 13; Security and Identity 11; Service and Resource Management 11; Shopping List 18; Tag Management 3.
+**Consumes (151 signals)**, by domain: AI Companion 3; Access Control 5; Account Management 15; Billing Management 3; Clinical Monitoring 5; Contribution Management 1; Engagement Management 6; Group Management 8; Inventory Management 29; Live Companion 2; Meal Planning 12; Messaging 4; Rating Management 2; Recipe Management 13; Security and Identity 11; Service and Resource Management 11; Shopping List 18; Tag Management 3.
 
 ### `cynthus-trust-cache`
 
