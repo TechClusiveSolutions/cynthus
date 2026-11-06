@@ -1,7 +1,7 @@
 # Signals by service
 
 **Version:** 1.0 (2026-11-03)  
-**Generated from:** `signal-catalog.md` v1.0 (202 signals with a publisher and consumers; 35 more features are synchronous or in-process and publish nothing). The tables are derived from the catalog: when the catalog changes, update them to match.  
+**Generated from:** `signal-catalog.md` v1.0 (204 signals with a publisher and consumers; 35 more features are synchronous or in-process and publish nothing). The tables are derived from the catalog: when the catalog changes, update them to match.  
 **Supersedes:** `signal-handling-matrix.md` (2026-06-01, topic-level), now in `archive/signals/`.
 
 ## How to read this
@@ -14,7 +14,7 @@
 
 | Service | Publishes | Consumes |
 |---|---|---|
-| `cynthus-core-api` | 67 | 27 |
+| `cynthus-core-api` | 68 | 28 |
 | `cynthus-core-cache` | 1 | 10 |
 | `cynthus-inventory` | 19 | 5 |
 | `cynthus-recipe` | 15 | 8 |
@@ -24,8 +24,8 @@
 | `cynthus-worker` | 11 | 7 |
 | `cynthus-notification` | 0 | 41 |
 | `cynthus-identity` | 3 | 13 |
-| `cynthus-audit` | 1 | 151 |
-| `cynthus-chat` | 9 | 34 |
+| `cynthus-audit` | 1 | 152 |
+| `cynthus-chat` | 10 | 35 |
 | `cynthus-analysis` | 7 | 20 |
 | `cynthus-video` | 4 | 0 |
 | `cynthus-health-api` | 5 | 2 |
@@ -41,7 +41,7 @@
 
 Primary edge for user interactions; context assembly.
 
-**Publishes (67 signals)**
+**Publishes (68 signals)**
 
 | Signal | Topic | Consumers |
 |---|---|---|
@@ -83,6 +83,7 @@ Primary edge for user interactions; context assembly.
 | `public.live_session.ended` | public | `cynthus-audit` |
 | `internal.intelligence.chat.session_started` | internal | `cynthus-chat`, `cynthus-audit` |
 | `internal.intelligence.context.assembled` | internal | `cynthus-chat` |
+| `internal.intelligence.chat.message_requested` | internal | `cynthus-chat` |
 | `public.vendor.subscription_created` | public | `cynthus-notification`, `cynthus-partner-api`, `cynthus-chat`, `cynthus-audit` |
 | `public.vendor.subscription_removed` | public | `cynthus-notification`, `cynthus-partner-api`, `cynthus-audit` |
 | `internal.vendor_directory.search.performed` | internal | `cynthus-partner-api` |
@@ -113,7 +114,7 @@ Primary edge for user interactions; context assembly.
 | `public.inventory.list.requested` | public | `cynthus-inventory`, `cynthus-audit` |
 | `public.profile.profile.requested` | public | `cynthus-profile`, `cynthus-audit` |
 
-**Consumes (27 signals)**
+**Consumes (28 signals)**
 
 | Signal | Publisher |
 |---|---|
@@ -132,6 +133,7 @@ Primary edge for user interactions; context assembly.
 | `internal.shopping_list.procurement_target.set` | `cynthus-shopping` |
 | `internal.intelligence.chat.session_ended` | `cynthus-chat` |
 | `internal.intelligence.chat.interaction_recorded` | `cynthus-chat` |
+| `internal.intelligence.chat.message_generated` | `cynthus-chat` |
 | `internal.account.deletion_confirmed` | `cynthus-scheduler` |
 | `internal.profile.accessibility_preference.updated` | `cynthus-profile` |
 | `internal.profile.locale.updated` | `cynthus-profile` |
@@ -453,7 +455,7 @@ Auditing and compliance.
 |---|---|---|
 | `audit.system.ledger.entry_written` | audit | - |
 
-**Consumes (151 signals)**, by domain: AI Companion 3; Access Control 5; Account Management 15; Billing Management 3; Clinical Monitoring 5; Contribution Management 1; Engagement Management 6; Group Management 8; Inventory Management 29; Live Companion 2; Meal Planning 12; Messaging 4; Rating Management 2; Recipe Management 13; Security and Identity 11; Service and Resource Management 11; Shopping List 18; Tag Management 3.
+**Consumes (152 signals)**, by domain: AI Companion 4; Access Control 5; Account Management 15; Billing Management 3; Clinical Monitoring 5; Contribution Management 1; Engagement Management 6; Group Management 8; Inventory Management 29; Live Companion 2; Meal Planning 12; Messaging 4; Rating Management 2; Recipe Management 13; Security and Identity 11; Service and Resource Management 11; Shopping List 18; Tag Management 3.
 
 ### `cynthus-trust-cache`
 
@@ -473,7 +475,7 @@ No signals in the catalog.
 
 Astri persona (conversational life assistant and companion).
 
-**Publishes (9 signals)**
+**Publishes (10 signals)**
 
 | Signal | Topic | Consumers |
 |---|---|---|
@@ -486,8 +488,9 @@ Astri persona (conversational life assistant and companion).
 | `internal.live_session.step_advanced` | internal | `cynthus-messaging` |
 | `internal.intelligence.chat.session_ended` | internal | `cynthus-core-api`, `cynthus-audit` |
 | `internal.intelligence.chat.interaction_recorded` | internal | `cynthus-core-api`, `cynthus-audit` |
+| `internal.intelligence.chat.message_generated` | internal | `cynthus-core-api`, `cynthus-audit` |
 
-**Consumes (34 signals)**, by domain: AI Companion 2; Accessibility 4; Account Management 2; Clinical Monitoring 2; Engagement Management 3; Inventory Management 3; Meal Planning 6; Platform Infrastructure 2; Rating Management 3; Recipe Management 1; Service and Resource Management 2; Shopping List 4.
+**Consumes (35 signals)**, by domain: AI Companion 3; Accessibility 4; Account Management 2; Clinical Monitoring 2; Engagement Management 3; Inventory Management 3; Meal Planning 6; Platform Infrastructure 2; Rating Management 3; Recipe Management 1; Service and Resource Management 2; Shopping List 4.
 
 ### `cynthus-analysis`
 
