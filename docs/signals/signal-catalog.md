@@ -774,7 +774,9 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 |---|---|---|---|---|---|
 | FT-AI-001 | `internal.intelligence.chat.session_started` | internal | `cynthus-core-api` | `cynthus-chat`, `cynthus-audit` | User initiated an Astri conversation session |
 | FT-AI-001 | `internal.intelligence.chat.session_ended` | internal | `cynthus-chat` | `cynthus-core-api`, `cynthus-audit` | Astri conversation session closed |
-| FT-AI-002 | `internal.intelligence.context.assembled` | internal | `cynthus-core-api` | `cynthus-chat` | Context bundle (inventory snapshot + profile constraints + filtered recipes) assembled and dispatched to Intelligence subnet |
+| FT-AI-002 | `internal.intelligence.context.assembled` | internal | `cynthus-core-api` | `cynthus-chat` | Context bundle (inventory snapshot + profile constraints + filtered recipes) assembled and dispatched to Intelligence subnet; for the chat flow the bundle travels inside `internal.intelligence.chat.message_requested`, because Chat has no route to Core |
+| FT-AI-001, FT-AI-002 | `internal.intelligence.chat.message_requested` | internal | `cynthus-core-api` | `cynthus-chat` | User message and the assembled context dispatched to the Intelligence subnet; not sent to audit because the payload holds health data; the answer streams on the Chat websocket |
+| FT-AI-001 | `internal.intelligence.chat.message_generated` | internal | `cynthus-chat` | `cynthus-core-api`, `cynthus-audit` | An answer is complete; records the model configuration hash, token counts and the hard-constraint check; carries no answer text |
 | FT-AI-003 | *(internal cynthus-chat processing; no Service Bus signal)* | — | — | — | Screen-reader linearization is an in-process formatting step within the Intelligence subnet |
 | FT-AI-004 | *(hot path WebSocket stream; no Service Bus signal)* | — | — | — | TTS token streaming operates on a direct WebSocket channel, bypassing Service Bus |
 | FT-AI-005 | `internal.intelligence.chat.interaction_recorded` | internal | `cynthus-chat` | `cynthus-core-api`, `cynthus-audit` | Astri received a real-world state disclosure from user (e.g., "I just used the last of the milk"); downstream services independently mutate their state |
@@ -793,6 +795,39 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
   "recipe_candidate_count": 12,
   "allergen_filtered_count": 3,
   "assembled_at": "2027-01-15T12:04:01Z"
+}
+
+// internal.intelligence.chat.message_requested (the access token travels as the authorization message property)
+{
+  "session_id": "ses_y8z9a0",
+  "message_id": "msg_k1l2m3",
+  "text": "What can I cook tonight?",
+  "context": {
+    "context_bundle_id": "ctx_a9b0c1",
+    "hard_constraints": ["peanuts", "tree_nuts"],
+    "soft_preferences": { "cuisines": ["mexican", "italian"], "energy_level": 4 },
+    "inventory_snapshot": [ { "name": "whole milk", "quantity": 1, "unit": "gallon", "expiry_date": "2027-01-20" } ],
+    "recipe_candidates": [ { "recipe_id": "rcp_p4q5r6", "title": "Black bean tacos", "ingredients": ["black beans", "tortillas"], "minutes": 25, "energy_cost": 3 } ],
+    "recipe_candidate_count": 12,
+    "allergen_filtered_count": 3,
+    "conversation_history": [],
+    "assembled_at": "2027-01-15T12:04:01Z"
+  }
+}
+
+// internal.intelligence.chat.message_generated
+{
+  "session_id": "ses_y8z9a0",
+  "message_id": "msg_k1l2m3",
+  "provider": "ollama",
+  "model": "phi4-mini:latest",
+  "model_configuration_hash": "36f158577e6b05f1603430ebbe8e46ae0a1020abedcf74a8bbff90eeec57bf6c",
+  "finish_reason": "stop",
+  "prompt_tokens": 812,
+  "completion_tokens": 143,
+  "generation_seconds": 21.4,
+  "constraint_check": "passed",
+  "regenerations": 0
 }
 
 // internal.intelligence.chat.interaction_recorded
