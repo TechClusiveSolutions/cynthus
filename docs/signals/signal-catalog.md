@@ -512,6 +512,24 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 | FT-SL-010 | `public.shopping_list.autopurchase.modified` | public | `cynthus-shopping` | `cynthus-scheduler`, `cynthus-audit` | User changed quantity, vendor, or frequency during the grace period |
 | FT-SL-011 | `internal.shopping_list.meal_gap.detected` | internal | `cynthus-scheduler` | `cynthus-notification`, `cynthus-chat` | Lookahead cross-check found missing ingredients for meals planned within the configured window |
 
+### Implemented names (phase 1)
+
+The signal classes in `cynthus-shared` repeat the aggregate in the name, as the other domains do (`public.recipe.recipe.created`), so three rows above exist under a longer name. The item signals already had four parts. The Core API asks the Shopping service for list and item work with a request and a response signal (one pair for both, because items belong to the list).
+
+| Catalog name | Implemented name | Class (in `cynthus.messaging.common`) |
+|---|---|---|
+| `public.shopping_list.created` | `public.shopping_list.list.created` | `PublicShoppingListListCreatedSignal` |
+| `public.shopping_list.updated` | `public.shopping_list.list.updated` | `PublicShoppingListListUpdatedSignal` |
+| `public.shopping_list.deleted` | `public.shopping_list.list.deleted` | `PublicShoppingListListDeletedSignal` |
+| `public.shopping_list.item.added` | same | `PublicShoppingListItemAddedSignal` |
+| `public.shopping_list.item.updated` | same | `PublicShoppingListItemUpdatedSignal` |
+| `public.shopping_list.item.checked_off` | same | `PublicShoppingListItemCheckedOffSignal` |
+| `public.shopping_list.item.removed` | same | `PublicShoppingListItemRemovedSignal` |
+| (not in the first catalog) | `public.shopping_list.list.requested` | `PublicShoppingListListRequestedSignal` |
+| (not in the first catalog) | `public.shopping_list.list.responded` | `PublicShoppingListListRespondedSignal` |
+
+`requested` is published by `cynthus-core-api` and consumed by `cynthus-shopping`; `responded` is published by `cynthus-shopping` and consumed by `cynthus-core-api`, which relays it to the waiting client. The rest of this domain (access requests, delegation, procurement target, vendor preference, auto-purchase and generation) is still to be built. The Shopping design adds list orders, procurement batches and a planner, each with signals of their own; see [../architecture/shopping-design.md](../architecture/shopping-design.md).
+
 ### Sample Payloads — Shopping List
 
 ```json
