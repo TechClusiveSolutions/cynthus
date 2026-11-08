@@ -14,12 +14,12 @@
 
 | Service | Publishes | Consumes |
 |---|---|---|
-| `cynthus-core-api` | 68 | 28 |
+| `cynthus-core-api` | 69 | 29 |
 | `cynthus-core-cache` | 1 | 10 |
 | `cynthus-inventory` | 19 | 5 |
 | `cynthus-recipe` | 15 | 8 |
 | `cynthus-profile` | 13 | 3 |
-| `cynthus-shopping` | 21 | 3 |
+| `cynthus-shopping` | 22 | 4 |
 | `cynthus-scheduler` | 9 | 13 |
 | `cynthus-worker` | 11 | 7 |
 | `cynthus-notification` | 0 | 41 |
@@ -41,10 +41,11 @@
 
 Primary edge for user interactions; context assembly.
 
-**Publishes (68 signals)**
+**Publishes (69 signals)**
 
 | Signal | Topic | Consumers |
 |---|---|---|
+| `public.shopping_list.list.requested` | public | `cynthus-shopping` |
 | `public.meal.suggestion.requested` | public | `cynthus-chat`, `cynthus-audit` |
 | `public.meal.suggestion.accepted` | public | `cynthus-chat`, `cynthus-analysis`, `cynthus-audit` |
 | `public.meal.suggestion.denied` | public | `cynthus-chat`, `cynthus-analysis`, `cynthus-audit` |
@@ -114,10 +115,11 @@ Primary edge for user interactions; context assembly.
 | `public.inventory.list.requested` | public | `cynthus-inventory`, `cynthus-audit` |
 | `public.profile.profile.requested` | public | `cynthus-profile`, `cynthus-audit` |
 
-**Consumes (28 signals)**
+**Consumes (29 signals)**
 
 | Signal | Publisher |
 |---|---|
+| `public.shopping_list.list.responded` | `cynthus-shopping` |
 | `public.meal.suggestion.generated` | `cynthus-chat` |
 | `internal.meal.suggestion_schedule.triggered` | `cynthus-scheduler` |
 | `public.meal.vote.auto_resolved` | `cynthus-chat` |
@@ -299,10 +301,13 @@ Preferences and hard constraints.
 
 Shopping lists (named in the catalog and the code, not in ADD 6.0).
 
-**Publishes (21 signals)**
+**Publishes (22 signals)**
+
+The first three signals are implemented as `public.shopping_list.list.created`, `.updated` and `.deleted`; see the catalog's "Implemented names" table.
 
 | Signal | Topic | Consumers |
 |---|---|---|
+| `public.shopping_list.list.responded` | public | `cynthus-core-api` |
 | `public.shopping_list.created` | public | `cynthus-audit` |
 | `public.shopping_list.updated` | public | `cynthus-audit` |
 | `public.shopping_list.deleted` | public | `cynthus-audit` |
@@ -325,10 +330,11 @@ Shopping lists (named in the catalog and the code, not in ADD 6.0).
 | `public.shopping_list.autopurchase.cancelled` | public | `cynthus-scheduler`, `cynthus-audit` |
 | `public.shopping_list.autopurchase.modified` | public | `cynthus-scheduler`, `cynthus-audit` |
 
-**Consumes (3 signals)**
+**Consumes (4 signals)**
 
 | Signal | Publisher |
 |---|---|
+| `public.shopping_list.list.requested` | `cynthus-core-api` |
 | `public.inventory.location.deleted` | `cynthus-inventory` |
 | `public.inventory.item.low` | `cynthus-scheduler` |
 | `internal.shopping_list.generation.completed` | `cynthus-chat` |
