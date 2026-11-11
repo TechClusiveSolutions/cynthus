@@ -53,7 +53,7 @@ class InventorySnapshotBuilder:
 
 ## 6. Messaging
 
-- Signals are published and consumed through the FastStream broker defined in ADR-006 (Azure Service Bus).
+- Signals are published and consumed through the `SignalPublisher` and `SignalSubscriber` interfaces. The broker behind them is chosen by `SIGNAL_BROKER` (ADR-006 and ADR-007): Azure Service Bus by default, or RabbitMQ.
 - Application code depends on the `SignalPublisher` interface, never on the broker class directly.
 - Hard-constraint changes emit `internal.audit.constraint.mutated` before the change is committed.
 
