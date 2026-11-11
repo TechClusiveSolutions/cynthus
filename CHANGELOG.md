@@ -10,7 +10,7 @@ version and date.
 
 ## [Unreleased]
 
-- Nothing yet.
+- Added the ecosystem release manifest: `releases/README.md` explains the versioning scheme (ecosystem manifest, per-app SemVer, a separate signal schema version) and `releases/1.0.md` is the draft 1.0 set pinning every repo's current tag.
 
 ## [0.1.0] - 2026-11-10
 
