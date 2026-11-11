@@ -10,6 +10,7 @@ version and date.
 
 ## [Unreleased]
 
+- Added ADR-010, the tenant model: the tenant is the boundary (personal or organizational), a parent tenant with the same owner bridges an owner's tenants and holds no workspaces, an owner never gets owner rights through another user's token, billing accounts are separate and attached per tenant, and `tenant_id` replaces `organization_id` additively. Issue 44.
 - Corrected ADR-008: the Domain container reduces broker connections on RabbitMQ only; the Azure Service Bus SDK opens a connection per sender and per receiver, so on the emulator the full stack (about 17 connections) exceeds the cap of 10 and only a subset (9 connections on Aries) fits. Issue 42.
 - Added ADR-009, the design for one Service object (identity in `cynthus.core`, runtime in `cynthus.service`) and one layout for every service package, building on shared issue 93; left the tenant and organization vocabulary for a separate decision. Amended ADR-008 (handler time limit 60 s, shared subscriber, link to ADR-009). Issue 40.
 - Added ADR-008, the design for running inventory, profile, shopping and logistics as one hosting container chosen by `SERVICES`, with Recipe, Auth, the gateways and the Celery services kept separate; includes the measurements, the settled questions and the work plan. Issue 38 (core issue 184).
