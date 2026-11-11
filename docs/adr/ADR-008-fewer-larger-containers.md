@@ -96,7 +96,6 @@ deployment choice, not a code choice.
 *Amended 2026-11-11 after steps 1 and 2:* the subscriber is shared, so if it stops every hosted service is unavailable;
 only the database check is per service. The first draft implied a per-service subscriber check.
 
-
 *Correction 2026-11-11, after running the stack on Aries (Service Bus emulator):* the Azure Service Bus SDK opens one
 connection for every sender and every receiver, so a process that hosts four subscriptions and publishes holds five
 connections, not one. The Domain container therefore does **not** reduce Service Bus connections, and the full stack
