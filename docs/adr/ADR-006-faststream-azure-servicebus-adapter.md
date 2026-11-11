@@ -2,6 +2,7 @@
 
 **Status:** Accepted (2026-11-01)
 **Supersedes:** the assumption in earlier notes that `faststream[azure]` and `faststream.azure` exist.
+**Partly superseded (2026-11-10):** ADR-007 makes the broker selectable and replaces the rejection of RabbitMQ below; Azure Service Bus stays the default.
 
 ## Context
 
