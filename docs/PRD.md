@@ -210,7 +210,7 @@ Demilitarized subnet hosting external healthcare provider and clinical partner i
 | Service | Function |
 |---|---|
 | `cynthus-health-api` | Primary edge for clinical integrations. Enforces HIPAA consent token verification and read-only data access patterns. |
-| `cynthus-messaging` | Device telemetry hub. Ingests wearable and biometric data streams. Routes hot-path data (raw telemetry) to time-series buffers and warm-path summaries to the Service Bus. |
+| `cynthus-device` | Device telemetry aggregator (provisional: expected in the `cynthus-health` repository; HUD data may need a different home). Ingests wearable and biometric data streams. Routes hot-path data (raw telemetry) to time-series buffers and warm-path summaries to the Service Bus. |
 | `cynthus-health-web` | Clinical dashboard UI renderer for authorized B2B healthcare partners. |
 | `cynthus-health-cache` | High-speed caching layer for health domain services. |
 | `cynthus-health-db` | Dedicated PHI-isolated persistent storage implementing field-level encryption for all biometric and patient data. |
@@ -297,7 +297,7 @@ To support wearable device ingestion without overloading the centralized topic b
                                   Azure Service Bus Spine
 ```
 
-Raw continuous sensor data (live heart rate, CGM readings) arrives over WebSockets directly into the time-series buffer, bypassing the Service Bus. `cynthus-messaging` summarizes hot path data into structured time-slice snapshots and emits them onto the choreography bus as warm-path events.
+Raw continuous sensor data (live heart rate, CGM readings) arrives over WebSockets directly into the time-series buffer, bypassing the Service Bus. `cynthus-device` summarizes hot path data into structured time-slice snapshots and emits them onto the choreography bus as warm-path events.
 
 ### 6.6 Network Boundaries & Deployment Topology
 
@@ -572,7 +572,7 @@ Each phase has a defined Astri capability version. Astri grows incrementally —
 
 - `cynthus-health-api` — clinical partner ingress, consent token verification
 - `cynthus-health-web` — clinical dashboard for authorized providers
-- `cynthus-messaging` — wearable device telemetry hub (hot/warm dual-stream path)
+- `cynthus-device` — wearable device telemetry aggregator (hot/warm dual-stream path)
 - `cynthus-audit` — immutable PHI access logging
 - `cynthus-health-db` — PHI-isolated, field-level encrypted storage
 
