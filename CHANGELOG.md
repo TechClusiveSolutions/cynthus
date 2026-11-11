@@ -10,6 +10,12 @@ version and date.
 
 ## [Unreleased]
 
+- Nothing yet.
+
+## [0.1.0] - 2026-11-10
+
+- Align documents with the messaging-library model; add cynthus-device (#13)
+- Render behavioural namespace tests (#6)
 - Catalog the Shopping signals and document the Shopping design (#27) (#29)
 - Catalog the chat message requested and generated signals (#24)
 - Catalog the inventory owner added and removed facts (#21)
@@ -21,6 +27,3 @@ version and date.
 - Establish the Cynthus engineering workflow (#1) (#2)
 - Add architecture notes and the cross-repository test tooling
 - Initial commit
-
-<!-- No tagged releases exist yet. The entries above are the commits merged to `dev`,
-newest first, as a backfill. The first tag is cut with the ecosystem 1.0 release set. -->
