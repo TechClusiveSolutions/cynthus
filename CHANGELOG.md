@@ -10,6 +10,7 @@ version and date.
 
 ## [Unreleased]
 
+- Added ADR-009, the design for one Service object (identity in `cynthus.core`, runtime in `cynthus.service`) and one layout for every service package, building on shared issue 93; left the tenant and organization vocabulary for a separate decision. Amended ADR-008 (handler time limit 60 s, shared subscriber, link to ADR-009). Issue 40.
 - Added ADR-008, the design for running inventory, profile, shopping and logistics as one hosting container chosen by `SERVICES`, with Recipe, Auth, the gateways and the Celery services kept separate; includes the measurements, the settled questions and the work plan. Issue 38 (core issue 184).
 - The draft 1.0 release manifest now pins cynthus-shared v0.11.1 (selectable signal broker) and records that the dev stack has run on RabbitMQ. Issue 36.
 - Added ADR-007, the decision to make the signal broker selectable by environment (`SIGNAL_BROKER`: Azure Service Bus by default, or RabbitMQ). It records the RabbitMQ topology (topic exchange, quorum queue per subscription, dead-letter queues, delivery limit, publisher confirms), the behaviour both brokers must share, and what RabbitMQ lacks. ADR-006 is marked partly superseded and engineering standards section 6 now describes the selectable broker.
