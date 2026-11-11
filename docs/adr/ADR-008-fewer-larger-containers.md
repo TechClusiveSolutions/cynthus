@@ -92,7 +92,6 @@ deployment choice, not a code choice.
   These are placeholders today. In the hosting process they connect to the same Redis; they are kept as they are and
   reviewed when real event routes arrive.
 
-
 *Amended 2026-11-11 after steps 1 and 2:* the subscriber is shared, so if it stops every hosted service is unavailable;
 only the database check is per service. The first draft implied a per-service subscriber check.
 
