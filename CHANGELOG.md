@@ -10,6 +10,7 @@ version and date.
 
 ## [Unreleased]
 
+- Added ADR-011, the rules for defaults (one per kind per workspace, one default shelf per location, shelf fill orders), soft deletes everywhere except data-removal requests, and how the registration-to-first-use workflow tests run (test_* schemas, mocked API schema, in-memory broker). Issue 46.
 - Added ADR-010, the tenant model: the tenant is the boundary (personal or organizational), a parent tenant with the same owner bridges an owner's tenants and holds no workspaces, an owner never gets owner rights through another user's token, billing accounts are separate and attached per tenant, and `tenant_id` replaces `organization_id` additively. Issue 44.
 - Corrected ADR-008: the Domain container reduces broker connections on RabbitMQ only; the Azure Service Bus SDK opens a connection per sender and per receiver, so on the emulator the full stack (about 17 connections) exceeds the cap of 10 and only a subset (9 connections on Aries) fits. Issue 42.
 - Added ADR-009, the design for one Service object (identity in `cynthus.core`, runtime in `cynthus.service`) and one layout for every service package, building on shared issue 93; left the tenant and organization vocabulary for a separate decision. Amended ADR-008 (handler time limit 60 s, shared subscriber, link to ADR-009). Issue 40.
