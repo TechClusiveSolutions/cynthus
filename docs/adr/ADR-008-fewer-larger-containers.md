@@ -31,14 +31,15 @@ What is already true:
 - **The signal contract is per subscription.** Each service has its own subscription (queue), so which process reads it
   does not change what the other services see.
 - **Both broker implementations take several subscriptions.** `subscribe(topic, subscription, handler)` can be called
-  many times before `run()`, over one connection.
+  many times before `run()`. On RabbitMQ every subscription shares the process's one connection; on Azure Service Bus
+  each receiver and each sender opens a connection of its own (see the correction at the end of the Decision).
 
 What would be gained, and what would not. Folding four services into one process saves about 3 interpreters' worth,
 roughly 300 to 350 MB and 3 idle CPU slices, out of a stack of about 2 GB. That is real on a small VPS and
 irrelevant on a large host. The larger savings already happened with ADR-007: dropping the Service Bus emulator
-saves 530 MB. The second benefit is **broker connections**: with every service running there are 11 (one per
-process); hosting inventory, profile, shopping and logistics in one process makes it 8. That is under the Service Bus
-emulator's cap of 10 again, which matters if Azure Service Bus stays a supported choice.
+saves 530 MB. The second benefit, **broker connections**, applies to RabbitMQ only: with every service running
+there are 11 connections (one per process); hosting inventory, profile, shopping and logistics in one process makes it 8.
+It does not apply to Azure Service Bus (see the correction at the end of the Decision).
 
 ## Decision
 
@@ -95,10 +96,18 @@ deployment choice, not a code choice.
 *Amended 2026-11-11 after steps 1 and 2:* the subscriber is shared, so if it stops every hosted service is unavailable;
 only the database check is per service. The first draft implied a per-service subscriber check.
 
+
+*Correction 2026-11-11, after running the stack on Aries (Service Bus emulator):* the Azure Service Bus SDK opens one
+connection for every sender and every receiver, so a process that hosts four subscriptions and publishes holds five
+connections, not one. The Domain container therefore does **not** reduce Service Bus connections, and the full stack
+(about 17 connections) cannot run on the emulator's cap of 10 with or without it. Only a subset fits: on Aries the API,
+the Domain container with inventory, profile and shopping, Auth, the Scheduler and the Worker use 9. RabbitMQ (ADR-007)
+remains the way to run the whole stack.
+
 ## Options considered
 
 1. **Keep one container per service (status quo).** Simplest to reason about and to scale. Costs about 330 MB and
-   three idle CPU slices more than needed, and leaves the stack at 11 broker connections. Remains correct on a large
+   three idle CPU slices more than needed, and leaves the stack at 11 RabbitMQ connections. Remains correct on a large
    host.
 2. **Merge the services into one codebase and one package.** Smallest runtime, but it ends independent ownership of
    schemas, tests and release, and is hard to undo. Rejected: the same savings come from hosting, without merging.
@@ -108,8 +117,8 @@ only the database check is per service. The first draft implied a per-service su
 
 ## Consequences
 
-- The default dev stack runs three containers fewer (inventory, profile, shopping and logistics become one) and the
-  broker sees three connections fewer.
+- The default dev stack runs three containers fewer (inventory, profile, shopping and logistics become one). On
+  RabbitMQ the broker sees three connections fewer; on Azure Service Bus it sees no fewer.
 - A fault that kills the process takes down all modules in that container. Splitting by `SERVICES` is the remedy.
 - `ServiceApplication` is more complex; the single-module path must stay unchanged and covered by its existing tests.
 - Compose, the hosting cost analysis and the standards (section on containers) are updated when the work lands.
