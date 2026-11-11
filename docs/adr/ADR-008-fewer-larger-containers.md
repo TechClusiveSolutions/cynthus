@@ -1,7 +1,8 @@
 # ADR-008: Run the domain services as fewer, larger containers
 
 **Status:** Proposed (2026-11-11)
-**Relates to:** ADR-007 (selectable signal broker). Core issue 184 asked for this design.
+**Relates to:** ADR-007 (selectable signal broker); ADR-009 (the Service object and one layout), which replaces the
+`service_module()` factory described here with a `service` entry point per package. Core issue 184 asked for this design.
 
 ## Context
 
@@ -64,8 +65,8 @@ deployment choice, not a code choice.
 
 - **Failure isolation.** All modules in a container share its fate if the process dies, and share one event loop. To
   keep one module's handler from starving the others, a module's handler runs under the subscriber's existing
-  per-message error handling (a raise dead-letters that one signal) and a per-handler timeout (new, default 30 s,
-  `SIGNAL_HANDLER_TIMEOUT_SECONDS`). A module whose subscriber task stops is reported unhealthy; the container is
+  per-message error handling (a raise dead-letters that one signal) and a per-handler timeout (new, default 60 s,
+  `SIGNAL_HANDLER_TIMEOUT_SECONDS`; the first draft said 30 s, raised so the Recipe import cannot be cut off). A module whose subscriber task stops is reported unhealthy; the container is
   restarted by its orchestrator, as a single service is today.
 - **Health.** `/signal/health` answers for the container: 200 only while every module's subscription is being read and
   the database answers. The body lists each module (`{"modules": {"inventory": "ok", ...}}`), and
@@ -90,6 +91,9 @@ deployment choice, not a code choice.
 - **Redis event routers.** Each module's `routes/event.py` builds its own Redis router from the `CACHE_*` settings.
   These are placeholders today. In the hosting process they connect to the same Redis; they are kept as they are and
   reviewed when real event routes arrive.
+
+*Amended 2026-11-11 after steps 1 and 2:* the subscriber is shared, so if it stops every hosted service is unavailable;
+only the database check is per service. The first draft implied a per-service subscriber check.
 
 ## Options considered
 
