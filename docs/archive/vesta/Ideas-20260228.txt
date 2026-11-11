@@ -1,0 +1,3 @@
+Get engineering students to design a smart tray for the refridgerator.
+
+Integrate with smart scales for food inventory management
