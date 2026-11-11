@@ -82,9 +82,6 @@ deployment choice, not a code choice.
   and each module's suite and coverage gate stay as they are. The hosting image adds a small `containers/domain`
   package (module registry, entry point, Dockerfile) with its own tests: the registry, `SERVICES` parsing, the
   aggregated health and a start-up test that loads all modules in one process.
-
-*Amended 2026-11-11 after steps 1 and 2:* the subscriber is shared, so if it stops every hosted service is unavailable;
-only the database check is per service. The first draft implied a per-service subscriber check.
 - **Package names.** Several modules in one interpreter share one import namespace. `profile` is also a standard
   library module, and `inventory`, `recipe`, `shopping` and `logistics` are generic names. The image installs each
   module under its own name and loads it through the registry; the first step of the work is a check that all five
@@ -94,6 +91,10 @@ only the database check is per service. The first draft implied a per-service su
 - **Redis event routers.** Each module's `routes/event.py` builds its own Redis router from the `CACHE_*` settings.
   These are placeholders today. In the hosting process they connect to the same Redis; they are kept as they are and
   reviewed when real event routes arrive.
+
+
+*Amended 2026-11-11 after steps 1 and 2:* the subscriber is shared, so if it stops every hosted service is unavailable;
+only the database check is per service. The first draft implied a per-service subscriber check.
 
 ## Options considered
 
