@@ -9,7 +9,7 @@
 | [signals/signal-catalog.md](signals/signal-catalog.md) | Signal map: every signal by domain, with publishers and consumers | 1.0 |
 | [signals/signal-list-by-service.md](signals/signal-list-by-service.md) | The same signals viewed per service, plus discrepancies found | 1.0 |
 | [adr/](adr) | Architecture decision records | |
-| [architecture/](architecture) | Web-app conversion plan | |
+| [architecture/](architecture) | Web-app conversion plan; [Shopping design](architecture/shopping-design.md) | |
 | [engineering-standards.md](engineering-standards.md) | How we write, test, review and merge code | |
 | [archive/](archive/README.md) | Superseded drafts, kept for history | |
 

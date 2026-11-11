@@ -189,14 +189,29 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 
 | Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
 |---|---|---|---|---|---|
-| FT-IM-001 | `public.inventory.location.created` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | A new named inventory location was created |
-| FT-IM-001 | `public.inventory.location.updated` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | Location metadata (name, type, config) was changed |
-| FT-IM-001 | `public.inventory.location.deleted` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-shopping`, `cynthus-audit` | Location was removed; shopping service clears any procurement links |
+| FT-IM-001 | `public.inventory.location.created` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | A new named inventory location was created |
+| FT-IM-001 | `public.inventory.location.updated` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | Location metadata (name, type, config) was changed |
+| FT-IM-001 | `public.inventory.location.deleted` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-shopping`, `cynthus-audit` | Location was removed; shopping service clears any procurement links |
+| FT-IM-001 | `public.inventory.shelf.created` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | A new shelf was created within a location |
+| FT-IM-001 | `public.inventory.shelf.updated` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | Shelf name or position was changed |
+| FT-IM-001 | `public.inventory.shelf.deleted` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | Shelf was removed along with its items and owners |
 | FT-IM-002 | `audit.inventory.location.role_assigned` | audit | `cynthus-core-api` | `cynthus-audit` | RBAC role granted on an inventory location |
 | FT-IM-002 | `audit.inventory.location.role_revoked` | audit | `cynthus-core-api` | `cynthus-audit` | RBAC role revoked on an inventory location |
-| FT-IM-003 | `public.inventory.item.added` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item added to a location; cache updated; scheduler registers expiry watch |
-| FT-IM-003 | `public.inventory.item.updated` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item quantity or metadata changed |
-| FT-IM-003 | `public.inventory.item.removed` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item removed from location |
+| FT-IM-003 | `public.inventory.item.added` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item added to a location; cache updated; scheduler registers expiry watch |
+| FT-IM-003 | `public.inventory.item.updated` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item quantity or metadata changed |
+| FT-IM-003 | `public.inventory.item.removed` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item removed from location |
+| FT-IM-001 | `public.inventory.owner.added` | public | `cynthus-inventory` | `cynthus-audit` | A user was made an owner of a shelf |
+| FT-IM-001 | `public.inventory.owner.removed` | public | `cynthus-inventory` | `cynthus-audit` | A user stopped being an owner of a shelf |
+| FT-IM-001 | `public.inventory.location.requested` | public | `cynthus-core-api` | `cynthus-inventory`, `cynthus-audit` | A caller asked to create, get, list, update or delete a location; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service |
+| FT-IM-001 | `public.inventory.location.responded` | public | `cynthus-inventory` | `cynthus-core-api`, `cynthus-audit` | The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket |
+| FT-IM-001 | `public.inventory.shelf.requested` | public | `cynthus-core-api` | `cynthus-inventory`, `cynthus-audit` | A caller asked to create, get, list, update or delete a shelf; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service |
+| FT-IM-001 | `public.inventory.shelf.responded` | public | `cynthus-inventory` | `cynthus-core-api`, `cynthus-audit` | The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket |
+| FT-IM-003 | `public.inventory.item.requested` | public | `cynthus-core-api` | `cynthus-inventory`, `cynthus-audit` | A caller asked to create, get, list, update or delete an item; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service |
+| FT-IM-003 | `public.inventory.item.responded` | public | `cynthus-inventory` | `cynthus-core-api`, `cynthus-audit` | The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket |
+| FT-IM-002 | `public.inventory.owner.requested` | public | `cynthus-core-api` | `cynthus-inventory`, `cynthus-audit` | A caller asked to create, get, list, update or delete a shelf owner; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service |
+| FT-IM-002 | `public.inventory.owner.responded` | public | `cynthus-inventory` | `cynthus-core-api`, `cynthus-audit` | The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket |
+| FT-IM-005 | `public.inventory.list.requested` | public | `cynthus-core-api` | `cynthus-inventory`, `cynthus-audit` | A caller asked for the inventory listing; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service |
+| FT-IM-005 | `public.inventory.list.updated` | public | `cynthus-inventory` | `cynthus-core-api`, `cynthus-audit` | The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket |
 | FT-IM-004 | `internal.inventory.location.subscription_created` | internal | `cynthus-core-api` | `cynthus-notification`, `cynthus-audit` | User subscribed to alerts for a specific location |
 | FT-IM-004 | `internal.inventory.location.subscription_removed` | internal | `cynthus-core-api` | `cynthus-notification`, `cynthus-audit` | User unsubscribed from location alerts |
 | FT-IM-005, FT-IM-006 | `public.inventory.item.low` | public | `cynthus-scheduler` | `cynthus-notification`, `cynthus-chat`, `cynthus-shopping`, `cynthus-audit` | Item quantity crossed below the user-defined minimum threshold; notification fans out to owner and location subscribers; shopping service auto-appends to active procurement list |
@@ -209,6 +224,8 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 | FT-IM-011 | `internal.inventory.scan.completed` | internal | `cynthus-worker` | `cynthus-core-api` | OCR complete; structured item list ready to be batch-added to location |
 | FT-IM-012 | `public.inventory.mutation.recorded` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | Canonical immutable ledger entry for every inventory state change (add, update, move, consume) |
 | FT-IM-013 | `internal.inventory.item.prioritized_for_expiry` | internal | `cynthus-scheduler` | `cynthus-core-api` | Near-expiry items flagged for elevation in next context assembly payload sent to Astri |
+
+**Request and response.** Every interaction between the Core API and the Inventory service uses signals: the request carries the operation (`create`, `get`, `list`, `update`, `delete`), the target ids, filters and data; the response carries the same operation, a status (`200`, `201`, `204`, `401`, `403`, `404`, `405`, `409`, `422`, `500`) and the result or error. They are joined by the envelope `correlation_id`. The facts above follow a successful change.
 
 ### Sample Payloads — Inventory Management
 
@@ -495,6 +512,24 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 | FT-SL-010 | `public.shopping_list.autopurchase.modified` | public | `cynthus-shopping` | `cynthus-scheduler`, `cynthus-audit` | User changed quantity, vendor, or frequency during the grace period |
 | FT-SL-011 | `internal.shopping_list.meal_gap.detected` | internal | `cynthus-scheduler` | `cynthus-notification`, `cynthus-chat` | Lookahead cross-check found missing ingredients for meals planned within the configured window |
 
+### Implemented names (phase 1)
+
+The signal classes in `cynthus-shared` repeat the aggregate in the name, as the other domains do (`public.recipe.recipe.created`), so three rows above exist under a longer name. The item signals already had four parts. The Core API asks the Shopping service for list and item work with a request and a response signal (one pair for both, because items belong to the list).
+
+| Catalog name | Implemented name | Class (in `cynthus.messaging.common`) |
+|---|---|---|
+| `public.shopping_list.created` | `public.shopping_list.list.created` | `PublicShoppingListListCreatedSignal` |
+| `public.shopping_list.updated` | `public.shopping_list.list.updated` | `PublicShoppingListListUpdatedSignal` |
+| `public.shopping_list.deleted` | `public.shopping_list.list.deleted` | `PublicShoppingListListDeletedSignal` |
+| `public.shopping_list.item.added` | same | `PublicShoppingListItemAddedSignal` |
+| `public.shopping_list.item.updated` | same | `PublicShoppingListItemUpdatedSignal` |
+| `public.shopping_list.item.checked_off` | same | `PublicShoppingListItemCheckedOffSignal` |
+| `public.shopping_list.item.removed` | same | `PublicShoppingListItemRemovedSignal` |
+| (not in the first catalog) | `public.shopping_list.list.requested` | `PublicShoppingListListRequestedSignal` |
+| (not in the first catalog) | `public.shopping_list.list.responded` | `PublicShoppingListListRespondedSignal` |
+
+`requested` is published by `cynthus-core-api` and consumed by `cynthus-shopping`; `responded` is published by `cynthus-shopping` and consumed by `cynthus-core-api`, which relays it to the waiting client. The rest of this domain (access requests, delegation, procurement target, vendor preference, auto-purchase and generation) is still to be built. The Shopping design adds list orders, procurement batches and a planner, each with signals of their own; see [../architecture/shopping-design.md](../architecture/shopping-design.md).
+
 ### Sample Payloads — Shopping List
 
 ```json
@@ -757,7 +792,9 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 |---|---|---|---|---|---|
 | FT-AI-001 | `internal.intelligence.chat.session_started` | internal | `cynthus-core-api` | `cynthus-chat`, `cynthus-audit` | User initiated an Astri conversation session |
 | FT-AI-001 | `internal.intelligence.chat.session_ended` | internal | `cynthus-chat` | `cynthus-core-api`, `cynthus-audit` | Astri conversation session closed |
-| FT-AI-002 | `internal.intelligence.context.assembled` | internal | `cynthus-core-api` | `cynthus-chat` | Context bundle (inventory snapshot + profile constraints + filtered recipes) assembled and dispatched to Intelligence subnet |
+| FT-AI-002 | `internal.intelligence.context.assembled` | internal | `cynthus-core-api` | `cynthus-chat` | Context bundle (inventory snapshot + profile constraints + filtered recipes) assembled and dispatched to Intelligence subnet; for the chat flow the bundle travels inside `internal.intelligence.chat.message_requested`, because Chat has no route to Core |
+| FT-AI-001, FT-AI-002 | `internal.intelligence.chat.message_requested` | internal | `cynthus-core-api` | `cynthus-chat` | User message and the assembled context dispatched to the Intelligence subnet; not sent to audit because the payload holds health data; the answer streams on the Chat websocket |
+| FT-AI-001 | `internal.intelligence.chat.message_generated` | internal | `cynthus-chat` | `cynthus-core-api`, `cynthus-audit` | An answer is complete; records the model configuration hash, token counts and the hard-constraint check; carries no answer text |
 | FT-AI-003 | *(internal cynthus-chat processing; no Service Bus signal)* | — | — | — | Screen-reader linearization is an in-process formatting step within the Intelligence subnet |
 | FT-AI-004 | *(hot path WebSocket stream; no Service Bus signal)* | — | — | — | TTS token streaming operates on a direct WebSocket channel, bypassing Service Bus |
 | FT-AI-005 | `internal.intelligence.chat.interaction_recorded` | internal | `cynthus-chat` | `cynthus-core-api`, `cynthus-audit` | Astri received a real-world state disclosure from user (e.g., "I just used the last of the milk"); downstream services independently mutate their state |
@@ -776,6 +813,39 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
   "recipe_candidate_count": 12,
   "allergen_filtered_count": 3,
   "assembled_at": "2027-01-15T12:04:01Z"
+}
+
+// internal.intelligence.chat.message_requested (the access token travels as the authorization message property)
+{
+  "session_id": "ses_y8z9a0",
+  "message_id": "msg_k1l2m3",
+  "text": "What can I cook tonight?",
+  "context": {
+    "context_bundle_id": "ctx_a9b0c1",
+    "hard_constraints": ["peanuts", "tree_nuts"],
+    "soft_preferences": { "cuisines": ["mexican", "italian"], "energy_level": 4 },
+    "inventory_snapshot": [ { "name": "whole milk", "quantity": 1, "unit": "gallon", "expiry_date": "2027-01-20" } ],
+    "recipe_candidates": [ { "recipe_id": "rcp_p4q5r6", "title": "Black bean tacos", "ingredients": ["black beans", "tortillas"], "minutes": 25, "energy_cost": 3 } ],
+    "recipe_candidate_count": 12,
+    "allergen_filtered_count": 3,
+    "conversation_history": [],
+    "assembled_at": "2027-01-15T12:04:01Z"
+  }
+}
+
+// internal.intelligence.chat.message_generated
+{
+  "session_id": "ses_y8z9a0",
+  "message_id": "msg_k1l2m3",
+  "provider": "ollama",
+  "model": "phi4-mini:latest",
+  "model_configuration_hash": "36f158577e6b05f1603430ebbe8e46ae0a1020abedcf74a8bbff90eeec57bf6c",
+  "finish_reason": "stop",
+  "prompt_tokens": 812,
+  "completion_tokens": 143,
+  "generation_seconds": 21.4,
+  "constraint_check": "passed",
+  "regenerations": 0
 }
 
 // internal.intelligence.chat.interaction_recorded
@@ -1028,6 +1098,12 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 | FT-AM-001 | `audit.account.contact_updated` | audit | `cynthus-core-api` | `cynthus-audit` | User changed their name, email, or phone number |
 | FT-AM-002 | `internal.profile.soft_preferences.updated` | internal | `cynthus-profile` | `cynthus-chat`, `cynthus-audit` | Soft preferences updated (cuisine, portion size, Energy Banker baseline, venue) |
 | FT-AM-002 | `audit.profile.hard_constraint.updated` | audit | `cynthus-profile` | `cynthus-audit` | Hard constraint changed (allergen added or removed, medical condition updated); safety-critical; requires immutable audit entry |
+| FT-AM-002 | `public.profile.profile.requested` | public | `cynthus-core-api` | `cynthus-profile`, `cynthus-audit` | A caller asked to create, get, update or delete their own profile; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Profile service |
+| FT-AM-002 | `public.profile.profile.responded` | public | `cynthus-profile` | `cynthus-core-api`, `cynthus-audit` | The Profile service's answer with an HTTP-style status and the profile or error; the API relays it only to the caller who asked |
+| FT-AM-002 | `public.profile.profile.created` | public | `cynthus-profile` | `cynthus-audit` | A profile was created; names which parts were set, not their contents |
+| FT-AM-002 | `public.profile.profile.updated` | public | `cynthus-profile` | `cynthus-audit` | A profile was changed; names which parts changed, not their contents |
+| FT-AM-002 | `public.profile.profile.deleted` | public | `cynthus-profile` | `cynthus-audit` | A profile was deleted; names which parts it held, not their contents |
+| FT-AM-002 | `public.profile.snapshot.published` | public | `cynthus-profile` | `cynthus-analysis`, `cynthus-audit` | A user signed in and has a profile: the profile (allergies, likes, dislikes, favorites, conditions) is pushed for the Analysis engine to correlate with inventory and shopping patterns |
 | FT-AM-003 | *(handled by billing signals; see FT-BL-001)* | — | — | — | Subscription preference changes route through cynthus-billing-api |
 | FT-AM-004, FT-AM-005, FT-AM-006, FT-AM-007 | `audit.account.business_profile_updated` | audit | `cynthus-core-api` | `cynthus-audit` | Business or partner profile details changed |
 | FT-AM-008 | `internal.account.deletion_requested` | internal | `cynthus-core-api` | `cynthus-scheduler`, `cynthus-audit` | User submitted account deletion request; 30-day grace period clock started |
@@ -1036,6 +1112,8 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 | FT-AM-009 | `internal.profile.notification_preferences.updated` | internal | `cynthus-profile` | `cynthus-notification`, `cynthus-scheduler` | User updated notification channel, per-type toggles, quiet hours, or batching preferences |
 | FT-AM-010 | `internal.account.onboarding_started` | internal | `cynthus-core-api` | `cynthus-audit` | First-run wizard launched for new user |
 | FT-AM-010 | `internal.account.onboarding_completed` | internal | `cynthus-core-api` | `cynthus-chat`, `cynthus-audit` | Onboarding wizard completed; Astri greeting session triggered |
+
+**Profile request and response.** The profile request, response, fact and snapshot signals are `public.*` by decision, although the other profile signals above are `internal.*`. Allergies and medical conditions are hard constraints: the Profile service publishes `audit.profile.hard_constraint.updated` before it commits a change to them, and refuses the change if it cannot. Profile signal bodies hold health information and are never logged.
 
 ### Sample Payloads — Account Management
 
@@ -1428,7 +1506,15 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 | FT-SI-001 | `audit.identity.svid.revoked` | audit | `spire-server` | `cynthus-audit` | SVID revoked; potential container compromise or policy violation |
 | FT-SI-002 | `audit.identity.token_exchanged` | audit | `cynthus-core-api` | `cynthus-audit` | External JWT successfully exchanged for internal context headers |
 | FT-SI-002 | `audit.identity.token_exchange_failed` | audit | `cynthus-core-api` | `cynthus-audit`, `cynthus-notification` | Token exchange rejected (invalid, expired, or tampered JWT); security event |
+| FT-SI-004 | `audit.identity.user.authenticated` | audit | `cynthus-identity` | `cynthus-audit`, `cynthus-profile` | A user signed in with correct credentials. Carries the user id and username; never the password |
+| FT-SI-004 | `audit.identity.user.rejected` | audit | `cynthus-identity` | `cynthus-audit` | A sign-in was refused. Carries the username that was tried and no tenant (nil UUID); never the password |
+| FT-SI-004 | `audit.identity.token.issued` | audit | `cynthus-identity` | `cynthus-audit` | An access token was issued. Carries the token id (`jti`), signing key id, lifetime, roles and permissions; never the token |
+| FT-SI-005 | `audit.identity.access.granted` | audit | `cynthus-core-api`, `cynthus-inventory` | `cynthus-audit` | A request carried a valid token that grants the permission it needs (HTTP 2xx path) |
+| FT-SI-005 | `audit.identity.access.rejected` | audit | `cynthus-core-api`, `cynthus-inventory` | `cynthus-audit` | A request had no valid token: missing, malformed, expired, forged or for another caller (HTTP 401); security event |
+| FT-SI-005 | `audit.identity.access.denied` | audit | `cynthus-core-api`, `cynthus-inventory` | `cynthus-audit` | A valid token lacked the permission the request needs (HTTP 403): the role-based access violation; security event |
 | FT-SI-003 | `audit.system.ledger.entry_written` | audit | `cynthus-audit` | SIEM / archive system | Audit entry committed to write-once ledger; consumed by external SIEM integrations |
+
+**Reading the access signals.** `audit.identity.access.rejected` means the caller could not be identified (401). `audit.identity.access.denied` means the caller was identified but their role does not allow the request (403), so it is the signal that shows a role-based access violation. Signals about an unknown caller carry the nil UUID as organization, workspace and actor. The `identity` publisher is the auth container; the API and Inventory services publish the access signals for the requests they check, so a request the API forwards to Inventory is recorded by both.
 
 ### Sample Payloads — Security and Identity
 
