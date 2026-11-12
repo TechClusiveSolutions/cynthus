@@ -1,6 +1,6 @@
 # ADR-010: Tenants, parent tenants, owners and billing accounts
 
-**Status:** Proposed (2026-11-11)
+**Status:** Proposed (2026-11-11), amended 2026-11-12
 **Relates to:** ADR-009 (the Service object and one layout), cynthus-shared issue 93 (core model classes), cynthus-shared
 issue 102 (signal schema version).
 
@@ -70,6 +70,50 @@ word "organization" is retired from the model: there is no separate Organization
   `billing_account_id` on `Tenant`, and a `BillingAccount` class (`id_`, `owner`, `name`, `options`). `Workspace` is
   unchanged: it belongs to a tenant that is not a parent.
 
+## Amendment (2026-11-12): the Auth schema
+
+Settled with the owner while designing the Auth records for ADR-013. It refines the model above; where they differ, this
+section wins.
+
+### Tables
+
+| Table | Holds |
+|---|---|
+| `tenant_types` | `id`, `name` (`personal`, `organizational`, `parent`). Replaces the `bridge` flag: a parent tenant is a tenant of type `parent`. |
+| `roles` | `id`, `name` (for example `super_admin`, `admin`, `member`, `viewer`). A check constraint refuses the name `owner`. |
+| `tenants` | `id`, `name`, `type_id`, `parent_id` (empty for a stand-alone or parent tenant), `owner_id` (user), `billing_account_id`, `deleted_at` |
+| `workspaces` | `id`, `name`, `tenant_id`, `owner_id` (user), `deleted_at` |
+| `workspace_roles` | `id`, `workspace_id`, `user_id`, `role_id`, `status` (`pending`, `active`, `revoked`, `expired`), `deleted_at` |
+
+- A workspace belongs to **exactly one tenant** (`workspaces.tenant_id`). A join table between tenants and workspaces is
+  not used: it would allow a workspace in several tenants.
+- A workspace in a parent tenant is refused: the service reads the tenant's type when it creates the workspace.
+
+### Owner stays a column
+
+- `owner_id` is on `tenants` and on `workspaces`, `NOT NULL`, with a foreign key to the user. Every tenant and workspace
+  has exactly one owner by construction, and "is this subject the owner?" is a column compare on every request, not a
+  join.
+- Owner is not a row of `workspace_roles`, and `roles` cannot hold it. This keeps the rule above: owner is a property,
+  not a role that can be granted.
+- Transfer of ownership is one update of `owner_id`; the previous owner may be given an ordinary role in the same
+  transaction. The rule that unregistering is refused while other members exist ("transfer first") stands.
+- *Alternative kept open:* ownership as a row of a mapping table (history of past owners). It would need a unique index of
+  one live owner per workspace and would drop the rule that no role is `owner`. It is a separate migration if a case for
+  ownership history appears.
+
+### A token and the workspace
+
+- A workspace is **not created automatically**. A new user has a tenant and no workspace and creates one explicitly.
+- A token carries a `workspace_id`. Until the user has one, the token carries the **nil workspace id**
+  (`00000000-0000-0000-0000-000000000000`), and services answer 409 `workspace_required` for anything that needs a
+  workspace.
+- **Creating a workspace**, and **switching to another workspace**, each return a new token carrying that workspace id.
+- Auth issues a token for a workspace only if the user **owns it or holds an active `workspace_roles` row** in it. The
+  check is made when the token is issued.
+- Access to somebody else's workspace is a `workspace_roles` row created by an access request (ADR-013): status `pending`
+  until the owner approves it.
+
 ## Not decided here
 
 - What a parent tenant lets its owner do across the children beyond seeing them and their billing (for example reporting).
@@ -100,7 +144,7 @@ word "organization" is retired from the model: there is no separate Organization
 1. cynthus-shared: `tenant_id` beside `organization_id` in the signal base and the token claims (additive), with the schema
    version from issue 102.
 2. cynthus-shared issue 93: add `parent`, `billing_account_id`, `BillingAccount`; fix the known defects.
-3. cynthus-trust: parent tenant creation; owner-claim rule with tests.
+3. cynthus-trust: tenant and workspace records, the nil workspace id and new-token rule, parent tenant creation, owner-claim rule with tests (the amendment above); then the ADR-013 records.
 4. Services, one at a time: read `tenant_id`; rename columns by migration when the schema next changes.
 5. Billing accounts: entity, API and screens (own design).
 6. Remove `organization_id` after one release.
