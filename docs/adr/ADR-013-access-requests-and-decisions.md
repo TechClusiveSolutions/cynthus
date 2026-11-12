@@ -44,38 +44,47 @@ would be lost) and keeps the decision and its answer in one row (they are never 
 | Record | Holds |
 |---|---|
 | `event_request` | `id`, the event (type, action, resource type and id, tenant, workspace), `requestor_id` (user or system), `reason` (text), `requested_on`, `in_reply_to` (the request it answers, empty for the first) |
-| `decision` | `id`, `event_request_id`, `answer` (`approved`, `approved_conditionally`, `denied`, `denied_conditionally`), `reason`, `determined_by` (the service), `determined_on` |
-| `decision_condition` | `id`, `decision_id`, `condition` (its type), `status` (`open`, `satisfied`, `waived`, `expired`), `expires_at`, `satisfied_by_decision_id`, `satisfied_on` |
+| `decision` | `id`, `event_request_id`, `answer` (`approved`, `approved_conditionally`, `denied`, `denied_conditionally`), `answer_reason` (why the answer is what it is), `determined_by` (the service), `determined_on` |
+| `decision_condition` | `id`, `decision_id`, `condition` (the `answer_reason` a reply must carry), `status` (`open`, `satisfied`, `failed`, `waived`, `expired`), `expires_at`, `satisfied_by_decision_id`, `satisfied_on` |
 
 A decision has zero or more conditions. A request is **in effect** when its latest decision is approved, or approved
-conditionally with every condition satisfied or waived. A condition that expires without being satisfied closes the
-request.
+conditionally with every condition satisfied or waived. A condition that fails, or expires without being satisfied,
+closes the request.
 
-### What reason and condition mean
+### What answer reason and condition mean
 
-- The **condition** is what must happen before the request takes effect (for example `authorization_required`: the owner
-  must approve).
-- The **reason** is why the decision is what it is (for example `insufficient_privileges`: Jill is not the owner;
-  `permitted`: the owner is acting on their own resource; `authorization_granted`: the owner approved; `expired`).
+- The **answer reason** (`answer_reason`) says why the answer is what it is. `approval_required` is why the answer is
+  `approved_conditionally` rather than `approved`. `permitted` is why an owner's own request is `approved`.
+  `insufficient_privileges` says the requestor lacks the privilege. `approval_granted` and `approval_denied` are the
+  reasons of the decision that answers an approval request. `expired` is the reason of a decision made by the clock.
+- A **condition** is the answer reason that a reply must carry for the condition to be met. A condition of
+  `approval_granted` is met by a decision on a reply to this request whose answer reason is exactly
+  `approval_granted`. The test is an exact match: `reply.answer_reason == condition.condition`. A reply whose reason is
+  `approval_denied` does not match, so the condition is not met (it is marked *failed* and the request closes as
+  denied). No reply at all leaves it open until it expires.
+- Because the match is exact, a condition needs no logic of its own: the reply states what it is, and the condition
+  states what it waits for. The vocabulary is one list of answer reasons used by both.
 
-*To confirm with the owner:* the example in the discussion had the reason as `authorization_required` and the condition
-as `authorization_granted`. This ADR reads them the other way round, which is how the existing enumerations are named
-(`authorization_required` is a condition; `authorization_granted` is a reason). A reason `expired` is new.
+*Names:* the existing enumerations call these `authorization_required`, `authorization_granted` and
+`authorization_rejected`. This ADR uses `approval_required`, `approval_granted` and `approval_denied`, as the owner
+named them; the change renames the enumeration members (nothing uses them yet). `EventRequestDecision.reason` becomes
+`answer_reason`, `expired` is new, and the single `condition` becomes a list of conditions (below).
 
 ### The walk-through
 
 1. Jill requests access. Auth creates the workspace role with status *pending* and publishes
    `public.auth.workspace_role.created`. Request: actor Jill, resource the role, owner Jack, action created. Decision:
-   `approved_conditionally`, reason `insufficient_privileges`, one condition `authorization_required`, `expires_at` five
-   days out, status *open*.
+   `approved_conditionally`, answer reason `approval_required`, one condition `approval_granted` (the reason a reply
+   must carry), `expires_at` five days out, status *open*.
 2. Jack approves. A new request: actor Jack, resource the role, owner Jack, action updated, `in_reply_to` the first.
-   Decision: `approved`, reason `authorization_granted`. The condition of the first decision becomes *satisfied*, with
-   `satisfied_by_decision_id` pointing here. The role becomes *active*. `public.auth.workspace_role.updated`.
-3. Jack revokes later. A new request (action updated or deleted) and a decision `approved`, reason `permitted`. The
+   Decision: `approved`, answer reason `approval_granted`. That equals the condition of the first decision, which becomes
+   *satisfied*, with `satisfied_by_decision_id` pointing here. (Had Jack refused, the decision would be `denied` with
+   answer reason `approval_denied`: not equal, so the condition would be *failed* and the request closed.) The role becomes *active*. `public.auth.workspace_role.updated`.
+3. Jack revokes later. A new request (action updated or deleted) and a decision `approved`, answer reason `permitted`. The
    role becomes *revoked*; its earlier decisions stay as they were. `public.auth.workspace_role.deleted` for a delete.
 4. Nobody answers within five days. A scheduled job marks the condition *expired*, the role *expired*, and records a
-   decision `denied`, reason `expired`, determined by Auth. A signal announces it.
-5. Jack creates a resource of his own. The decision is `approved`, reason `permitted`, no condition.
+   decision `denied`, answer reason `expired`, determined by Auth. A signal announces it.
+5. Jack creates a resource of his own. The decision is `approved`, answer reason `permitted`, no condition.
 
 ### Privileges: nobody grants what they do not hold
 
@@ -85,7 +94,7 @@ as `authorization_granted`. This ADR reads them the other way round, which is ho
 - A super admin may grant any role up to and including super admin, never owner.
 - Anyone may **create** a resource they are allowed to create without being able to grant access to it. The manager of a
   shopping list can create an order. The order is conditionally approved until a payment method exists and is linked;
-  the condition `payment_method_required` is satisfied by the decision that records the link, whoever makes it.
+  the condition `payment_method_linked` is met by the reply whose answer reason is exactly `payment_method_linked`, which the service records when the link is made, whoever makes it.
 
 ### Expiry
 
@@ -93,13 +102,14 @@ as `authorization_granted`. This ADR reads them the other way round, which is ho
   collaboration or participation request. The expiry for other condition types is set when they are introduced; a type
   may have none.
 - A scheduled job (the Scheduler) finds open conditions past their time, expires them and publishes the result. Expiry
-  is therefore a recorded decision, not a silent deletion (soft deletes, ADR-011).
+  is therefore a recorded decision with answer reason `expired`, not a silent deletion (soft deletes, ADR-011).
 
 ### Where it lives
 
-- The model classes stay in `cynthus.core.event`: `EventRequest` gains `in_reply_to`, a `DecisionCondition` class
-  (`condition`, `status`, `expires_at`, `satisfied_by`) replaces the single `condition` on `EventRequestDecision`, and
-  `EventRequestDecisionReason` gains `expired`. Factories and fixtures follow.
+- The model classes stay in `cynthus.core.event`: `EventRequest` gains `in_reply_to`; `EventRequestDecision.reason`
+  becomes `answer_reason`; a `DecisionCondition` class (`condition`, `status`, `expires_at`, `satisfied_by`) replaces the
+  single `condition` on the decision, with a method that tests a reply by exact match; the enumeration is renamed to the
+  `approval_*` names and gains `expired`. Factories and fixtures follow.
 - Auth owns the records for access requests (`event_requests`, `decisions`, `decision_conditions`, `workspace_roles`) in
   its own database, until a Billing or Access service takes tenant management (the owner's decision of 2026-11-12).
   Other services keep their own conditions (the order's payment method) in their schemas, with the same shape.
@@ -137,6 +147,7 @@ as `authorization_granted`. This ADR reads them the other way round, which is ho
 - The expiry of the payment-method condition on an order, and of other condition types.
 - Whether Jack is notified (email or in-app) and how; the signal is the contract.
 - Whether a rejected request can be made again at once, or only after a delay.
+- Whether a condition may name more than one acceptable reply (an exact match against a list), if a case needs it.
 - Delegation: whether Jack can let a super admin approve for him within the privilege rule above.
 
 ## Review triggers
