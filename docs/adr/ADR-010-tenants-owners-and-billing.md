@@ -114,6 +114,36 @@ section wins.
 - Access to somebody else's workspace is a `workspace_roles` row created by an access request (ADR-013): status `pending`
   until the owner approves it.
 
+## Amendment 2 (2026-11-12): roles and the privilege matrix
+
+The `roles` table holds five rows. Each role has a set of actions over three kinds of resource: **content** (what the
+services keep: inventory, recipes, shopping lists, profiles), **members** (who has access to the workspace) and
+**settings** (the workspace's name, defaults and billing link).
+
+| Role | Content: create | list | read | write | Members: grant | Settings |
+|---|---|---|---|---|---|---|
+| `viewer` | no | yes | yes | no | no | read |
+| `contributor` | yes | yes | yes | yes | no | read |
+| `manager` | yes | yes | yes | yes | no | read |
+| `admin` | no | yes | yes (non-private) | no | up to `contributor` | read, write |
+| `super_admin` | yes | yes | yes (private too) | yes | up to `super_admin` | read, write |
+
+- **Write includes soft delete** (ADR-011).
+- **Private content** is readable only by its owner and by `super_admin`. Every other role reads non-private content
+  only. Content has no `private` flag yet; adding it is its own change.
+- **Grant:** nobody grants a role above their own, and nobody grants `owner` (ADR-013). A decision that grants a role is
+  checked against the role of the person deciding.
+- **Owner** is not a role. The owner holds every privilege in their own tenant and workspace and is the only one who can
+  transfer ownership.
+- **Own resources:** a user can always read and write their own profile and the resources they created, whatever their
+  role (as today).
+- **`admin` and `manager`:** an `admin` administers the people and settings of a workspace and reads its non-private
+  content, but does not change it. A `manager` works on the content on behalf of the owner (for example, placing orders
+  for the owner's shopping list), and cannot grant access.
+- **Mapping from the roles Auth uses today:** `workspace_administrator` becomes `super_admin`, `team_member` becomes
+  `contributor`, and `client_contributor` becomes `viewer` with the own-resources rule. The migration changes the stored
+  names, and `role_permissions.py` maps the new names to the service permissions (`inventory:read` and the rest).
+
 ## Not decided here
 
 - What a parent tenant lets its owner do across the children beyond seeing them and their billing (for example reporting).
