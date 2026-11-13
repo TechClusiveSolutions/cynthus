@@ -2,7 +2,7 @@
 
 **Project:** Cynthus Life Ecosystem
 **Document Version:** 6.0 (June 2026)
-**Status:** Active — reflects all architectural decisions through June 2026 design sessions
+**Status:** Active - reflects all architectural decisions through June 2026 design sessions
 **Architecture Pattern:** Choreographer (Event-Driven Microservices)
 **Design Methodology:** Component-Driven Engineering (Backend FSD Adaptation)
 **Target Runtime:** Python 3.11+ / FastAPI / FastStream
@@ -21,9 +21,9 @@ This version supersedes ADD V5 and incorporates the following significant change
 - **`cynthus-profile` service** added to Core as the owner of soft preferences and hard constraints.
 - **Context Assembly Pattern** formalized as a first-class architectural concern (Section 4).
 - **Three-topic Service Bus architecture** replacing the single-topic design.
-- **Workspace ID stub strategy** — `workspace_id` present in all schemas from Phase 1 even for single-user accounts.
-- **Entitlement system for booster packs** — ADR-005 governing how purchased add-ons propagate to token claims.
-- **All `SMH-*` naming artifacts removed** — fully migrated to `cynthus-*` naming convention throughout.
+- **Workspace ID stub strategy** - `workspace_id` present in all schemas from Phase 1 even for single-user accounts.
+- **Entitlement system for booster packs** - ADR-005 governing how purchased add-ons propagate to token claims.
+- **All `SMH-*` naming artifacts removed** - fully migrated to `cynthus-*` naming convention throughout.
 
 ---
 
@@ -35,7 +35,7 @@ The Cynthus Life Ecosystem uses an asynchronous Choreographer Architecture. Micr
 
 To protect proprietary intellectual property and prevent exposure of clinical, corporate, or financial operational resources, the system partitions cloud network space into isolated Azure Virtual Networks (VNets).
 
-```
+```text
                               [ Public Internet ]
                                       |
           +--------------------------+------------------------+
@@ -43,7 +43,7 @@ To protect proprietary intellectual property and prevent exposure of clinical, c
           v                                                   v
 +-------------------------------+             +--------------------------------+
 | VNET-CYNTHUS-CORE             |             | VNET-CYNTHUS-HEALTH            |
-| (Public Edge — Open Source)   |             | (Clinical DMZ — Closed Source) |
+| (Public Edge - Open Source)   |             | (Clinical DMZ - Closed Source) |
 |                               |             |                                |
 | cynthus-core-web              |             | cynthus-health-web             |
 | cynthus-core-api              |             | cynthus-health-api             |
@@ -55,14 +55,14 @@ To protect proprietary intellectual property and prevent exposure of clinical, c
         v               v                             v
 +-----------------------------------------------+-----------------------------+
 | VNET-CYNTHUS-INTELLIGENCE          |                             |
-| (Dark Subnet — No Public IPs — Closed Source)  |  Azure Service Bus          |
+| (Dark Subnet - No Public IPs - Closed Source)  |  Azure Service Bus          |
 |                                               |  (3-Topic Choreographer)    |
 | cynthus-chat   cynthus-analysis   cynthus-video|                             |
 +-----------------------------------------------+-----------------------------+
 ```
 
 - **`vnet-cynthus-core`:** Publicly routed subnet. Hosts `cynthus-core-api` and `cynthus-core-web`. Accepts external connections over HTTPS and WebSocket protocols. All community-contributed open-source services run here.
-- **`vnet-cynthus-intelligence`:** Private dark subnet. No public IP allocations. No public endpoints. Hosts `cynthus-chat`, `cynthus-analysis`, and `cynthus-video`. Reachable only via Azure VNet Peering from Core. The Intelligence subnet makes no outbound runtime calls to Core services — it receives only pre-assembled context payloads.
+- **`vnet-cynthus-intelligence`:** Private dark subnet. No public IP allocations. No public endpoints. Hosts `cynthus-chat`, `cynthus-analysis`, and `cynthus-video`. Reachable only via Azure VNet Peering from Core. The Intelligence subnet makes no outbound runtime calls to Core services - it receives only pre-assembled context payloads.
 - **`vnet-cynthus-health`:** DMZ subnet. Hosts `cynthus-health-api`, `cynthus-health-web`, and `cynthus-device`. Enforces HIPAA consent token verification and immutable audit emission before any data exchange with external clinical partners.
 
 Cross-VNet conversational streaming: `cynthus-core-api` routes user WebSocket sessions to `cynthus-chat` via private IP over the VNet Peering bridge, bypassing Service Bus latency. Internal AI-to-AI queries between `cynthus-chat` and `cynthus-analysis` run via synchronous gRPC within the private Intelligence namespace.
@@ -73,81 +73,69 @@ Cross-VNet conversational streaming: `cynthus-core-api` routes user WebSocket se
 
 The codebase is partitioned into seven domain segments isolating business logic, licensing models, and runtime deployment contexts.
 
-#### Cynthus Trust — Closed-Source
+#### Cynthus Trust - Closed-Source
 
 Manages identity, authentication, authorization, and compliance auditing. Closed-source to protect security architecture and regulatory audit integrity.
 
-| Service | Function |
-|---|---|
-| `cynthus-identity` | Multi-tenant identity management, JWT issuance with RBAC/ABAC claims and entitlement fields, workspace assignment. |
-| `cynthus-audit` | Immutable append-only audit ledger. Records PHI data access and hard-constraint profile mutation events. |
-| `cynthus-trust-cache` | High-speed caching for token validation and session state. |
-| `cynthus-trust-db` | Clustered persistent storage for the Trust domain with schema-isolated partitions per service. |
+- `cynthus-identity`: Multi-tenant identity management, JWT issuance with RBAC/ABAC claims and entitlement fields, workspace assignment.
+- `cynthus-audit`: Immutable append-only audit ledger. Records PHI data access and hard-constraint profile mutation events.
+- `cynthus-trust-cache`: High-speed caching for token validation and session state.
+- `cynthus-trust-db`: Clustered persistent storage for the Trust domain with schema-isolated partitions per service.
 
-#### Cynthus Core — Open-Source
+#### Cynthus Core - Open-Source
 
 Governed by open-source community contribution. Handles physical data domains, logistics, user profiles, and the primary consumer interface. Community contributors may modify all services within this domain subject to the contribution boundary rules in PRD Section 10.5.
 
-| Service | Function |
-|---|---|
-| `cynthus-core-api` | Primary public HTTPS/REST and WebSocket edge. Handles user sessions, context assembly, and request routing to Intelligence. |
-| `cynthus-inventory` | Predictive state management for pantry, fridge, and freezer items. Processes physical asset mutations (<200ms latency). |
-| `cynthus-recipe` | Recipe library management, external recipe ingestion, OCR parsing, and constraint-filtered recipe query API. |
-| `cynthus-logistics` | Purchase manifests, automated reorders, delivery tracking, and external supplier integrations. |
-| `cynthus-profile` | User preference and hard-constraint registry. Owns the allergy hard-filter. Distinguishes soft preferences (freely mutable) from hard constraints (audit-logged on every mutation). |
-| `cynthus-scheduler` | Background cron engine for periodic tasks, item expiry alerts, and scheduled suggestion delivery. |
-| `cynthus-worker` | Asynchronous background task processor for data ingestion, OCR jobs, receipt scanning, and non-time-sensitive formatting. |
-| `cynthus-messaging-engine` | Real-time WebSocket hub routing intra-group text messages, interactive cards, and WebRTC signaling metadata. |
-| `cynthus-core-web` | Fully accessible, semantic consumer UI renderer (React/Next.js, SSR). |
-| `cynthus-core-cache` | High-speed caching layer for Core domain services. |
-| `cynthus-core-db` | Clustered persistent storage with schema-isolated partitions per Core service. |
+- `cynthus-core-api`: Primary public HTTPS/REST and WebSocket edge. Handles user sessions, context assembly, and request routing to Intelligence.
+- `cynthus-inventory`: Predictive state management for pantry, fridge, and freezer items. Processes physical asset mutations (<200ms latency).
+- `cynthus-recipe`: Recipe library management, external recipe ingestion, OCR parsing, and constraint-filtered recipe query API.
+- `cynthus-logistics`: Purchase manifests, automated reorders, delivery tracking, and external supplier integrations.
+- `cynthus-profile`: User preference and hard-constraint registry. Owns the allergy hard-filter. Distinguishes soft preferences (freely mutable) from hard constraints (audit-logged on every mutation).
+- `cynthus-scheduler`: Background cron engine for periodic tasks, item expiry alerts, and scheduled suggestion delivery.
+- `cynthus-worker`: Asynchronous background task processor for data ingestion, OCR jobs, receipt scanning, and non-time-sensitive formatting.
+- `cynthus-messaging-engine`: Real-time WebSocket hub routing intra-group text messages, interactive cards, and WebRTC signaling metadata.
+- `cynthus-core-web`: Fully accessible, semantic consumer UI renderer (React/Next.js, SSR).
+- `cynthus-core-cache`: High-speed caching layer for Core domain services.
+- `cynthus-core-db`: Clustered persistent storage with schema-isolated partitions per Core service.
 
-#### Cynthus Intelligence — Closed-Source
+#### Cynthus Intelligence - Closed-Source
 
 Private dark subnet. Contains no public IP allocations. All inbound data arrives as pre-assembled context payloads via VNet Peering from Core. Makes no outbound runtime calls to Core services.
 
-| Service | Function |
-|---|---|
-| `cynthus-chat` | Runtime for the Astri AI persona. Processes pre-assembled context payloads and generates streaming conversational responses. |
-| `cynthus-analysis` | Autonomous AI agent executing predictive lifestyle analysis, biometric trend modeling, Harmony index computation, and sentiment analysis. |
-| `cynthus-video` | Smart glasses HUD pipeline. Processes real-time video frames, calculates spatial coordinates, and generates clock-face orientation guidance for low-vision users. |
-| `cynthus-intel-cache` | High-speed caching layer for Intelligence domain services. |
-| `cynthus-intel-db` | Clustered persistent storage with schema-isolated partitions per Intelligence service. |
+- `cynthus-chat`: Runtime for the Astri AI persona. Processes pre-assembled context payloads and generates streaming conversational responses.
+- `cynthus-analysis`: Autonomous AI agent executing predictive lifestyle analysis, biometric trend modeling, Harmony index computation, and sentiment analysis.
+- `cynthus-video`: Smart glasses HUD pipeline. Processes real-time video frames, calculates spatial coordinates, and generates clock-face orientation guidance for low-vision users.
+- `cynthus-intel-cache`: High-speed caching layer for Intelligence domain services.
+- `cynthus-intel-db`: Clustered persistent storage with schema-isolated partitions per Intelligence service.
 
-#### Cynthus Health — Closed-Source
+#### Cynthus Health - Closed-Source
 
 DMZ subnet hosting external healthcare provider and clinical partner interfaces. Enforces regulatory validation and consent verification before all data exchange.
 
-| Service | Function |
-|---|---|
-| `cynthus-health-api` | Primary edge for clinical integrations. Enforces HIPAA consent token verification and read-only data access. |
-| `cynthus-device` | Device telemetry aggregator (provisional: expected in the `cynthus-health` repository; HUD and video data are not health-specific, so its home may change). Ingests wearable and biometric data streams. Routes hot-path raw data to time-series buffers and summarizes warm-path events for the Service Bus. |
-| `cynthus-health-web` | Clinical dashboard UI renderer for authorized B2B healthcare partners. |
-| `cynthus-health-cache` | High-speed caching layer for Health domain services. |
-| `cynthus-health-db` | PHI-isolated persistent storage implementing field-level encryption for all biometric and patient data (`vesta_clinical` schema). |
+- `cynthus-health-api`: Primary edge for clinical integrations. Enforces HIPAA consent token verification and read-only data access.
+- `cynthus-device`: Device telemetry aggregator (provisional: expected in the `cynthus-health` repository; HUD and video data are not health-specific, so its home may change). Ingests wearable and biometric data streams. Routes hot-path raw data to time-series buffers and summarizes warm-path events for the Service Bus.
+- `cynthus-health-web`: Clinical dashboard UI renderer for authorized B2B healthcare partners.
+- `cynthus-health-cache`: High-speed caching layer for Health domain services.
+- `cynthus-health-db`: PHI-isolated persistent storage implementing field-level encryption for all biometric and patient data (`vesta_clinical` schema).
 
-#### Cynthus Commerce — Closed-Source
+#### Cynthus Commerce - Closed-Source
 
 Manages monetization, payment processing, subscription management, booster pack entitlements, supplier relationships, and partner integrations.
 
-| Service | Function |
-|---|---|
-| `cynthus-billing-api` | Subscription lifecycle management, payment processing, booster pack activation, entitlement state management, and tier enforcement. Emits `internal.system.entitlement.updated` signals on every purchase or cancellation. |
-| `cynthus-partner-api` | Partner and supplier integrations, wholesale API connections, slotting and bounty tracking. |
-| `cynthus-comm-web` | UI renderer for partner, supplier, and provider commercial interactions (React/Next.js, SSR). |
-| `cynthus-comm-cache` | High-speed caching layer for Commerce domain services. |
-| `cynthus-comm-db` | Clustered persistent storage with schema-isolated partitions per Commerce service. |
+- `cynthus-billing-api`: Subscription lifecycle management, payment processing, booster pack activation, entitlement state management, and tier enforcement. Emits `internal.system.entitlement.updated` signals on every purchase or cancellation.
+- `cynthus-partner-api`: Partner and supplier integrations, wholesale API connections, slotting and bounty tracking.
+- `cynthus-comm-web`: UI renderer for partner, supplier, and provider commercial interactions (React/Next.js, SSR).
+- `cynthus-comm-cache`: High-speed caching layer for Commerce domain services.
+- `cynthus-comm-db`: Clustered persistent storage with schema-isolated partitions per Commerce service.
 
-#### Cynthus Emulators — Open-Source (Developer Environment Only)
+#### Cynthus Emulators - Open-Source (Developer Environment Only)
 
 Local developer container environment. Not deployed to production. Enables community contributors to run the full Core stack locally without cloud dependencies.
 
-| Service | Function |
-|---|---|
-| `cynthus-signal-bus` | Azure Service Bus emulator container for local message routing across all three topics. |
-| `cynthus-signal-db` | MS SQL storage backend for the Service Bus emulator. |
+- `cynthus-signal-bus`: Azure Service Bus emulator container for local message routing across all three topics.
+- `cynthus-signal-db`: MS SQL storage backend for the Service Bus emulator.
 
-#### Cynthus Shared — Open-Source
+#### Cynthus Shared - Open-Source
 
 Shared Pydantic model library distributed as two Python wheel packages. See Section 5 (ADR-004) for the open/closed-source boundary strategy.
 
@@ -162,7 +150,7 @@ Multi-tenancy is enforced strictly across all data layers, storage systems, and 
 - **`organization_id` (Corporate Tenant Boundary):** Maps to the global corporate or enterprise contract account. Owns global identity mappings and master compliance controls.
 - **`workspace_id` (Functional Isolation Key):** Replaces localized household boundaries. A single organization may provision multiple independent workspaces. Every event message and every database row must carry both keys to prevent cross-tenant data visibility.
 
-**Phase 1 workspace stub:** In Phase 1 (single-user accounts), every user is automatically assigned a personal `workspace_id` at registration with a 1:1 user-to-workspace mapping. This field is present in all schemas and JWT claims but is not exposed in the Phase 1 UI. Phase 3 introduces shared group workspaces as a purely additive capability — no schema migration required.
+**Phase 1 workspace stub:** In Phase 1 (single-user accounts), every user is automatically assigned a personal `workspace_id` at registration with a 1:1 user-to-workspace mapping. This field is present in all schemas and JWT claims but is not exposed in the Phase 1 UI. Phase 3 introduces shared group workspaces as a purely additive capability - no schema migration required.
 
 ### 3.2 Hybrid RBAC and ABAC Hierarchy
 
@@ -183,7 +171,7 @@ Multi-tenancy is enforced strictly across all data layers, storage systems, and 
 
 Booster packs purchased via `cynthus-billing-api` create additive entitlements above base tier limits. The entitlement propagation chain is:
 
-```
+```text
 User purchases booster pack
         |
         v
@@ -219,11 +207,11 @@ The context assembly pattern is the critical boundary between open-source Core a
 
 `cynthus-core-api` is solely responsible for assembling all context required by Astri before any AI processing occurs. The assembly is triggered by a user message or a detected meal-planning intent.
 
-```
+```text
 User Request (WebSocket)
         |
         v
-cynthus-core-api — Context Assembly Layer
+cynthus-core-api - Context Assembly Layer
         |
         +-- GET /profile/constraints  --> cynthus-profile
         |       Returns: hard constraints + soft preferences
@@ -246,7 +234,7 @@ Assembled Context Payload
   }
         |
         v
-cynthus-chat ( VNet — dark subnet, via VNet Peering)
+cynthus-chat ( VNet - dark subnet, via VNet Peering)
         |
         v
 Streaming token response --> cynthus-core-api --> User (WebSocket)
@@ -277,39 +265,78 @@ This eliminates bidirectional runtime dependencies between Core and Intelligence
 
 The Service Bus is partitioned into three distinct topics aligned to visibility boundaries and compliance requirements. Access policies are enforced at the topic level, not just at the subscription filter level.
 
-| Topic | Namespace Prefix | Access | Purpose |
-|---|---|---|---|
-| `cynthus-topic-public` | `public.*` | All services (open-source and closed-source) | All signals visible to open-source consumers. Carries `identity`, `device`, `inventory`, `recipe`, `logistics`, `group`, and `user` namespace events. |
-| `cynthus-topic-internal` | `internal.*` | Closed-source services only | Private signals not exposed to open-source repositories. Carries `lifestyle`, `chat`, `video`, and `system` namespace events. Open-source pass-through services may consume envelope headers only (opaque payload). |
-| `cynthus-topic-audit` | `internal.audit.*` | `cynthus-portal-api`, `cynthus-identity`, `cynthus-profile`, `cynthus-audit` | Append-only compliance and safety audit events. Separate topic ensures audit records cannot be co-mingled with operational traffic and supports independent retention and integrity policies. |
+- `cynthus-topic-public`
+  - Namespace Prefix: `public.*`
+  - Access: All services (open-source and closed-source)
+  - Purpose: All signals visible to open-source consumers. Carries `identity`, `device`, `inventory`, `recipe`, `logistics`, `group`, and `user` namespace events.
+- `cynthus-topic-internal`
+  - Namespace Prefix: `internal.*`
+  - Access: Closed-source services only
+  - Purpose: Private signals not exposed to open-source repositories. Carries `lifestyle`, `chat`, `video`, and `system` namespace events. Open-source pass-through services may consume envelope headers only (opaque payload).
+- `cynthus-topic-audit`
+  - Namespace Prefix: `internal.audit.*`
+  - Access: `cynthus-portal-api`, `cynthus-identity`, `cynthus-profile`, `cynthus-audit`
+  - Purpose: Append-only compliance and safety audit events. Separate topic ensures audit records cannot be co-mingled with operational traffic and supports independent retention and integrity policies.
 
 ### 5.2 Unified Service Ingestion & Dispatch Matrix
 
-| Component Domain | Namespace | Core Publishers | Core Consumers |
-|---|---|---|---|
-| `identity` | `public.identity.*` | `cynthus-identity` | `cynthus-core-api`, `cynthus-billing-api` |
-| `device` | `public.device.*` | `cynthus-worker` | `cynthus-analysis`, `cynthus-health-api`, `cynthus-chat` |
-| `inventory` | `public.inventory.*` | `cynthus-inventory` | `cynthus-core-api`, `cynthus-analysis`, `cynthus-logistics` |
-| `recipe` | `public.recipe.*` | `cynthus-recipe` | `cynthus-core-api`, `cynthus-chat` |
-| `logistics` | `public.logistics.*` | `cynthus-logistics`, `cynthus-partner-api` | `cynthus-partner-api`, `cynthus-billing-api` |
-| `group` | `public.group.*` | `cynthus-messaging-engine`, `cynthus-core-api` | `cynthus-core-api`, `cynthus-chat`, `cynthus-analysis` |
-| `user` | `public.user.*` | `cynthus-core-api` | `cynthus-analysis`, `cynthus-chat` |
-| `audit` | `internal.audit.*` | `cynthus-health-api`, `cynthus-identity`, `cynthus-profile` | `cynthus-audit` |
-| `chat` | `internal.chat.*` | `cynthus-chat` | `cynthus-analysis`, `cynthus-core-api` |
-| `lifestyle` | `internal.lifestyle.*` | `cynthus-analysis` | `cynthus-chat` |
-| `video` | `internal.video.*` | `cynthus-messaging-engine`, `cynthus-video` | `cynthus-video`, `cynthus-chat`, `cynthus-core-api` |
-| `system` | `internal.system.*` | `cynthus-identity`, `cynthus-billing-api` | `cynthus-analysis`, `cynthus-identity`, `cynthus-core-api` |
+- `identity`
+  - Namespace: `public.identity.*`
+  - Core Publishers: `cynthus-identity`
+  - Core Consumers: `cynthus-core-api`, `cynthus-billing-api`
+- `device`
+  - Namespace: `public.device.*`
+  - Core Publishers: `cynthus-worker`
+  - Core Consumers: `cynthus-analysis`, `cynthus-health-api`, `cynthus-chat`
+- `inventory`
+  - Namespace: `public.inventory.*`
+  - Core Publishers: `cynthus-inventory`
+  - Core Consumers: `cynthus-core-api`, `cynthus-analysis`, `cynthus-logistics`
+- `recipe`
+  - Namespace: `public.recipe.*`
+  - Core Publishers: `cynthus-recipe`
+  - Core Consumers: `cynthus-core-api`, `cynthus-chat`
+- `logistics`
+  - Namespace: `public.logistics.*`
+  - Core Publishers: `cynthus-logistics`, `cynthus-partner-api`
+  - Core Consumers: `cynthus-partner-api`, `cynthus-billing-api`
+- `group`
+  - Namespace: `public.group.*`
+  - Core Publishers: `cynthus-messaging-engine`, `cynthus-core-api`
+  - Core Consumers: `cynthus-core-api`, `cynthus-chat`, `cynthus-analysis`
+- `user`
+  - Namespace: `public.user.*`
+  - Core Publishers: `cynthus-core-api`
+  - Core Consumers: `cynthus-analysis`, `cynthus-chat`
+- `audit`
+  - Namespace: `internal.audit.*`
+  - Core Publishers: `cynthus-health-api`, `cynthus-identity`, `cynthus-profile`
+  - Core Consumers: `cynthus-audit`
+- `chat`
+  - Namespace: `internal.chat.*`
+  - Core Publishers: `cynthus-chat`
+  - Core Consumers: `cynthus-analysis`, `cynthus-core-api`
+- `lifestyle`
+  - Namespace: `internal.lifestyle.*`
+  - Core Publishers: `cynthus-analysis`
+  - Core Consumers: `cynthus-chat`
+- `video`
+  - Namespace: `internal.video.*`
+  - Core Publishers: `cynthus-messaging-engine`, `cynthus-video`
+  - Core Consumers: `cynthus-video`, `cynthus-chat`, `cynthus-core-api`
+- `system`
+  - Namespace: `internal.system.*`
+  - Core Publishers: `cynthus-identity`, `cynthus-billing-api`
+  - Core Consumers: `cynthus-analysis`, `cynthus-identity`, `cynthus-core-api`
 
 ### 5.3 Four Lifecycle Actions
 
 To prevent event explosion, all domains emit events using exactly four atomic state mutation types:
 
-| Action | Meaning |
-|---|---|
-| `created` | A new entity instance has been created. |
-| `updated` | An existing entity instance has been mutated. |
-| `deleted` | An entity instance has been removed or deactivated. |
-| `snapshot` | A full current-state snapshot of an entity, used for cache warming and catch-up. |
+- `created`: A new entity instance has been created.
+- `updated`: An existing entity instance has been mutated.
+- `deleted`: An entity instance has been removed or deactivated.
+- `snapshot`: A full current-state snapshot of an entity, used for cache warming and catch-up.
 
 Downstream processors evaluate the state snapshot inside the payload to compute deltas, minimizing subscription overhead.
 
@@ -323,11 +350,15 @@ Contains `SignalMessageEnvelope[T]`, `ActorModel`, and `ResourceModel`. Open-sou
 **`cynthus-messaging-internal`** (Closed-Source / Private Azure Artifact):
 Extends the public package with deep, strongly-typed Pydantic model validation for all private signal namespaces. Available only to closed-source services authenticating against the private Azure Artifacts feed.
 
-| Ingesting Service Type | Signal Classification | Validation Depth |
-|---|---|---|
-| Open-Source | Public (`public.device.*`, `public.inventory.*`) | Deep (strict Pydantic model) |
-| Open-Source | Private (`internal.lifestyle.*`, `internal.video.*`) | Opaque (`SignalMessageEnvelope[dict]`) |
-| Closed-Source | Any | Deep (strict Pydantic via internal wheel) |
+- Open-Source
+  - Signal Classification: Public (`public.device.*`, `public.inventory.*`)
+  - Validation Depth: Deep (strict Pydantic model)
+- Open-Source
+  - Signal Classification: Private (`internal.lifestyle.*`, `internal.video.*`)
+  - Validation Depth: Opaque (`SignalMessageEnvelope[dict]`)
+- Closed-Source
+  - Signal Classification: Any
+  - Validation Depth: Deep (strict Pydantic via internal wheel)
 
 ### 5.5 Global Signal Envelope Structure
 
@@ -354,7 +385,7 @@ class SignalMessageEnvelope(BaseModel, Generic[PayloadT]):
     topic: str = Field(..., description="cynthus-topic-public | cynthus-topic-internal | cynthus-topic-audit")
 
     organization_id: str = Field(..., description="Corporate tenant boundary context.")
-    workspace_id: str = Field(..., description="Functional isolation partition key — always present from Phase 1.")
+    workspace_id: str = Field(..., description="Functional isolation partition key - always present from Phase 1.")
     payload: PayloadT
 ```
 
@@ -364,7 +395,7 @@ class SignalMessageEnvelope(BaseModel, Generic[PayloadT]):
 
 To support wearable device ingestion without overloading the centralized topic bus, telemetry processing splits into a Hot Path and a Warm Path.
 
-```
+```text
 [ Wearable Device / Smart Glasses ]
             |
             +---> Hot Path (WebSockets / WebRTC)
@@ -474,7 +505,7 @@ All codebases strictly enforce a one-class-per-module convention. This ensures c
 
 ### 8.1 HIPAA Compliance Flow (`cynthus-health`)
 
-```
+```text
 [External Clinical Partner]   cynthus-health-api    cynthus-identity     cynthus-audit
          |                           |                     |                    |
          |--- Request Telemetry ---->|                     |                    |
@@ -505,16 +536,18 @@ All Astri response payloads are subject to the following formatting constraints 
 - Response payloads are restricted to logical, sequential text formats optimized for screen-reader layout trees.
 - No reliance on geometric orientation, spatial placement, or visual-only layout elements.
 - Data arrays returned from AI evaluations are expressed in descriptive structural patterns that describe data linearly.
-- Real-time spatial tracking tokens (from `cynthus-video`) use standardized clock-face orientation fields (`relative_clock_position: int`, constrained 1–12) and exact metric distances to translate physical environment data into voice-navigable descriptions for low-vision users.
+- Real-time spatial tracking tokens (from `cynthus-video`) use standardized clock-face orientation fields (`relative_clock_position: int`, constrained 1-12) and exact metric distances to translate physical environment data into voice-navigable descriptions for low-vision users.
 
 ---
 
 ## 10. Architectural Decision Record Index
 
-| ADR | Title | Status |
-|---|---|---|
-| ADR-004 | Hybrid Open/Closed-Source Messaging Schema Strategy | Approved |
-| ADR-005 | Booster Pack Entitlement Propagation via Token Claims | Approved |
+- ADR-004
+  - Title: Hybrid Open/Closed-Source Messaging Schema Strategy
+  - Status: Approved
+- ADR-005
+  - Title: Booster Pack Entitlement Propagation via Token Claims
+  - Status: Approved
 
 ### ADR-004: Hybrid Open/Closed-Source Messaging Schema Strategy
 
@@ -524,10 +557,10 @@ All Astri response payloads are subject to the following formatting constraints 
 
 **Consequences:**
 
-- ✅ Complete protection of closed-source intellectual property.
-- ✅ Decoupled release management cycles for Core vs.  layers.
-- ✅ Full type safety inside the dark Intelligence subnet.
-- ⚠️ Open-source pass-through services lose compile-time IDE auto-completion for private signal inner fields.
+- Positive: Complete protection of closed-source intellectual property.
+- Positive: Decoupled release management cycles for Core vs.  layers.
+- Positive: Full type safety inside the dark Intelligence subnet.
+- Risk: Open-source pass-through services lose compile-time IDE auto-completion for private signal inner fields.
 
 ---
 
@@ -535,11 +568,11 @@ All Astri response payloads are subject to the following formatting constraints 
 
 **Context:** Booster pack purchases must be reflected in downstream service enforcement without introducing billing-layer latency into request paths.
 
-**Decision:** `cynthus-billing-api` is the single source of truth for active booster state. On every purchase or cancellation, it emits `internal.system.entitlement.updated` on `cynthus-topic-internal`. `cynthus-identity` consumes this signal and issues a refreshed JWT with updated entitlement claims (e.g., `"max_group_members": 15`). Downstream services enforce all resource limits using token claims exclusively — they never call `cynthus-billing-api` at runtime.
+**Decision:** `cynthus-billing-api` is the single source of truth for active booster state. On every purchase or cancellation, it emits `internal.system.entitlement.updated` on `cynthus-topic-internal`. `cynthus-identity` consumes this signal and issues a refreshed JWT with updated entitlement claims (e.g., `"max_group_members": 15`). Downstream services enforce all resource limits using token claims exclusively - they never call `cynthus-billing-api` at runtime.
 
 **Consequences:**
 
-- ✅ Zero billing-layer latency in request paths.
-- ✅ Stateless enforcement in all downstream services.
-- ✅ Entitlement state is auditable via token inspection.
-- ⚠️ Brief window between booster purchase and token refresh during which old limits may be enforced. Mitigation: `cynthus-identity` targets <5 second signal processing time; UX confirms activation before the user's next interaction.
+- Positive: Zero billing-layer latency in request paths.
+- Positive: Stateless enforcement in all downstream services.
+- Positive: Entitlement state is auditable via token inspection.
+- Risk: Brief window between booster purchase and token refresh during which old limits may be enforced. Mitigation: `cynthus-identity` targets <5 second signal processing time; UX confirms activation before the user's next interaction.

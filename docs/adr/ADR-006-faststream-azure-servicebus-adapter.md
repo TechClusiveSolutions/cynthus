@@ -16,13 +16,11 @@ Redis brokers only. The FastStream maintainers closed the Azure request (ag2ai/f
 
 ## Options considered
 
-| Option | Verdict |
-|---|---|
-| `faststream-azure-servicebus` (PyPI, MIT, by Thomas Laich) | **Chosen.** The only FastStream broker for Azure Service Bus. Listed under *Community Extensions* in the FastStream documentation (ag2ai/faststream#3308, merged 2026-10-28). Topics and subscriptions, request/reply, peek-lock settlement, batching, scheduled messages, OpenTelemetry/Prometheus extras, AsyncAPI, a `TestServiceBusBroker` for offline tests, and FastAPI integration through `faststream-fastapi`. Depends on `faststream>=0.7,<0.8` and `azure-servicebus>=7.14,<8`; Python >= 3.10. |
-| Use `azure-servicebus` directly and write our own consumer loops | The fallback. Already used in `routes/signal.py`. Loses FastStream's routing, dependency injection, AsyncAPI and test broker; every service re-implements settlement and error handling. |
-| Wrap Azure Service Bus's AMQP endpoint with FastStream's generic AMQP support | FastStream has no generic AMQP broker. Rejected. |
-| Switch the backbone to RabbitMQ/NATS/Kafka | Contradicts ADD v6 and the Azure deployment. Rejected. |
-| Write and maintain our own FastStream broker | Large, unrelated engineering cost. Rejected for now. |
+- `faststream-azure-servicebus` (PyPI, MIT, by Thomas Laich): **Chosen.** The only FastStream broker for Azure Service Bus. Listed under *Community Extensions* in the FastStream documentation (ag2ai/faststream#3308, merged 2026-10-28). Topics and subscriptions, request/reply, peek-lock settlement, batching, scheduled messages, OpenTelemetry/Prometheus extras, AsyncAPI, a `TestServiceBusBroker` for offline tests, and FastAPI integration through `faststream-fastapi`. Depends on `faststream>=0.7,<0.8` and `azure-servicebus>=7.14,<8`; Python >= 3.10.
+- Use `azure-servicebus` directly and write our own consumer loops: The fallback. Already used in `routes/signal.py`. Loses FastStream's routing, dependency injection, AsyncAPI and test broker; every service re-implements settlement and error handling.
+- Wrap Azure Service Bus's AMQP endpoint with FastStream's generic AMQP support: FastStream has no generic AMQP broker. Rejected.
+- Switch the backbone to RabbitMQ/NATS/Kafka: Contradicts ADD v6 and the Azure deployment. Rejected.
+- Write and maintain our own FastStream broker: Large, unrelated engineering cost. Rejected for now.
 
 ## Decision
 

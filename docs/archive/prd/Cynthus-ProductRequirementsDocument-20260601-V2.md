@@ -18,7 +18,7 @@ The system leverages a **Choreographer Architecture** utilizing **Feature Slice 
 
 The entire system's asynchronous choreography is unified by an enterprise messaging spine managed via **Azure Service Bus**. Microservices do not directly command each other; instead, they emit immutable facts (events) to a centralized topic. Downstream services monitor dedicated subscriptions, applying localized filtering to process relevant data slices independently.
 
-```
+```text
                                  +--------------------+
                                  |    Cynthus-Auth    |
                                  +---------+----------+
@@ -44,41 +44,29 @@ The entire system's asynchronous choreography is unified by an enterprise messag
 
 The codebase is partitioned into five distinct, decoupled repositories to isolate domain logic, licensing models, and runtime contexts:
 
-1. **`cynthus-auth` (The Identity Hub) — *Open-Source***
-* **Scope:** Manages identity management, authentication, fine-grained role-based access control (RBAC), and cross-organizational tenancy boundaries.
-* **Primary Boundary:** Issues cryptographically secure tokens mapping individual user profiles to a shared corporate organization or specific workspace.
+1. **`cynthus-auth` (The Identity Hub) - *Open-Source***
+   - **Scope:** Manages identity management, authentication, fine-grained role-based access control (RBAC), and cross-organizational tenancy boundaries.
+   - **Primary Boundary:** Issues cryptographically secure tokens mapping individual user profiles to a shared corporate organization or specific workspace.
 
+2. **`cynthus-core` (The Logistics & Engine Layer) - *Open-Source***
+   - **Scope:** Handles physical data domains and user interfaces through four specialized services:
+   - `cynthus-api`: The public edge gateway handling direct interaction, session authentication, and secure routing with client devices.
+   - `cynthus-web`: The user interface frontend rendering accessible layouts.
+   - `cynthus-inventory`: Handles physical asset mutations and transactional inventory state management.
+   - `cynthus-worker`: Executes resource-intensive asynchronous background tasks and manages `cynthus-scheduler` routines for periodic system loops.
 
-2. **`cynthus-core` (The Logistics & Engine Layer) — *Open-Source***
-* **Scope:** Handles physical data domains and user interfaces through four specialized services:
-* `cynthus-api`: The public edge gateway handling direct interaction, session authentication, and secure routing with client devices.
-* `cynthus-web`: The user interface frontend rendering accessible layouts.
-* `cynthus-inventory`: Handles physical asset mutations and transactional inventory state management.
-* `cynthus-worker`: Executes resource-intensive asynchronous background tasks and manages `cynthus-scheduler` routines for periodic system loops.
+3. **`cynthus-intelligence` (The AI Engine Domain) - *Closed-Source***
+   - **Scope:** Hosts secure, proprietary analytical processors and the **Astri AI** chat runtime across two specialized services:
+   - `cynthus-analysis`: An autonomous AI agent handling heavy predictive data analysis, telemetry modeling, and trend calculations.
+   - `cynthus-chat`: A conversational chatbot handler optimized for live user interaction.
 
+4. **`cynthus-portal` (The External Partner Gateway) - *Open/Closed Hybrid***
+   - **Scope:** Facilitates secure interaction with external healthcare providers, enterprise stakeholders, and clinical partners through two dedicated layers:
+   - `cynthus-portal-api`: A backend endpoint enforcing regulatory validation and partner access rules.
+   - `cynthus-portal-web`: An administrative and clinical dashboard interface rendering secure data visualization for authorized B2B stakeholders.
 
-
-
-3. **`cynthus-intelligence` (The AI Engine Domain) — *Closed-Source***
-* **Scope:** Hosts secure, proprietary analytical processors and the **Astri AI** chat runtime across two specialized services:
-* `cynthus-analysis`: An autonomous AI agent handling heavy predictive data analysis, telemetry modeling, and trend calculations.
-* `cynthus-chat`: A conversational chatbot handler optimized for live user interaction.
-
-
-
-
-4. **`cynthus-portal` (The External Partner Gateway) — *Open/Closed Hybrid***
-* **Scope:** Facilitates secure interaction with external healthcare providers, enterprise stakeholders, and clinical partners through two dedicated layers:
-* `cynthus-portal-api`: A backend endpoint enforcing regulatory validation and partner access rules.
-* `cynthus-portal-web`: An administrative and clinical dashboard interface rendering secure data visualization for authorized B2B stakeholders.
-
-
-
-
-5. **`cynthus-infrastructure` (The Local Sandbox Layer) — *Open-Source Dev-Only***
-* **Scope:** Composes the local developer ecosystem by pairing `cynthus-store` (emulated block/table storage) with `cynthus-messaging` (the local Azure Service Bus container emulator).
-
-
+5. **`cynthus-infrastructure` (The Local Sandbox Layer) - *Open-Source Dev-Only***
+   - **Scope:** Composes the local developer ecosystem by pairing `cynthus-store` (emulated block/table storage) with `cynthus-messaging` (the local Azure Service Bus container emulator).
 
 ---
 
@@ -86,7 +74,7 @@ The codebase is partitioned into five distinct, decoupled repositories to isolat
 
 To protect proprietary intellectual property and maximize edge security, the ecosystem enforces absolute network isolation between open-source components and closed-source intelligence engines when deployed to cloud infrastructure (such as Microsoft Azure).
 
-```
+```text
 [ Public Internet ]
        |
        v  (HTTPS / WSS)
@@ -118,8 +106,8 @@ The `vnet-cynthus-intelligence` virtual network layer holds no public IP allocat
 
 High-bandwidth, low-latency interactions bypass the asynchronous Service Bus to maintain strict thread responsiveness:
 
-* **The Live Chat Loop:** The user's device communicates with `cynthus-api` via WebSockets. `cynthus-api` acts as an asynchronous reverse proxy, communicating across a secure **Azure VNet Peering** bridge directly to the internal endpoint of `cynthus-chat`.
-* **The Trend Query Loop:** When `cynthus-chat` requires complex historical reports, it issues a synchronous internal HTTP/gRPC request to its neighbor, `cynthus-analysis`, entirely within the private namespace.
+- **The Live Chat Loop:** The user's device communicates with `cynthus-api` via WebSockets. `cynthus-api` acts as an asynchronous reverse proxy, communicating across a secure **Azure VNet Peering** bridge directly to the internal endpoint of `cynthus-chat`.
+- **The Trend Query Loop:** When `cynthus-chat` requires complex historical reports, it issues a synchronous internal HTTP/gRPC request to its neighbor, `cynthus-analysis`, entirely within the private namespace.
 
 ---
 
@@ -131,7 +119,7 @@ While real-time conversation and data fetching happen over direct, private netwo
 
 The ecosystem uses a single aggregate topic named `cynthus-events-topic`. Microservices attach a custom application metadata property (`event_type`) to every published message. Subscriptions act as virtual queues, utilizing server-side SQL filters to route specific message slices to individual services.
 
-```
+```text
                                      +----------------------+
                                      | cynthus-events-topic |
                                      +----------+-----------+
@@ -151,7 +139,7 @@ The ecosystem uses a single aggregate topic named `cynthus-events-topic`. Micros
 
 To illustrate the integration of components, consider the following lifecycle sequence:
 
-```
+```text
 [User Device]      cynthus-api      cynthus-chat      Service Bus     cynthus-worker   cynthus-inventory
      |                  |                 |                |                 |                 |
      |--- Send Msg ---->|                 |                |                 |                 |
@@ -181,25 +169,25 @@ To standardize data flow across the Service Bus event layout and the `cynthus-in
 
 A **Signal** represents a raw, discrete data point ingested by the ecosystem from an external boundary.
 
-* *Supply Signal:* An RFID scan, manual entry, or barcode swipe indicating a change in food or equipment stock.
-* *Clinical/Wearable Signal:* A biometric payload ingested via webhook, direct API connectivity, or continuous wearable telemetry streams (e.g., blood glucose readings, heart rates, blood pressure telemetry, step counters).
-* *Environmental Signal:* Ambient sensor telemetry (e.g., room temperature, shipping asset locations, entry alerts).
+- *Supply Signal:* An RFID scan, manual entry, or barcode swipe indicating a change in food or equipment stock.
+- *Clinical/Wearable Signal:* A biometric payload ingested via webhook, direct API connectivity, or continuous wearable telemetry streams (e.g., blood glucose readings, heart rates, blood pressure telemetry, step counters).
+- *Environmental Signal:* Ambient sensor telemetry (e.g., room temperature, shipping asset locations, entry alerts).
 
 #### 2. Activities (Real-World Events)
 
 An **Activity** is a real-world, localized event or operational task occurring within a workspace perimeter.
 
-* *Logistics Activity:* Processing a catering delivery window, running an inventory update, or coordinating a scheduled resource.
-* *Task Activity:* An item on a shared operational checklist assigned to a specific profile with an absolute expiration deadline.
-* *Clinical Activity:* A recorded medication administration event or a planned therapy window.
+- *Logistics Activity:* Processing a catering delivery window, running an inventory update, or coordinating a scheduled resource.
+- *Task Activity:* An item on a shared operational checklist assigned to a specific profile with an absolute expiration deadline.
+- *Clinical Activity:* A recorded medication administration event or a planned therapy window.
 
 #### 3. Engagements (Planned Interactions)
 
 An **Engagement** represents a high-level, multi-profile interaction model managed by the orchestration layer.
 
-* *The Harmony Score:* A quantitative metric evaluating workspace equilibrium by balancing workload distribution, resource usage, operational completion patterns, and individual safety/wellness thresholds.
-* *Conflict Resolution Strategy:* The automated negotiation protocol triggered by Astri when scheduled events overlap (e.g., conflicting calendar windows, dietary or ingredient mismatches during meal planning, asset availability conflicts).
-* *Provider/B2B Portal Telemetry:* A secure, read-only data view summarizing specific workspace or health Signals for export to a professional stakeholder via `cynthus-portal-api`.
+- *The Harmony Score:* A quantitative metric evaluating workspace equilibrium by balancing workload distribution, resource usage, operational completion patterns, and individual safety/wellness thresholds.
+- *Conflict Resolution Strategy:* The automated negotiation protocol triggered by Astri when scheduled events overlap (e.g., conflicting calendar windows, dietary or ingredient mismatches during meal planning, asset availability conflicts).
+- *Provider/B2B Portal Telemetry:* A secure, read-only data view summarizing specific workspace or health Signals for export to a professional stakeholder via `cynthus-portal-api`.
 
 ---
 
@@ -240,26 +228,26 @@ Downstream processors (such as `cynthus-analysis` or background workers) evaluat
 
 #### Module A: Cynthus-Auth (Identity & Tenancy)
 
-* **Req A.1 - Organizational & Workspace Boundaries:** The system must isolate data at the "Organization" level (`organization_id`) for multi-tenant protection, and further separate operations into distinct "Workspaces" (`workspace_id`). No cross-tenant data leaks are permitted on the shared bus.
-* **Req A.2 - Granular RBAC:** Profiles within a workspace must support distinct role allocations (e.g., `Primary Caregiver`, `Care Recipient`, `Standard User`, or commercial equivalents like administrative managers).
-* **Req A.3 - Cryptographic Vault Isolation:** Access to sensitive clinical or private security Signals inside `cynthus-intelligence` repositories requires a separate decryption handshake using user-derived cryptographic keys, distinct from standard application tokens.
+- **Req A.1 - Organizational & Workspace Boundaries:** The system must isolate data at the "Organization" level (`organization_id`) for multi-tenant protection, and further separate operations into distinct "Workspaces" (`workspace_id`). No cross-tenant data leaks are permitted on the shared bus.
+- **Req A.2 - Granular RBAC:** Profiles within a workspace must support distinct role allocations (e.g., `Primary Caregiver`, `Care Recipient`, `Standard User`, or commercial equivalents like administrative managers).
+- **Req A.3 - Cryptographic Vault Isolation:** Access to sensitive clinical or private security Signals inside `cynthus-intelligence` repositories requires a separate decryption handshake using user-derived cryptographic keys, distinct from standard application tokens.
 
 #### Module B: Cynthus-Core (Life-Logistics)
 
-* **Req B.1 - Inventory Mutation Tracking:** The `cynthus-inventory` service must process asset Signals with an absolute processing latency of less than 200ms to ensure real-time logistics tracking.
-* **Req B.2 - The Smart List Engine:** When an inventory signal flags an essential tracked asset as depleted, `cynthus-worker` must automatically append the asset to the workspace procurement registry, filtered by preferred merchant or vendor categories.
-* **Req B.3 - Resource Constraint Matching:** The engine must parse ingredients and resource profiles against a multi-profile constraint array (such as user allergens, client dietary restrictions, or vehicle capacity constraints) before rendering preparation suggestions.
+- **Req B.1 - Inventory Mutation Tracking:** The `cynthus-inventory` service must process asset Signals with an absolute processing latency of less than 200ms to ensure real-time logistics tracking.
+- **Req B.2 - The Smart List Engine:** When an inventory signal flags an essential tracked asset as depleted, `cynthus-worker` must automatically append the asset to the workspace procurement registry, filtered by preferred merchant or vendor categories.
+- **Req B.3 - Resource Constraint Matching:** The engine must parse ingredients and resource profiles against a multi-profile constraint array (such as user allergens, client dietary restrictions, or vehicle capacity constraints) before rendering preparation suggestions.
 
 #### Module C: Cynthus-Intelligence (The Astri AI Engine)
 
-* **Req C.1 - High-Frequency Telemetry & Anomaly Detection:** `cynthus-analysis` must continuously monitor incoming streams. For continuous data tracking like wearables, high-frequency raw lines bypass the service bus via a dedicated ingestion buffer path. If a calculated aggregate slice or direct biometric threshold breaches a predefined margin, the system must instantly emit a priority alert lifecycle event on the Service Bus.
-* **Req C.2 - Non-Visual Dialogue Strategy:** All interface payloads returned by the `cynthus-chat` service must be structured to ensure seamless parsing by assistive technologies, avoiding layout elements that rely on spatial placement or geometric orientation.
-* **Req C.3 - Core Harmony Computation:** `cynthus-analysis` must evaluate historical Activity completion patterns, resource balances, and task loads once every 24 hours to generate the workspace Harmony index.
+- **Req C.1 - High-Frequency Telemetry & Anomaly Detection:** `cynthus-analysis` must continuously monitor incoming streams. For continuous data tracking like wearables, high-frequency raw lines bypass the service bus via a dedicated ingestion buffer path. If a calculated aggregate slice or direct biometric threshold breaches a predefined margin, the system must instantly emit a priority alert lifecycle event on the Service Bus.
+- **Req C.2 - Non-Visual Dialogue Strategy:** All interface payloads returned by the `cynthus-chat` service must be structured to ensure seamless parsing by assistive technologies, avoiding layout elements that rely on spatial placement or geometric orientation.
+- **Req C.3 - Core Harmony Computation:** `cynthus-analysis` must evaluate historical Activity completion patterns, resource balances, and task loads once every 24 hours to generate the workspace Harmony index.
 
 #### Module D: Cynthus-Portal (B2B Clinical & Enterprise Gateway)
 
-* **Req D.1 - Read-Only HIPAA Auditing:** `cynthus-portal-api` must restrict external stakeholder and clinician connections to read-only views of authorized signals. Every single data access action must write an immutable entry to an independent secure audit log (`audit.portal.created`).
-* **Req D.2 - Patient & Tenant Consent Verification:** `cynthus-portal-api` must inspect token signatures issued by `cynthus-auth` before exposing any historical telemetry stream, ensuring active consent and access scopes are validated per session.
+- **Req D.1 - Read-Only HIPAA Auditing:** `cynthus-portal-api` must restrict external stakeholder and clinician connections to read-only views of authorized signals. Every single data access action must write an immutable entry to an independent secure audit log (`audit.portal.created`).
+- **Req D.2 - Patient & Tenant Consent Verification:** `cynthus-portal-api` must inspect token signatures issued by `cynthus-auth` before exposing any historical telemetry stream, ensuring active consent and access scopes are validated per session.
 
 ---
 
@@ -267,18 +255,18 @@ Downstream processors (such as `cynthus-analysis` or background workers) evaluat
 
 To separate user contexts cleanly and prepare for enterprise expansion, the domain routing architecture is configured as follows:
 
-* **`cynthus.app`**: The primary front-facing web space hosting `cynthus-web` for consumer and SMB application workspaces.
-* **`auth.cynthus.app`**: The global authentication gateway managed by `cynthus-auth`.
-* **`cynthus.health`**: The secure B2B gateway hosting `cynthus-portal-web`, enabling external clinical and operational enterprise partners to securely log in.
-* **`api.cynthus.health`**: The private API endpoint processing high-performance biometric telemetry, continuous wearable summaries, and conversational runtime requests through `cynthus-portal-api`.
+- **`cynthus.app`**: The primary front-facing web space hosting `cynthus-web` for consumer and SMB application workspaces.
+- **`auth.cynthus.app`**: The global authentication gateway managed by `cynthus-auth`.
+- **`cynthus.health`**: The secure B2B gateway hosting `cynthus-portal-web`, enabling external clinical and operational enterprise partners to securely log in.
+- **`api.cynthus.health`**: The private API endpoint processing high-performance biometric telemetry, continuous wearable summaries, and conversational runtime requests through `cynthus-portal-api`.
 
 ---
 
 ### 9. Developer Workflow & Technical Standards
 
-* **Build Engine & Framework Preference:** All backend infrastructure compiles via the command-line interface execution pathways utilizing the FastAPI framework running Python 3.11+. Local environment components spin up via structured Docker Compose layers.
-* **Message Loop Initialization:** FastStream components handling service-to-service communication must tie into FastAPI's native startup lifespans using combined routing contexts (`event.lifespan`). Individual message layouts and subscriptions must be defined as global, thread-safe module-level variables.
-* **Logging Verbosity Profile:** To maintain clear architectural insight across asynchronous distributed message processing loops, the system implements a strict diagnostic logging policy:
+- **Build Engine & Framework Preference:** All backend infrastructure compiles via the command-line interface execution pathways utilizing the FastAPI framework running Python 3.11+. Local environment components spin up via structured Docker Compose layers.
+- **Message Loop Initialization:** FastStream components handling service-to-service communication must tie into FastAPI's native startup lifespans using combined routing contexts (`event.lifespan`). Individual message layouts and subscriptions must be defined as global, thread-safe module-level variables.
+- **Logging Verbosity Profile:** To maintain clear architectural insight across asynchronous distributed message processing loops, the system implements a strict diagnostic logging policy:
 
 ```json
 {

@@ -77,13 +77,11 @@ section wins.
 
 ### Tables
 
-| Table | Holds |
-|---|---|
-| `tenant_types` | `id`, `name` (`personal`, `organizational`, `parent`). Replaces the `bridge` flag: a parent tenant is a tenant of type `parent`. |
-| `roles` | `id`, `name` (for example `super_admin`, `admin`, `member`, `viewer`). A check constraint refuses the name `owner`. |
-| `tenants` | `id`, `name`, `type_id`, `parent_id` (empty for a stand-alone or parent tenant), `owner_id` (user), `billing_account_id`, `deleted_at` |
-| `workspaces` | `id`, `name`, `tenant_id`, `owner_id` (user), `deleted_at` |
-| `workspace_roles` | `id`, `workspace_id`, `user_id`, `role_id`, `status` (`pending`, `active`, `revoked`, `expired`), `deleted_at` |
+- `tenant_types`: `id`, `name` (`personal`, `organizational`, `parent`). Replaces the `bridge` flag: a parent tenant is a tenant of type `parent`.
+- `roles`: `id`, `name` (for example `super_admin`, `admin`, `member`, `viewer`). A check constraint refuses the name `owner`.
+- `tenants`: `id`, `name`, `type_id`, `parent_id` (empty for a stand-alone or parent tenant), `owner_id` (user), `billing_account_id`, `deleted_at`
+- `workspaces`: `id`, `name`, `tenant_id`, `owner_id` (user), `deleted_at`
+- `workspace_roles`: `id`, `workspace_id`, `user_id`, `role_id`, `status` (`pending`, `active`, `revoked`, `expired`), `deleted_at`
 
 - A workspace belongs to **exactly one tenant** (`workspaces.tenant_id`). A join table between tenants and workspaces is
   not used: it would allow a workspace in several tenants.
@@ -120,13 +118,41 @@ The `roles` table holds five rows. Each role has a set of actions over three kin
 services keep: inventory, recipes, shopping lists, profiles), **members** (who has access to the workspace) and
 **settings** (the workspace's name, defaults and billing link).
 
-| Role | Content: create | list | read | write | Members: grant | Settings |
-|---|---|---|---|---|---|---|
-| `viewer` | no | yes | yes | no | no | read |
-| `contributor` | yes | yes | yes | yes | no | read |
-| `manager` | yes | yes | yes | yes | no | read |
-| `admin` | no | yes | yes (non-private) | no | up to `contributor` | read, write |
-| `super_admin` | yes | yes | yes (private too) | yes | up to `super_admin` | read, write |
+- `viewer`
+  - Content: create: no
+  - list: yes
+  - read: yes
+  - write: no
+  - Members: grant: no
+  - Settings: read
+- `contributor`
+  - Content: create: yes
+  - list: yes
+  - read: yes
+  - write: yes
+  - Members: grant: no
+  - Settings: read
+- `manager`
+  - Content: create: yes
+  - list: yes
+  - read: yes
+  - write: yes
+  - Members: grant: no
+  - Settings: read
+- `admin`
+  - Content: create: no
+  - list: yes
+  - read: yes (non-private)
+  - write: no
+  - Members: grant: up to `contributor`
+  - Settings: read, write
+- `super_admin`
+  - Content: create: yes
+  - list: yes
+  - read: yes (private too)
+  - write: yes
+  - Members: grant: up to `super_admin`
+  - Settings: read, write
 
 - **Write includes soft delete** (ADR-011).
 - **Private content** is readable only by its owner and by `super_admin`. Every other role reads non-private content

@@ -8,10 +8,8 @@
 Each application group runs its own database and cache: core, auth and intelligence each have a Postgres and a Redis,
 defined in the compose file of the repository that uses them. Measured on JMac on 2026-11-11:
 
-| Container | Memory |
-|---|---|
-| core-db, auth-db, intel-db | about 37, 60 and 25 MB |
-| core-cache, auth-cache, intel-cache | about 6, 6 and 32 MB |
+- core-db, auth-db, intel-db: about 37, 60 and 25 MB
+- core-cache, auth-cache, intel-cache: about 6, 6 and 32 MB
 
 The owner proposed moving all six to a repository called `cynthus-storage`, running one database server and one cache
 server with separate schemas, and giving Auth, Core and Intelligence each a private network to storage so that Core

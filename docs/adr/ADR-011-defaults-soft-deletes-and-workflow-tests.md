@@ -23,11 +23,9 @@ lists have `deleted_at`); there is no list-from-recipe and no unregister.
 A default is the choice the system makes when the person does not choose. For each kind of resource, a workspace has
 **at most one default**, and a resource that contains others has at most one default among its own:
 
-| Kind | Rule |
-|---|---|
-| Location | One default per workspace. |
-| Shelf | One default per location. |
-| Engagement place | One default per workspace (the place an engagement uses when none is given). |
+- Location: One default per workspace.
+- Shelf: One default per location.
+- Engagement place: One default per workspace (the place an engagement uses when none is given).
 
 - When a workspace has exactly one location, that location is the default; when a location has exactly one shelf, that
   shelf is the default. The first one created becomes the default; making another default clears the previous one in
@@ -42,12 +40,18 @@ A default is the choice the system makes when the person does not choose. For ea
 A shelf has a default **fill order**, the order in which positions are filled. It names the starting corner and
 whether a row or a column is filled first:
 
-| Starts at | Rows first (`horizontal`) | Columns first (`vertical`) |
-|---|---|---|
-| back left | `back_left_horizontal` | `back_left_vertical` |
-| back right | `back_right_horizontal` | `back_right_vertical` |
-| front left | `front_left_horizontal` | `front_left_vertical` |
-| front right | `front_right_horizontal` | `front_right_vertical` |
+- back left
+  - Rows first (`horizontal`): `back_left_horizontal`
+  - Columns first (`vertical`): `back_left_vertical`
+- back right
+  - Rows first (`horizontal`): `back_right_horizontal`
+  - Columns first (`vertical`): `back_right_vertical`
+- front left
+  - Rows first (`horizontal`): `front_left_horizontal`
+  - Columns first (`vertical`): `front_left_vertical`
+- front right
+  - Rows first (`horizontal`): `front_right_horizontal`
+  - Columns first (`vertical`): `front_right_vertical`
 
 The default is `back_left_horizontal`. The value is stored on the shelf as text.
 

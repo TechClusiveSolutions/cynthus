@@ -1,4 +1,4 @@
-```
+```text
 suite                                          passed failed xfail skip  stmts  miss   cover
 --------------------------------------------------------------------------------------------
 cynthus-core/api                                   46      0     1    0    128     2   98.4%

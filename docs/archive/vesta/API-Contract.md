@@ -14,17 +14,17 @@ This is the contract between all of the services in the Selda ecosystem.
 
 This event is emitted when a user requests an authentication token from the Auth Service.
 
-##### Requestor
+#### # Requestor
 
 This request originates from the user's device
 
-##### Data Collected
+#### # Data Collected
 
-* User's IP address
-* User's browser
-* Request date and time
+- User's IP address
+- User's browser
+- Request date and time
 
-##### Request
+#### # Request
 
 POST /auth/token
 
@@ -35,14 +35,14 @@ POST /auth/token
 }
 ```
 
-###### Parameters
+#### ## Parameters
 
-* email: string
-* password: string
+- email: string
+- password: string
 
-##### Response
+#### # Response
 
-###### Success
+#### ## Success
 
 ``` JSON
 {
@@ -53,7 +53,7 @@ POST /auth/token
 }
 ```
 
-###### InvalidCredentialsError
+#### ## InvalidCredentialsError
 
 ``` JSON
 {
@@ -89,9 +89,9 @@ Web socket
 
 #### Headers
 
-* Content-Type: application/json
+- Content-Type: application/json
 
-####Payload
+#### Payload
 
 ``` JSON
 {

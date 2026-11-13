@@ -9,14 +9,24 @@
 The core stack runs one container per domain service: inventory, profile, recipe, shopping and logistics, besides the
 API, Session, web, Scheduler and Worker. Measured on JMac on 2026-11-11, with the stack on RabbitMQ:
 
-| Container | Idle CPU | Memory |
-|---|---|---|
-| inventory, profile, recipe, shopping | 4 to 5 % of a core each | 109 to 120 MB each |
-| core API, Session | about 2.5 % each | about 114 MB each |
-| auth | 7 % | 137 MB |
-| analysis, chat | 2.5 % each | 99 to 106 MB each |
-| scheduler, worker | under 1 % | 92 MB, 271 MB |
-| RabbitMQ (replacing the Service Bus emulator at 647 MB) | under 1 % | 117 MB |
+- inventory, profile, recipe, shopping
+  - Idle CPU: 4 to 5 % of a core each
+  - Memory: 109 to 120 MB each
+- core API, Session
+  - Idle CPU: about 2.5 % each
+  - Memory: about 114 MB each
+- auth
+  - Idle CPU: 7 %
+  - Memory: 137 MB
+- analysis, chat
+  - Idle CPU: 2.5 % each
+  - Memory: 99 to 106 MB each
+- scheduler, worker
+  - Idle CPU: under 1 %
+  - Memory: 92 MB, 271 MB
+- RabbitMQ (replacing the Service Bus emulator at 647 MB)
+  - Idle CPU: under 1 %
+  - Memory: 117 MB
 
 Most of each Python service's memory is the interpreter, FastAPI, SQLAlchemy and the shared library, which every
 container loads again. Four of the five domain services (inventory, profile, shopping, logistics) have the same shape:

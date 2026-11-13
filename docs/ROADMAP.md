@@ -14,16 +14,38 @@ Every phase keeps two commitments from Phase 1: `organization_id` and `workspace
 
 ## Phases
 
-| Phase | Target | Astri | Theme |
-|---|---|---|---|
-| 1 | January 2027 | v1.0 single-session assistant | Core MVP |
-| 2 | Q2 2027 | v1.5 profile-persistent, inventory-aware | Inventory intelligence and user profile |
-| 3 | Q4 2027 | v2.0 group-aware | Group workspaces, messaging, billing |
-| 4 | H1 2028 | v2.5 event planning, early predictive logic | Engagements, analytics, recipe import |
-| 5 | H2 2028 | v3.0 commerce-aware | B2B commercial launch |
-| 6 | H1 2029 | v3.5 real-time cooking guide | Live companion and partner platform |
-| 7 | H2 2029, pending regulatory approval | v4.0 clinical intelligence | Clinical integration |
-| 8 | 2030 | v4.5 enterprise intelligence | Enterprise scale and compliance |
+- 1
+  - Target: January 2027
+  - Astri: v1.0 single-session assistant
+  - Theme: Core MVP
+- 2
+  - Target: Q2 2027
+  - Astri: v1.5 profile-persistent, inventory-aware
+  - Theme: Inventory intelligence and user profile
+- 3
+  - Target: Q4 2027
+  - Astri: v2.0 group-aware
+  - Theme: Group workspaces, messaging, billing
+- 4
+  - Target: H1 2028
+  - Astri: v2.5 event planning, early predictive logic
+  - Theme: Engagements, analytics, recipe import
+- 5
+  - Target: H2 2028
+  - Astri: v3.0 commerce-aware
+  - Theme: B2B commercial launch
+- 6
+  - Target: H1 2029
+  - Astri: v3.5 real-time cooking guide
+  - Theme: Live companion and partner platform
+- 7
+  - Target: H2 2029, pending regulatory approval
+  - Astri: v4.0 clinical intelligence
+  - Theme: Clinical integration
+- 8
+  - Target: 2030
+  - Astri: v4.5 enterprise intelligence
+  - Theme: Enterprise scale and compliance
 
 ### Phase 1 - Core MVP (January 2027)
 
