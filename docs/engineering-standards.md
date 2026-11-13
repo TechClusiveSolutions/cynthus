@@ -36,6 +36,7 @@ class InventorySnapshotBuilder:
 
 - **Python:** `ruff check .` (configuration in `pyproject.toml`). CI runs it as the `lint` job; `test` runs the unit tests with the coverage gate.
 - **Documentation:** `markdownlint-cli2` over the Markdown files the repository owns (the `docs-lint` job in `ci.yml`).
+- **Documentation for screen readers:** `.github/scripts/check_markdown.py` (also in the `docs-lint` job) fails on non-ASCII characters (write `-` for a dash, `->` for an arrow, no emoji), pipe tables (write a list: one item per row, the columns as nested items), a code block without a language (use `text`), CR line endings, trailing spaces, a missing final newline, a README not named `README.md`, and a relative link whose file or heading does not exist. The product owner reads the documentation with a screen reader, so these are not style preferences.
 - Fix findings; do not blanket-disable rules. A targeted `# noqa: <rule>` needs a reason in the same comment.
 
 ## 4. HTTP endpoints
@@ -74,13 +75,11 @@ class InventorySnapshotBuilder:
 
 ### Issue types
 
-| Type | The deliverable is |
-|---|---|
-| Planning | a design document |
-| Research | a knowledge document |
-| Testing | a test result |
-| Application Feature / Bug | code or configuration inside the running application |
-| Infrastructure Feature / Bug | CI, repository settings, provisioning: anything outside the application |
+- Planning: a design document
+- Research: a knowledge document
+- Testing: a test result
+- Application Feature / Bug: code or configuration inside the running application
+- Infrastructure Feature / Bug: CI, repository settings, provisioning: anything outside the application
 
 A change that spans application and infrastructure is split into two issues.
 

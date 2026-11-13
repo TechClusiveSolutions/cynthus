@@ -28,7 +28,7 @@ The Cynthus Life Ecosystem utilizes an asynchronous Choreographer Architecture. 
 
 To protect proprietary intelligence intellectual property and prevent exposure of clinical or operational resources, the system partitions cloud network space into isolated Azure Virtual Networks (VNets).
 
-```
+```text
                                   [ Public Internet ]
                                            |
                                            v  (HTTPS / WSS via cynthus.app)
@@ -55,13 +55,9 @@ To protect proprietary intelligence intellectual property and prevent exposure o
 
 1. **`VNET-CYNTHUS-CORE`:** Publicly routed subnet hosting frontend traffic (`cynthus-web`) and edge processing routers (`cynthus-api`). It acts as an open reverse proxy for real-time traffic.
 
-
 2. **`VNET-CYNTHUS-INTELLIGENCE`:** Private, dark subnet containing no public IP allocations. It isolates the closed-source proprietary elements (`cynthus-chat` and `cynthus-analysis`).
 
-
 3. **Cross-VNet Communication:** High-frequency components, such as the live user dialogue stream, bypass Azure Service Bus latency. Instead, `cynthus-api` maintains low-latency connections to `cynthus-chat` via private IP routing over an established **Azure VNet Peering** bridge.
-
-
 
 ---
 
@@ -71,26 +67,19 @@ To protect proprietary intelligence intellectual property and prevent exposure o
 
 Multi-tenancy is enforced strictly across all data layers, storage systems, and messaging topics using a two-tier enterprise structure:
 
-* **`organization_id` (The Corporate Tenant Boundary):** Maps to the global small-to-medium business (SMB) or enterprise contract account (e.g., an event planning agency or healthcare provider). It owns global RBAC mappings and master compliance controls.
+- **`organization_id` (The Corporate Tenant Boundary):** Maps to the global small-to-medium business (SMB) or enterprise contract account (e.g., an event planning agency or healthcare provider). It owns global RBAC mappings and master compliance controls.
 
-
-* **`workspace_id` (The Functional Isolation Key):** Replaces localized household boundaries. A single organization may provision dozens of independent workspaces to isolate distinct clients, independent corporate functions, specific event projects, or distinct remote patient tracking environments. Every event message must carry these keys to prevent cross-tenant data visibility.
-
-
+- **`workspace_id` (The Functional Isolation Key):** Replaces localized household boundaries. A single organization may provision dozens of independent workspaces to isolate distinct clients, independent corporate functions, specific event projects, or distinct remote patient tracking environments. Every event message must carry these keys to prevent cross-tenant data visibility.
 
 ### 3.2 Role-Based Access Control (RBAC) Hierarchy
 
 `cynthus-auth` issues cryptographically signed JSON Web Tokens (JWT) containing a roles claim array mapping user clearance within an active workspace:
 
-* **`Primary Caregiver` / `Workspace Administrator`:** Full administrative rights, including checklist/task delegation, inventory base management, telemetry visibility, and external partner gateway authorizations.
+- **`Primary Caregiver` / `Workspace Administrator`:** Full administrative rights, including checklist/task delegation, inventory base management, telemetry visibility, and external partner gateway authorizations.
 
+- **`Care Recipient` / `Client Contributor`:** Read-write access to assigned tasks, basic chatbot capabilities, and localized telemetry data inputs.
 
-* **`Care Recipient` / `Client Contributor`:** Read-write access to assigned tasks, basic chatbot capabilities, and localized telemetry data inputs.
-
-
-* **`Standard User` / `Team Member`:** Read-write access to core logistics (pantry/supply mutations, general scheduling, planning configurations) without portal override permissions.
-
-
+- **`Standard User` / `Team Member`:** Read-write access to core logistics (pantry/supply mutations, general scheduling, planning configurations) without portal override permissions.
 
 ### 3.3 Cryptographic Vault Isolation Handshake
 
@@ -236,7 +225,7 @@ Fires as an immutable record whenever external enterprise partners inspect works
 
 To support wearable device ingestion without overloading the centralized topic bus, the system splits telemetry processing into a **Hot Path** and a **Warm/Choreography Path**:
 
-```
+```text
 [ Wearable Device ]
         |
         +---> (Hot Path: WebSockets / MQTT) ---> [ High-Throughput Buffer / Time-Series DB ]
@@ -251,10 +240,7 @@ To support wearable device ingestion without overloading the centralized topic b
 
 1. **The Hot Path:** Continuously streaming sensors (such as live heart rate tracking or high-frequency ambient telemetry) push raw data intervals over WebSockets or MQTT directly to a time-series cache or high-throughput analytics buffer, bypassing Azure Service Bus.
 
-
 2. **The Warm Path:** An ingestion broker summarizes the hot path data into structured time-slice snapshots (`device.telemetry.updated`) or evaluates incoming values against threshold rules to emit instant mutation flags (`device.tracker.updated`) onto the core choreography bus.
-
-
 
 ---
 
@@ -323,7 +309,7 @@ async def initialize_message_loop():
 
 To maintain end-to-end alignment with **Req D.1** and **Req D.2**, the B2B portal API gateway restricts external connections to strict read-only paradigms. Any data retrieval routine targeting telemetry registers verification steps:
 
-```
+```text
 [External Partner]           cynthus-portal-api            cynthus-auth            Secure Audit Log
          |                           |                           |                        |
          |--- Request Telemetry ---->|                           |                        |
@@ -338,10 +324,7 @@ To maintain end-to-end alignment with **Req D.1** and **Req D.2**, the B2B porta
 
 1. **Consent Token Verification:** The inbound bearer token signature is evaluated against `cynthus-auth` public cryptographic certificates to ensure valid user authorization exists for the active session.
 
-
 2. **Immutable Audit Emission:** Prior to transmitting the requested metrics, `cynthus-portal-api` blocks response execution until an event fact of type `audit.portal.created` is successfully committed to the log repository.
-
-
 
 ---
 
@@ -349,10 +332,8 @@ To maintain end-to-end alignment with **Req D.1** and **Req D.2**, the B2B porta
 
 To fulfill **Req C.2**, the system establishes strict rules for conversational payloads generated by `cynthus-chat`.
 
-* Response payloads emitted by Astri are restricted to logical, sequential text formats optimized for screen-reader layout trees.
+- Response payloads emitted by Astri are restricted to logical, sequential text formats optimized for screen-reader layout trees.
 
+- User interfaces do not utilize geometric orientation tags or spatial navigation layouts.
 
-* User interfaces do not utilize geometric orientation tags or spatial navigation layouts.
-
-
-* Data arrays returned from AI evaluations are processed into descriptive structural patterns that describe data linearly, removing physical visualization dependency entirely.
+- Data arrays returned from AI evaluations are processed into descriptive structural patterns that describe data linearly, removing physical visualization dependency entirely.

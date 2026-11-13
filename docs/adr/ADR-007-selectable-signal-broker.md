@@ -41,19 +41,17 @@ The broker is chosen by the environment, and Azure Service Bus remains the defau
 
 RabbitMQ 4.x with quorum queues. Every service declares what it needs at start-up; the declarations are idempotent.
 
-| Service Bus concept | RabbitMQ |
-|---|---|
-| Topic (`cynthus-events-topic`) | A durable topic exchange with the topic's name |
-| Event type (`audit.identity.user.rejected`) | The routing key. The dotted names already fit topic routing. |
-| Subscription (`cynthus-profile-sub`) | A durable quorum queue of that name, bound to the exchange with `#` (all events) |
-| Subscription filter (scheduler) | Binding keys on the queue instead of `#` |
-| Complete | Ack |
-| Dead-letter on a handler error | Reject without requeue, to a dead-letter exchange; a `<subscription>.dlq` queue keeps the message and its `x-death` history |
-| `MaxDeliveryCount` (10) | `x-delivery-limit` 10 on the quorum queue; the broker dead-letters at the limit |
-| TTL (`PT1H`) | `x-message-ttl` 3,600,000 ms |
-| Message properties | Standard properties: `message_id`, `correlation_id`, `type` (the event type), `content_type`; headers carry `authorization` |
-| Accepted by the broker | Publisher confirms on the channel |
-| Peek-lock | Prefetch with manual ack: an unacked message returns to the queue if the channel closes |
+- Topic (`cynthus-events-topic`): A durable topic exchange with the topic's name
+- Event type (`audit.identity.user.rejected`): The routing key. The dotted names already fit topic routing.
+- Subscription (`cynthus-profile-sub`): A durable quorum queue of that name, bound to the exchange with `#` (all events)
+- Subscription filter (scheduler): Binding keys on the queue instead of `#`
+- Complete: Ack
+- Dead-letter on a handler error: Reject without requeue, to a dead-letter exchange; a `<subscription>.dlq` queue keeps the message and its `x-death` history
+- `MaxDeliveryCount` (10): `x-delivery-limit` 10 on the quorum queue; the broker dead-letters at the limit
+- TTL (`PT1H`): `x-message-ttl` 3,600,000 ms
+- Message properties: Standard properties: `message_id`, `correlation_id`, `type` (the event type), `content_type`; headers carry `authorization`
+- Accepted by the broker: Publisher confirms on the channel
+- Peek-lock: Prefetch with manual ack: an unacked message returns to the queue if the channel closes
 
 The `authorization` token travels in a header, never in the body, exactly as it travels as an application property on
 Service Bus. Log lines carry the event type and correlation id only.
@@ -79,13 +77,11 @@ Service Bus. Log lines carry the event type and correlation id only.
 
 ## Options considered
 
-| Option | Verdict |
-|---|---|
-| Keep Service Bus only and stop services to fit the emulator | Status quo. Blocks running the whole stack in dev. |
-| Multiplex connections with Qpid Dispatch | Tried; failed on one `$cbs` link per connection. Possible with a custom CBS responder, but costly and Azure-only. |
-| Kafka | No per-message dead-lettering, heavier, poor fit for subscription-per-service. Rejected. |
-| ActiveMQ Artemis (AMQP 1.0) | Closest to Service Bus semantics, but a heavy JVM broker and still needs its own adapter. Not chosen. |
-| **RabbitMQ behind the existing interfaces, selected by environment** | **Chosen.** |
+- Keep Service Bus only and stop services to fit the emulator: Status quo. Blocks running the whole stack in dev.
+- Multiplex connections with Qpid Dispatch: Tried; failed on one `$cbs` link per connection. Possible with a custom CBS responder, but costly and Azure-only.
+- Kafka: No per-message dead-lettering, heavier, poor fit for subscription-per-service. Rejected.
+- ActiveMQ Artemis (AMQP 1.0): Closest to Service Bus semantics, but a heavy JVM broker and still needs its own adapter. Not chosen.
+- **RabbitMQ behind the existing interfaces, selected by environment**: **Chosen.**
 
 ## Consequences
 

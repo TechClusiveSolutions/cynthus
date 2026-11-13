@@ -26,7 +26,7 @@ The Cynthus Life Ecosystem utilizes an asynchronous Choreographer Architecture. 
 
 To protect proprietary intelligence intellectual property and prevent exposure of clinical or operational resources, the system partitions cloud network space into isolated Azure Virtual Networks (VNets).
 
-```
+```text
                                   [ Public Internet ]
                                            |
        +-----------------------------------+-----------------------------------+
@@ -65,38 +65,27 @@ To protect proprietary intelligence intellectual property and prevent exposure o
 
 ```
 
-* `VNET-CYNTHUS-CORE`: Publicly routed subnet hosting consumer and small-to-medium business (SMB) frontend traffic (`cynthus-web`) and edge processing routers (`cynthus-api`). It acts as an open reverse proxy for real-time interaction.
+- `VNET-CYNTHUS-CORE`: Publicly routed subnet hosting consumer and small-to-medium business (SMB) frontend traffic (`cynthus-web`) and edge processing routers (`cynthus-api`). It acts as an open reverse proxy for real-time interaction.
 
+- `VNET-CYNTHUS-INTELLIGENCE`: Private, dark subnet containing no public IP allocations. It isolates the closed-source proprietary elements (`cynthus-chat` and `cynthus-analysis`).
 
-* `VNET-CYNTHUS-INTELLIGENCE`: Private, dark subnet containing no public IP allocations. It isolates the closed-source proprietary elements (`cynthus-chat` and `cynthus-analysis`).
+- `VNET-CYNTHUS-PORTAL`: Demilitarized subnet hosting external healthcare provider, enterprise stakeholder, and clinical partner interfaces (`cynthus-portal-web` and `cynthus-portal-api`). It enforces regulatory validation and partner access controls before routing data.
 
-
-* `VNET-CYNTHUS-PORTAL`: Demilitarized subnet hosting external healthcare provider, enterprise stakeholder, and clinical partner interfaces (`cynthus-portal-web` and `cynthus-portal-api`). It enforces regulatory validation and partner access controls before routing data.
-
-
-* Cross-VNet Communication: High-frequency components, such as the live user dialogue stream, bypass Azure Service Bus latency. Instead, `cynthus-api` maintains low-latency connections to `cynthus-chat` via private IP routing over an established Azure VNet Peering bridge.
-
-
+- Cross-VNet Communication: High-frequency components, such as the live user dialogue stream, bypass Azure Service Bus latency. Instead, `cynthus-api` maintains low-latency connections to `cynthus-chat` via private IP routing over an established Azure VNet Peering bridge.
 
 ### 2.2 Domain Topology & Repositories
 
 The codebase is partitioned into five distinct, decoupled repositories to isolate domain logic, licensing models, and runtime deployment contexts:
 
-* `cynthus-auth` (The Identity Hub) — *Open-Source*: Handles identity management, token issuance, multi-tenant RBAC + ABAC logic, and HIPAA audit routing boundaries.
+- `cynthus-auth` (The Identity Hub) - *Open-Source*: Handles identity management, token issuance, multi-tenant RBAC + ABAC logic, and HIPAA audit routing boundaries.
 
+- `cynthus-core` (The Logistics & Engine Layer) - *Open-Source*: Handles physical data domains and user interfaces through four specialized services: `cynthus-api` (public edge gateway), `cynthus-web` (accessible user interface frontend), `cynthus-inventory` (asset mutation and transactional state manager), and `cynthus-worker` (asynchronous background processor and `cynthus-scheduler` loop controller).
 
-* `cynthus-core` (The Logistics & Engine Layer) — *Open-Source*: Handles physical data domains and user interfaces through four specialized services: `cynthus-api` (public edge gateway), `cynthus-web` (accessible user interface frontend), `cynthus-inventory` (asset mutation and transactional state manager), and `cynthus-worker` (asynchronous background processor and `cynthus-scheduler` loop controller).
+- `cynthus-intelligence` (The AI Engine Domain) - *Closed-Source*: Hosts secure, proprietary analytical processors and the Astri AI chat runtime via `cynthus-analysis` (autonomous predictive trend data analytics) and `cynthus-chat` (conversational chatbot handler optimized for live token streaming).
 
+- `cynthus-portal` (The External Partner Gateway) - *Open/Closed Hybrid*: Facilitates secure interaction with external B2B stakeholders via `cynthus-portal-api` (backend endpoint enforcing regulatory rules) and `cynthus-portal-web` (clinical dashboard rendering secure data visualizations).
 
-* `cynthus-intelligence` (The AI Engine Domain) — *Closed-Source*: Hosts secure, proprietary analytical processors and the Astri AI chat runtime via `cynthus-analysis` (autonomous predictive trend data analytics) and `cynthus-chat` (conversational chatbot handler optimized for live token streaming).
-
-
-* `cynthus-portal` (The External Partner Gateway) — *Open/Closed Hybrid*: Facilitates secure interaction with external B2B stakeholders via `cynthus-portal-api` (backend endpoint enforcing regulatory rules) and `cynthus-portal-web` (clinical dashboard rendering secure data visualizations).
-
-
-* `cynthus-infrastructure` (The Local Sandbox Layer) — *Open-Source Dev-Only*: Composes the local developer ecosystem by pairing `cynthus-store` (emulated block/table storage) with `cynthus-messaging` (local Azure Service Bus container emulator).
-
-
+- `cynthus-infrastructure` (The Local Sandbox Layer) - *Open-Source Dev-Only*: Composes the local developer ecosystem by pairing `cynthus-store` (emulated block/table storage) with `cynthus-messaging` (local Azure Service Bus container emulator).
 
 ---
 
@@ -106,37 +95,27 @@ The codebase is partitioned into five distinct, decoupled repositories to isolat
 
 Multi-tenancy is enforced strictly across all data layers, storage systems, and messaging topics using a two-tier enterprise structure:
 
-* `organization_id` (The Corporate Tenant Boundary): Maps to the global corporate or enterprise contract account (e.g., an event planning agency, commercial distributor, or healthcare provider). It owns global identity mappings and master compliance controls.
+- `organization_id` (The Corporate Tenant Boundary): Maps to the global corporate or enterprise contract account (e.g., an event planning agency, commercial distributor, or healthcare provider). It owns global identity mappings and master compliance controls.
 
-
-* `workspace_id` (The Functional Isolation Key): Replaces localized household boundaries. A single organization may provision dozens of independent workspaces to isolate distinct clients, corporate departments, specific event projects, or distinct remote patient tracking environments. Every event message must carry these keys to prevent cross-tenant data visibility.
-
-
+- `workspace_id` (The Functional Isolation Key): Replaces localized household boundaries. A single organization may provision dozens of independent workspaces to isolate distinct clients, corporate departments, specific event projects, or distinct remote patient tracking environments. Every event message must carry these keys to prevent cross-tenant data visibility.
 
 ### 3.2 Hybrid RBAC and ABAC Hierarchy
 
 `cynthus-auth` issues cryptographically signed JSON Web Tokens (JWT) containing standard role claims alongside environmental attribute contexts (Attribute-Based Access Control) to evaluate constraints like active session consent and active workspace profile parameters:
 
-* `Primary Caregiver` / `Workspace Administrator`: Full administrative rights, including checklist/task delegation, inventory base management, telemetry visibility, and external partner gateway authorizations.
+- `Primary Caregiver` / `Workspace Administrator`: Full administrative rights, including checklist/task delegation, inventory base management, telemetry visibility, and external partner gateway authorizations.
 
+- `Care Recipient` / `Client Contributor`: Read-write access to assigned tasks, basic chatbot capabilities, and localized telemetry data inputs.
 
-* `Care Recipient` / `Client Contributor`: Read-write access to assigned tasks, basic chatbot capabilities, and localized telemetry data inputs.
-
-
-* `Standard User` / `Team Member`: Read-write access to core logistics (pantry/supply mutations, general scheduling, planning configurations) without portal override permissions.
-
-
+- `Standard User` / `Team Member`: Read-write access to core logistics (pantry/supply mutations, general scheduling, planning configurations) without portal override permissions.
 
 ### 3.3 Database Partitioning & PHI Isolation
 
 To satisfy strict medical-grade data isolation requirements, the persistence layer utilizes isolated database paradigms:
 
-* General Logistics Data: Stored in transactional schemas handling core logistics, inventory, and task activities.
+- General Logistics Data: Stored in transactional schemas handling core logistics, inventory, and task activities.
 
-
-* Protected Health Information (PHI): Completely isolated within a dedicated database named `vesta_clinical`. This database layer implements field-level encryption for all biometric telemetry and patient data, satisfying the 2026 HIPAA Security Rule.
-
-
+- Protected Health Information (PHI): Completely isolated within a dedicated database named `vesta_clinical`. This database layer implements field-level encryption for all biometric telemetry and patient data, satisfying the 2026 HIPAA Security Rule.
 
 ### 3.4 Cryptographic Vault Isolation Handshake
 
@@ -333,7 +312,7 @@ Fires as an immutable record whenever external enterprise partners or clinicians
 
 To support wearable device ingestion without overloading the centralized topic bus, the system splits telemetry processing into a Hot Path and a Warm/Choreography Path:
 
-```
+```text
 [ Wearable Device ]
         |
         +---> (Hot Path: WebSockets / MQTT) ---> [ High-Throughput Buffer / Time-Series DB ]
@@ -348,10 +327,7 @@ To support wearable device ingestion without overloading the centralized topic b
 
 1. The Hot Path: Continuously streaming sensors (such as live heart rate tracking or high-frequency wearable biometric telemetry) push raw data intervals over WebSockets or MQTT directly to a high-throughput time-series buffer, bypassing Azure Service Bus.
 
-
 2. The Warm Path: An ingestion broker summarizes the hot path data into structured time-slice snapshots (`device.telemetry.updated`) or evaluates incoming values against threshold rules to emit instant mutation flags (`device.tracker.updated`) onto the core choreography bus.
-
-
 
 ---
 
@@ -417,7 +393,7 @@ app = FastAPI(lifespan=lifespan)
 
 To maintain end-to-end alignment with Req D.1 and Req D.2, the B2B portal API gateway restricts external connections to strict read-only paradigms. Any data retrieval routine targeting telemetry registers verification steps:
 
-```
+```text
 [External Partner]           cynthus-portal-api            cynthus-auth            Secure Audit Log
          |                           |                           |                        |
          |--- Request Telemetry ---->|                           |                        |
@@ -432,10 +408,7 @@ To maintain end-to-end alignment with Req D.1 and Req D.2, the B2B portal API ga
 
 1. Consent Token Verification: The inbound bearer token signature is evaluated against `cynthus-auth` public cryptographic certificates to ensure valid user authorization and active clinician access scope exist for the active session.
 
-
 2. Immutable Audit Emission: Prior to transmitting the requested metrics, `cynthus-portal-api` blocks response execution until an event fact of type `audit.portal.created` is successfully committed to the log repository.
-
-
 
 ### 7.2 AI Governance & Compliance Transparency
 
@@ -445,18 +418,13 @@ To satisfy 2026 state-level AI governance laws (such as TRAIGA), any automated c
 
 Ecosystem routing boundaries strictly isolate corporate, consumer, and clinical traffic profiles at DNS edge routers:
 
-* `cynthus.app`: The public interface gateway hosting `cynthus-web` for standard user and consumer application workspaces.
+- `cynthus.app`: The public interface gateway hosting `cynthus-web` for standard user and consumer application workspaces.
 
+- `auth.cynthus.app`: Global multi-tenant authentication and token issuance gateway managed by `cynthus-auth`.
 
-* `auth.cynthus.app`: Global multi-tenant authentication and token issuance gateway managed by `cynthus-auth`.
+- `cynthus.health`: The secure B2B partner gateway interface hosting the `cynthus-portal-web` clinical dashboard layout.
 
-
-* `cynthus.health`: The secure B2B partner gateway interface hosting the `cynthus-portal-web` clinical dashboard layout.
-
-
-* `api.cynthus.health`: Secure backend endpoint processing high-performance biometric telemetry, continuous wearable summaries, and clinical conversational requests through `cynthus-portal-api`.
-
-
+- `api.cynthus.health`: Secure backend endpoint processing high-performance biometric telemetry, continuous wearable summaries, and clinical conversational requests through `cynthus-portal-api`.
 
 ---
 
@@ -464,6 +432,6 @@ Ecosystem routing boundaries strictly isolate corporate, consumer, and clinical 
 
 To fulfill Req C.2, the system establishes strict formatting limits for conversational payloads generated by `cynthus-chat`.
 
-* Response payloads emitted by Astri are restricted to logical, sequential text formats optimized for screen-reader layout trees, preventing reliance on visual design elements.
-* User interfaces do not utilize geometric orientation tags or spatial navigation layouts.
-* Data arrays returned from AI evaluations are processed into descriptive structural patterns that describe data linearly, removing physical visualization dependency entirely.
+- Response payloads emitted by Astri are restricted to logical, sequential text formats optimized for screen-reader layout trees, preventing reliance on visual design elements.
+- User interfaces do not utilize geometric orientation tags or spatial navigation layouts.
+- Data arrays returned from AI evaluations are processed into descriptive structural patterns that describe data linearly, removing physical visualization dependency entirely.

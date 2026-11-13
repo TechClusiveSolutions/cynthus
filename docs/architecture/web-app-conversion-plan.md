@@ -16,22 +16,48 @@ until the Python services reach parity; its browser front end is reused (decisio
 
 ## Feature ownership
 
-| Prototype feature | Owning service | Notes |
-|---|---|---|
-| Register, login, logout, password change, account deletion | `cynthus-identity` (`cynthus-trust/auth`) | JWT with role and entitlement claims; a personal workspace is created at registration |
-| Profile, diet, allergies, dislikes, likes, units, medical notes | `cynthus-profile` | Hard constraints (allergies, diet) are audited before every write |
-| Groups, members, roles, invite codes | `cynthus-profile` | Workspace membership |
-| Group chat | `cynthus-core-api` | Polling now; the WebSocket hub (`cynthus-messaging-engine`) comes later |
-| Personal health metrics and summaries | `cynthus-profile` | Not PHI; no clinical sharing |
-| Locations, inventory, adjustments, log, alerts | `cynthus-inventory` | `GET /inventory/snapshot` for context assembly |
-| Libraries, recipes, ratings, favorites, import | `cynthus-recipe` | `GET /recipe/candidates` applies the allergy hard-filter |
-| Shopping list, restock | `cynthus-logistics` | |
-| Meals, consume, suggestions, group votes | `cynthus-core-api` | |
-| Astri chat | `cynthus-chat` | Receives an assembled context payload; makes no outbound calls |
-| Suggestion generation, vote tie-break, health insight | `cynthus-analysis` | Also payload-driven |
-| Dashboard, search, export, request routing | `cynthus-core-api` | Context assembly layer |
-| Static front end | `cynthus-core-web` | |
-| Scheduled suggestions, expiry alerts | `cynthus-scheduler` | Publishes signals; consumed by `cynthus-core-api` |
+- Register, login, logout, password change, account deletion
+  - Owning service: `cynthus-identity` (`cynthus-trust/auth`)
+  - Notes: JWT with role and entitlement claims; a personal workspace is created at registration
+- Profile, diet, allergies, dislikes, likes, units, medical notes
+  - Owning service: `cynthus-profile`
+  - Notes: Hard constraints (allergies, diet) are audited before every write
+- Groups, members, roles, invite codes
+  - Owning service: `cynthus-profile`
+  - Notes: Workspace membership
+- Group chat
+  - Owning service: `cynthus-core-api`
+  - Notes: Polling now; the WebSocket hub (`cynthus-messaging-engine`) comes later
+- Personal health metrics and summaries
+  - Owning service: `cynthus-profile`
+  - Notes: Not PHI; no clinical sharing
+- Locations, inventory, adjustments, log, alerts
+  - Owning service: `cynthus-inventory`
+  - Notes: `GET /inventory/snapshot` for context assembly
+- Libraries, recipes, ratings, favorites, import
+  - Owning service: `cynthus-recipe`
+  - Notes: `GET /recipe/candidates` applies the allergy hard-filter
+- Shopping list, restock
+  - Owning service: `cynthus-logistics`
+  - Notes: none
+- Meals, consume, suggestions, group votes
+  - Owning service: `cynthus-core-api`
+  - Notes: none
+- Astri chat
+  - Owning service: `cynthus-chat`
+  - Notes: Receives an assembled context payload; makes no outbound calls
+- Suggestion generation, vote tie-break, health insight
+  - Owning service: `cynthus-analysis`
+  - Notes: Also payload-driven
+- Dashboard, search, export, request routing
+  - Owning service: `cynthus-core-api`
+  - Notes: Context assembly layer
+- Static front end
+  - Owning service: `cynthus-core-web`
+  - Notes: none
+- Scheduled suggestions, expiry alerts
+  - Owning service: `cynthus-scheduler`
+  - Notes: Publishes signals; consumed by `cynthus-core-api`
 
 ## Cross-cutting rules
 

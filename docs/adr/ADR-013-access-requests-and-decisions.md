@@ -41,11 +41,9 @@ would be lost) and keeps the decision and its answer in one row (they are never 
 
 ### The records
 
-| Record | Holds |
-|---|---|
-| `event_request` | `id`, the event (type, action, resource type and id, tenant, workspace), `requestor_id` (user or system), `reason` (text), `requested_on`, `in_reply_to` (the request it answers, empty for the first) |
-| `decision` | `id`, `event_request_id`, `answer` (`approved`, `approved_conditionally`, `denied`, `denied_conditionally`), `answer_reason` (why the answer is what it is), `determined_by` (the service), `determined_on` |
-| `decision_condition` | `id`, `decision_id`, `condition` (the `answer_reason` a reply must carry), `status` (`open`, `satisfied`, `failed`, `waived`, `expired`), `expires_at`, `satisfied_by_decision_id`, `satisfied_on` |
+- `event_request`: `id`, the event (type, action, resource type and id, tenant, workspace), `requestor_id` (user or system), `reason` (text), `requested_on`, `in_reply_to` (the request it answers, empty for the first)
+- `decision`: `id`, `event_request_id`, `answer` (`approved`, `approved_conditionally`, `denied`, `denied_conditionally`), `answer_reason` (why the answer is what it is), `determined_by` (the service), `determined_on`
+- `decision_condition`: `id`, `decision_id`, `condition` (the `answer_reason` a reply must carry), `status` (`open`, `satisfied`, `failed`, `waived`, `expired`), `expires_at`, `satisfied_by_decision_id`, `satisfied_on`
 
 A decision has zero or more conditions. A request is **in effect** when its latest decision is approved, or approved
 conditionally with every condition satisfied or waived. A condition that fails, or expires without being satisfied,

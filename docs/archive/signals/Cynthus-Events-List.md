@@ -38,7 +38,7 @@ A provider deleted a service list
 
 A provider added a service to a service list
 
-##### Payload
+**Payload**
 
 {
     "provider_id": "Provider1",
@@ -46,7 +46,7 @@ A provider added a service to a service list
     "offering_id": "Offering1"
 }
 
-####Provider.ServiceList.ServiceRemoved
+#### Provider.ServiceList.ServiceRemoved
 
 A provider removed a service from a service list
 
@@ -64,7 +64,7 @@ a provider created a service location
 
 The authentication system created a session for a user
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1"
@@ -74,7 +74,7 @@ The authentication system created a session for a user
 
 The authentication system expired a session for a user
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1"
@@ -86,7 +86,7 @@ The authentication system expired a session for a user
 
 The inventory system created an item expiration notification
 
-##### Payload
+**Payload**
 
 {
     "inventory_id": "Inventory1",
@@ -99,7 +99,7 @@ The inventory system created an item expiration notification
 
 #### system.shutdown.initiated
 
-##### Payload
+**Payload**
 
 {
     "system_id": "System1",
@@ -112,7 +112,7 @@ The inventory system created an item expiration notification
 
 The system has begun its startup process
 
-##### Payload
+**Payload**
 
 {
     "system_id": "System1"
@@ -122,7 +122,7 @@ The system has begun its startup process
 
 The system is available
 
-##### Payload
+**Payload**
 
 {
     "system_id": "System1"
@@ -136,7 +136,7 @@ The system is available
 
 A user created a group
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",
@@ -154,7 +154,7 @@ A user deleted a group
 
 A user added a member to a group
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",
@@ -166,7 +166,7 @@ A user added a member to a group
 
 A user removed a member from a group
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",
@@ -180,7 +180,7 @@ A user removed a member from a group
 
 A user created an inventory
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",
@@ -204,7 +204,7 @@ A user used an item from an inventory
 
 A user added a shelf to an inventory
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",
@@ -218,7 +218,7 @@ A user added a shelf to an inventory
 
 A user created a library
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",
@@ -234,7 +234,7 @@ A user deleted a library
 
 A user added a recipe to a library
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",
@@ -248,7 +248,7 @@ A user added a recipe to a library
 
 A user created a meal
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",
@@ -264,7 +264,7 @@ A user deleted a meal
 
 The user added a favorite to a meal
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",
@@ -275,7 +275,7 @@ The user added a favorite to a meal
 
 The user removed a favorite from a meal
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",
@@ -286,7 +286,7 @@ The user removed a favorite from a meal
 
 The user added a tag to a meal
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",
@@ -298,7 +298,7 @@ The user added a tag to a meal
 
 The user removed a tag from a meal
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",
@@ -344,7 +344,7 @@ A user updated a meal schedule
 
 A user created a shelf
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",
@@ -356,7 +356,7 @@ A user created a shelf
 
 A user added an item to a shelf
 
-##### Payload
+**Payload**
 
 {
     "user_id": "User1",

@@ -26,28 +26,48 @@ cd cynthus-web && npm run coverage                                        # Node
 
 ## Results (latest run)
 
-| Scope | Tests | Coverage |
-|---|---|---|
-| 20 Python suites (6 repos) | 2058 passed, 0 failed, 8 expected failures, 2 skipped | **99.0 %** of 2050 statements (every file now parses) |
-| `cynthus-web` (Node) | 64 passed | 93.4 % lines, 78.4 % branches |
-| Module inventory | 263 of 263 modules have a corresponding test script | |
-| Mutation check | 30 of 30 deliberate bugs were caught | |
+- 20 Python suites (6 repos)
+  - Tests: 2058 passed, 0 failed, 8 expected failures, 2 skipped
+  - Coverage: **99.0 %** of 2050 statements (every file now parses)
+- `cynthus-web` (Node)
+  - Tests: 64 passed
+  - Coverage: 93.4 % lines, 78.4 % branches
+- Module inventory
+  - Tests: 263 of 263 modules have a corresponding test script
+  - Coverage: none
+- Mutation check
+  - Tests: 30 of 30 deliberate bugs were caught
+  - Coverage: none
 
 The 8 expected failures are the dependency contracts listed under "Open items"; the 2 skips are
 parametrised tests for payloads that have no fields yet. See `FIX-LOG.md` for what was repaired and how.
 
 ## Layout
 
-| Repo | Suites | Test scripts live in |
-|---|---|---|
-| cynthus-core | api, inventory, logistics, profile, recipe, scheduler, shopping, web, worker | `containers/<name>/test/` |
-| cynthus-health | api, web | `containers/<name>/test/` |
-| cynthus-intelligence | analysis, chat | `containers/<name>/test/` |
-| cynthus-trust | auth | `containers/auth/test/` |
-| cynthus-mocks | analysis, auth, chat, portal-api, portal-web | `containers/<name>/test/` |
-| cynthus-messaging-core | the signal contract | `test/cynthus/messaging/...` (mirrors `src/`) |
-| cynthus-messaging | auth, clinical, device, lifestyle, system components | `test/component/...` |
-| cynthus-web | the Node app | `test/*.test.js` |
+- cynthus-core
+  - Suites: api, inventory, logistics, profile, recipe, scheduler, shopping, web, worker
+  - Test scripts live in: `containers/<name>/test/`
+- cynthus-health
+  - Suites: api, web
+  - Test scripts live in: `containers/<name>/test/`
+- cynthus-intelligence
+  - Suites: analysis, chat
+  - Test scripts live in: `containers/<name>/test/`
+- cynthus-trust
+  - Suites: auth
+  - Test scripts live in: `containers/auth/test/`
+- cynthus-mocks
+  - Suites: analysis, auth, chat, portal-api, portal-web
+  - Test scripts live in: `containers/<name>/test/`
+- cynthus-messaging-core
+  - Suites: the signal contract
+  - Test scripts live in: `test/cynthus/messaging/...` (mirrors `src/`)
+- cynthus-messaging
+  - Suites: auth, clinical, device, lifestyle, system components
+  - Test scripts live in: `test/component/...`
+- cynthus-web
+  - Suites: the Node app
+  - Test scripts live in: `test/*.test.js`
 
 Naming: `src/pkg/routes/system.py` is tested by `test_routes_system.py`, `src/pkg/__init__.py` by
 `test_<pkg>_init.py`, and so on. Empty placeholder modules are imported by `test_package_structure.py`.

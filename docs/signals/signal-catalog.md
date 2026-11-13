@@ -1,4 +1,4 @@
-# Cynthus Life Ecosystem — Signal Catalog
+# Cynthus Life Ecosystem - Signal Catalog
 
 **Document Version:** 1.0 (June 2026)
 **Status:** Active
@@ -10,13 +10,13 @@
 
 ### Signal Namespace Format
 
-```
+```text
 {visibility}.{domain}.{entity}.{action}
 ```
 
-- `public.*` — Domain facts published to `cynthus-topic-public`. Any authorized downstream service may consume.
-- `internal.*` — Infrastructure and choreography signals published to `cynthus-topic-internal`. Consumed by specific services only.
-- `audit.*` — Write-once compliance events published to `cynthus-topic-audit`. Consumed exclusively by `cynthus-audit`.
+- `public.*` - Domain facts published to `cynthus-topic-public`. Any authorized downstream service may consume.
+- `internal.*` - Infrastructure and choreography signals published to `cynthus-topic-internal`. Consumed by specific services only.
+- `audit.*` - Write-once compliance events published to `cynthus-topic-audit`. Consumed exclusively by `cynthus-audit`.
 
 ### Envelope
 
@@ -40,33 +40,116 @@ Payload samples below show **only the `payload` field content**. The full envelo
 
 ### Read-Only Operations
 
-Features that are purely synchronous read/query operations (Browse, Search, Report queries) do not produce Service Bus signals. These are noted inline with `— synchronous gRPC query; no async signal —`.
+Features that are purely synchronous read/query operations (Browse, Search, Report queries) do not produce Service Bus signals. These are noted inline with ` - synchronous gRPC query; no async signal - `.
 
 ---
 
 ## Domain: Meal Planning
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-MP-001 | `public.meal.suggestion.requested` | public | `cynthus-core-api` | `cynthus-chat`, `cynthus-audit` | User initiated an on-demand meal suggestion; context bundle reference included |
-| FT-MP-001 | `public.meal.suggestion.generated` | public | `cynthus-chat` | `cynthus-core-api`, `cynthus-notification`, `cynthus-audit` | Astri produced a meal suggestion and returned it to the user |
-| FT-MP-001, FT-MP-005 | `public.meal.suggestion.accepted` | public | `cynthus-core-api` | `cynthus-chat`, `cynthus-analysis`, `cynthus-audit` | User accepted a suggestion; stored for preference model training |
-| FT-MP-001, FT-MP-005 | `public.meal.suggestion.denied` | public | `cynthus-core-api` | `cynthus-chat`, `cynthus-analysis`, `cynthus-audit` | User denied a suggestion; triggers follow-up suggestion from Astri |
-| FT-MP-002 | `internal.meal.suggestion_schedule.configured` | internal | `cynthus-core-api` | `cynthus-scheduler` | User set or changed their scheduled suggestion cadence |
-| FT-MP-002 | `internal.meal.suggestion_schedule.triggered` | internal | `cynthus-scheduler` | `cynthus-core-api` | Scheduler fired a due suggestion event; core assembles context and forwards to chat |
-| FT-MP-003 | *(synchronous gRPC query; no async signal)* | — | — | — | Browse meals by category is a read-only query |
-| FT-MP-004 | `public.meal.plan.created` | public | `cynthus-core-api` | `cynthus-analysis`, `cynthus-scheduler`, `cynthus-audit` | A new meal plan was created for a workspace |
-| FT-MP-004 | `public.meal.plan.updated` | public | `cynthus-core-api` | `cynthus-analysis`, `cynthus-scheduler`, `cynthus-audit` | An existing meal plan was modified |
-| FT-MP-004 | `public.meal.plan.deleted` | public | `cynthus-core-api` | `cynthus-analysis`, `cynthus-scheduler`, `cynthus-audit` | A meal plan was removed |
-| FT-MP-006 | `public.meal.recipes.associated` | public | `cynthus-core-api` | `cynthus-recipe`, `cynthus-analysis`, `cynthus-audit` | Multiple recipe IDs linked to a composite meal entry |
-| FT-MP-007 | `public.meal.vote.initiated` | public | `cynthus-core-api` | `cynthus-messaging`, `cynthus-notification`, `cynthus-audit` | A group meal vote was opened; push alerts sent to group members |
-| FT-MP-008 | `public.meal.vote.cast` | public | `cynthus-core-api` | `cynthus-analysis`, `cynthus-messaging`, `cynthus-audit` | A group member submitted their vote |
-| FT-MP-009 | `public.meal.vote.resolved` | public | `cynthus-core-api` | `cynthus-chat`, `cynthus-notification`, `cynthus-audit` | Vote concluded with a winning choice |
-| FT-MP-010 | `internal.meal.vote.stalemate_detected` | internal | `cynthus-analysis` | `cynthus-chat` | Split vote detected; Astri asked to act as tiebreaker |
-| FT-MP-010 | `public.meal.vote.auto_resolved` | public | `cynthus-chat` | `cynthus-core-api`, `cynthus-notification`, `cynthus-audit` | Astri resolved a stalemate based on history and expiry data |
-| FT-MP-011 | `internal.profile.energy_level.updated` | internal | `cynthus-profile` | `cynthus-chat`, `cynthus-core-api` | User updated their current Energy Banker spoon budget |
+- FT-MP-001
+  - Signal Namespace: `public.meal.suggestion.requested`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-chat`, `cynthus-audit`
+  - Synopsis: User initiated an on-demand meal suggestion; context bundle reference included
+- FT-MP-001
+  - Signal Namespace: `public.meal.suggestion.generated`
+  - Topic: public
+  - Publisher: `cynthus-chat`
+  - Consumers: `cynthus-core-api`, `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Astri produced a meal suggestion and returned it to the user
+- FT-MP-001, FT-MP-005
+  - Signal Namespace: `public.meal.suggestion.accepted`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-chat`, `cynthus-analysis`, `cynthus-audit`
+  - Synopsis: User accepted a suggestion; stored for preference model training
+- FT-MP-001, FT-MP-005
+  - Signal Namespace: `public.meal.suggestion.denied`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-chat`, `cynthus-analysis`, `cynthus-audit`
+  - Synopsis: User denied a suggestion; triggers follow-up suggestion from Astri
+- FT-MP-002
+  - Signal Namespace: `internal.meal.suggestion_schedule.configured`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-scheduler`
+  - Synopsis: User set or changed their scheduled suggestion cadence
+- FT-MP-002
+  - Signal Namespace: `internal.meal.suggestion_schedule.triggered`
+  - Topic: internal
+  - Publisher: `cynthus-scheduler`
+  - Consumers: `cynthus-core-api`
+  - Synopsis: Scheduler fired a due suggestion event; core assembles context and forwards to chat
+- FT-MP-003
+  - Signal Namespace: *(synchronous gRPC query; no async signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: Browse meals by category is a read-only query
+- FT-MP-004
+  - Signal Namespace: `public.meal.plan.created`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-analysis`, `cynthus-scheduler`, `cynthus-audit`
+  - Synopsis: A new meal plan was created for a workspace
+- FT-MP-004
+  - Signal Namespace: `public.meal.plan.updated`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-analysis`, `cynthus-scheduler`, `cynthus-audit`
+  - Synopsis: An existing meal plan was modified
+- FT-MP-004
+  - Signal Namespace: `public.meal.plan.deleted`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-analysis`, `cynthus-scheduler`, `cynthus-audit`
+  - Synopsis: A meal plan was removed
+- FT-MP-006
+  - Signal Namespace: `public.meal.recipes.associated`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-recipe`, `cynthus-analysis`, `cynthus-audit`
+  - Synopsis: Multiple recipe IDs linked to a composite meal entry
+- FT-MP-007
+  - Signal Namespace: `public.meal.vote.initiated`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-messaging`, `cynthus-notification`, `cynthus-audit`
+  - Synopsis: A group meal vote was opened; push alerts sent to group members
+- FT-MP-008
+  - Signal Namespace: `public.meal.vote.cast`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-analysis`, `cynthus-messaging`, `cynthus-audit`
+  - Synopsis: A group member submitted their vote
+- FT-MP-009
+  - Signal Namespace: `public.meal.vote.resolved`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-chat`, `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Vote concluded with a winning choice
+- FT-MP-010
+  - Signal Namespace: `internal.meal.vote.stalemate_detected`
+  - Topic: internal
+  - Publisher: `cynthus-analysis`
+  - Consumers: `cynthus-chat`
+  - Synopsis: Split vote detected; Astri asked to act as tiebreaker
+- FT-MP-010
+  - Signal Namespace: `public.meal.vote.auto_resolved`
+  - Topic: public
+  - Publisher: `cynthus-chat`
+  - Consumers: `cynthus-core-api`, `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Astri resolved a stalemate based on history and expiry data
+- FT-MP-011
+  - Signal Namespace: `internal.profile.energy_level.updated`
+  - Topic: internal
+  - Publisher: `cynthus-profile`
+  - Consumers: `cynthus-chat`, `cynthus-core-api`
+  - Synopsis: User updated their current Energy Banker spoon budget
 
-### Sample Payloads — Meal Planning
+### Sample Payloads - Meal Planning
 
 ```json
 // public.meal.suggestion.requested
@@ -187,47 +270,220 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 
 ## Domain: Inventory Management
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-IM-001 | `public.inventory.location.created` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | A new named inventory location was created |
-| FT-IM-001 | `public.inventory.location.updated` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | Location metadata (name, type, config) was changed |
-| FT-IM-001 | `public.inventory.location.deleted` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-shopping`, `cynthus-audit` | Location was removed; shopping service clears any procurement links |
-| FT-IM-001 | `public.inventory.shelf.created` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | A new shelf was created within a location |
-| FT-IM-001 | `public.inventory.shelf.updated` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | Shelf name or position was changed |
-| FT-IM-001 | `public.inventory.shelf.deleted` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-audit` | Shelf was removed along with its items and owners |
-| FT-IM-002 | `audit.inventory.location.role_assigned` | audit | `cynthus-core-api` | `cynthus-audit` | RBAC role granted on an inventory location |
-| FT-IM-002 | `audit.inventory.location.role_revoked` | audit | `cynthus-core-api` | `cynthus-audit` | RBAC role revoked on an inventory location |
-| FT-IM-003 | `public.inventory.item.added` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item added to a location; cache updated; scheduler registers expiry watch |
-| FT-IM-003 | `public.inventory.item.updated` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item quantity or metadata changed |
-| FT-IM-003 | `public.inventory.item.removed` | public | `cynthus-inventory` | `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit` | Item removed from location |
-| FT-IM-001 | `public.inventory.owner.added` | public | `cynthus-inventory` | `cynthus-audit` | A user was made an owner of a shelf |
-| FT-IM-001 | `public.inventory.owner.removed` | public | `cynthus-inventory` | `cynthus-audit` | A user stopped being an owner of a shelf |
-| FT-IM-001 | `public.inventory.location.requested` | public | `cynthus-core-api` | `cynthus-inventory`, `cynthus-audit` | A caller asked to create, get, list, update or delete a location; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service |
-| FT-IM-001 | `public.inventory.location.responded` | public | `cynthus-inventory` | `cynthus-core-api`, `cynthus-audit` | The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket |
-| FT-IM-001 | `public.inventory.shelf.requested` | public | `cynthus-core-api` | `cynthus-inventory`, `cynthus-audit` | A caller asked to create, get, list, update or delete a shelf; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service |
-| FT-IM-001 | `public.inventory.shelf.responded` | public | `cynthus-inventory` | `cynthus-core-api`, `cynthus-audit` | The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket |
-| FT-IM-003 | `public.inventory.item.requested` | public | `cynthus-core-api` | `cynthus-inventory`, `cynthus-audit` | A caller asked to create, get, list, update or delete an item; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service |
-| FT-IM-003 | `public.inventory.item.responded` | public | `cynthus-inventory` | `cynthus-core-api`, `cynthus-audit` | The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket |
-| FT-IM-002 | `public.inventory.owner.requested` | public | `cynthus-core-api` | `cynthus-inventory`, `cynthus-audit` | A caller asked to create, get, list, update or delete a shelf owner; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service |
-| FT-IM-002 | `public.inventory.owner.responded` | public | `cynthus-inventory` | `cynthus-core-api`, `cynthus-audit` | The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket |
-| FT-IM-005 | `public.inventory.list.requested` | public | `cynthus-core-api` | `cynthus-inventory`, `cynthus-audit` | A caller asked for the inventory listing; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service |
-| FT-IM-005 | `public.inventory.list.updated` | public | `cynthus-inventory` | `cynthus-core-api`, `cynthus-audit` | The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket |
-| FT-IM-004 | `internal.inventory.location.subscription_created` | internal | `cynthus-core-api` | `cynthus-notification`, `cynthus-audit` | User subscribed to alerts for a specific location |
-| FT-IM-004 | `internal.inventory.location.subscription_removed` | internal | `cynthus-core-api` | `cynthus-notification`, `cynthus-audit` | User unsubscribed from location alerts |
-| FT-IM-005, FT-IM-006 | `public.inventory.item.low` | public | `cynthus-scheduler` | `cynthus-notification`, `cynthus-chat`, `cynthus-shopping`, `cynthus-audit` | Item quantity crossed below the user-defined minimum threshold; notification fans out to owner and location subscribers; shopping service auto-appends to active procurement list |
-| FT-IM-007, FT-IM-008 | `public.inventory.item.expiry_approaching` | public | `cynthus-scheduler` | `cynthus-notification`, `cynthus-chat`, `cynthus-analysis`, `cynthus-audit` | Item is within configured days-before-expiry window |
-| FT-IM-007, FT-IM-008 | `public.inventory.item.expired` | public | `cynthus-scheduler` | `cynthus-notification`, `cynthus-chat`, `cynthus-audit` | Item has reached or passed its registered expiry date |
-| FT-IM-009 | `public.inventory.order.initiated` | public | `cynthus-core-api` | `cynthus-partner-api`, `cynthus-billing-api`, `cynthus-audit` | User triggered a reorder through a third-party vendor |
-| FT-IM-009 | `public.inventory.order.submitted` | public | `cynthus-partner-api` | `cynthus-notification`, `cynthus-audit` | Order successfully handed off to external fulfillment provider |
-| FT-IM-009 | `public.inventory.order.failed` | public | `cynthus-partner-api` | `cynthus-notification`, `cynthus-audit` | Order handoff to external provider failed |
-| FT-IM-011 | `internal.inventory.scan.receipt_submitted` | internal | `cynthus-core-api` | `cynthus-worker` | Receipt image queued for OCR/batch-add processing |
-| FT-IM-011 | `internal.inventory.scan.completed` | internal | `cynthus-worker` | `cynthus-core-api` | OCR complete; structured item list ready to be batch-added to location |
-| FT-IM-012 | `public.inventory.mutation.recorded` | public | `cynthus-core-api` | `cynthus-core-cache`, `cynthus-audit` | Canonical immutable ledger entry for every inventory state change (add, update, move, consume) |
-| FT-IM-013 | `internal.inventory.item.prioritized_for_expiry` | internal | `cynthus-scheduler` | `cynthus-core-api` | Near-expiry items flagged for elevation in next context assembly payload sent to Astri |
+- FT-IM-001
+  - Signal Namespace: `public.inventory.location.created`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-cache`, `cynthus-audit`
+  - Synopsis: A new named inventory location was created
+- FT-IM-001
+  - Signal Namespace: `public.inventory.location.updated`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-cache`, `cynthus-audit`
+  - Synopsis: Location metadata (name, type, config) was changed
+- FT-IM-001
+  - Signal Namespace: `public.inventory.location.deleted`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-cache`, `cynthus-shopping`, `cynthus-audit`
+  - Synopsis: Location was removed; shopping service clears any procurement links
+- FT-IM-001
+  - Signal Namespace: `public.inventory.shelf.created`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-cache`, `cynthus-audit`
+  - Synopsis: A new shelf was created within a location
+- FT-IM-001
+  - Signal Namespace: `public.inventory.shelf.updated`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-cache`, `cynthus-audit`
+  - Synopsis: Shelf name or position was changed
+- FT-IM-001
+  - Signal Namespace: `public.inventory.shelf.deleted`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-cache`, `cynthus-audit`
+  - Synopsis: Shelf was removed along with its items and owners
+- FT-IM-002
+  - Signal Namespace: `audit.inventory.location.role_assigned`
+  - Topic: audit
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: RBAC role granted on an inventory location
+- FT-IM-002
+  - Signal Namespace: `audit.inventory.location.role_revoked`
+  - Topic: audit
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: RBAC role revoked on an inventory location
+- FT-IM-003
+  - Signal Namespace: `public.inventory.item.added`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit`
+  - Synopsis: Item added to a location; cache updated; scheduler registers expiry watch
+- FT-IM-003
+  - Signal Namespace: `public.inventory.item.updated`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit`
+  - Synopsis: Item quantity or metadata changed
+- FT-IM-003
+  - Signal Namespace: `public.inventory.item.removed`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-cache`, `cynthus-scheduler`, `cynthus-audit`
+  - Synopsis: Item removed from location
+- FT-IM-001
+  - Signal Namespace: `public.inventory.owner.added`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-audit`
+  - Synopsis: A user was made an owner of a shelf
+- FT-IM-001
+  - Signal Namespace: `public.inventory.owner.removed`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-audit`
+  - Synopsis: A user stopped being an owner of a shelf
+- FT-IM-001
+  - Signal Namespace: `public.inventory.location.requested`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-inventory`, `cynthus-audit`
+  - Synopsis: A caller asked to create, get, list, update or delete a location; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service
+- FT-IM-001
+  - Signal Namespace: `public.inventory.location.responded`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-api`, `cynthus-audit`
+  - Synopsis: The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket
+- FT-IM-001
+  - Signal Namespace: `public.inventory.shelf.requested`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-inventory`, `cynthus-audit`
+  - Synopsis: A caller asked to create, get, list, update or delete a shelf; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service
+- FT-IM-001
+  - Signal Namespace: `public.inventory.shelf.responded`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-api`, `cynthus-audit`
+  - Synopsis: The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket
+- FT-IM-003
+  - Signal Namespace: `public.inventory.item.requested`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-inventory`, `cynthus-audit`
+  - Synopsis: A caller asked to create, get, list, update or delete an item; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service
+- FT-IM-003
+  - Signal Namespace: `public.inventory.item.responded`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-api`, `cynthus-audit`
+  - Synopsis: The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket
+- FT-IM-002
+  - Signal Namespace: `public.inventory.owner.requested`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-inventory`, `cynthus-audit`
+  - Synopsis: A caller asked to create, get, list, update or delete a shelf owner; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service
+- FT-IM-002
+  - Signal Namespace: `public.inventory.owner.responded`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-api`, `cynthus-audit`
+  - Synopsis: The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket
+- FT-IM-005
+  - Signal Namespace: `public.inventory.list.requested`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-inventory`, `cynthus-audit`
+  - Synopsis: A caller asked for the inventory listing; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Inventory service
+- FT-IM-005
+  - Signal Namespace: `public.inventory.list.updated`
+  - Topic: public
+  - Publisher: `cynthus-inventory`
+  - Consumers: `cynthus-core-api`, `cynthus-audit`
+  - Synopsis: The Inventory service's answer with an HTTP-style status and the result or error; the API relays it to the waiting client over its websocket
+- FT-IM-004
+  - Signal Namespace: `internal.inventory.location.subscription_created`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: User subscribed to alerts for a specific location
+- FT-IM-004
+  - Signal Namespace: `internal.inventory.location.subscription_removed`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: User unsubscribed from location alerts
+- FT-IM-005, FT-IM-006
+  - Signal Namespace: `public.inventory.item.low`
+  - Topic: public
+  - Publisher: `cynthus-scheduler`
+  - Consumers: `cynthus-notification`, `cynthus-chat`, `cynthus-shopping`, `cynthus-audit`
+  - Synopsis: Item quantity crossed below the user-defined minimum threshold; notification fans out to owner and location subscribers; shopping service auto-appends to active procurement list
+- FT-IM-007, FT-IM-008
+  - Signal Namespace: `public.inventory.item.expiry_approaching`
+  - Topic: public
+  - Publisher: `cynthus-scheduler`
+  - Consumers: `cynthus-notification`, `cynthus-chat`, `cynthus-analysis`, `cynthus-audit`
+  - Synopsis: Item is within configured days-before-expiry window
+- FT-IM-007, FT-IM-008
+  - Signal Namespace: `public.inventory.item.expired`
+  - Topic: public
+  - Publisher: `cynthus-scheduler`
+  - Consumers: `cynthus-notification`, `cynthus-chat`, `cynthus-audit`
+  - Synopsis: Item has reached or passed its registered expiry date
+- FT-IM-009
+  - Signal Namespace: `public.inventory.order.initiated`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-partner-api`, `cynthus-billing-api`, `cynthus-audit`
+  - Synopsis: User triggered a reorder through a third-party vendor
+- FT-IM-009
+  - Signal Namespace: `public.inventory.order.submitted`
+  - Topic: public
+  - Publisher: `cynthus-partner-api`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Order successfully handed off to external fulfillment provider
+- FT-IM-009
+  - Signal Namespace: `public.inventory.order.failed`
+  - Topic: public
+  - Publisher: `cynthus-partner-api`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Order handoff to external provider failed
+- FT-IM-011
+  - Signal Namespace: `internal.inventory.scan.receipt_submitted`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-worker`
+  - Synopsis: Receipt image queued for OCR/batch-add processing
+- FT-IM-011
+  - Signal Namespace: `internal.inventory.scan.completed`
+  - Topic: internal
+  - Publisher: `cynthus-worker`
+  - Consumers: `cynthus-core-api`
+  - Synopsis: OCR complete; structured item list ready to be batch-added to location
+- FT-IM-012
+  - Signal Namespace: `public.inventory.mutation.recorded`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-core-cache`, `cynthus-audit`
+  - Synopsis: Canonical immutable ledger entry for every inventory state change (add, update, move, consume)
+- FT-IM-013
+  - Signal Namespace: `internal.inventory.item.prioritized_for_expiry`
+  - Topic: internal
+  - Publisher: `cynthus-scheduler`
+  - Consumers: `cynthus-core-api`
+  - Synopsis: Near-expiry items flagged for elevation in next context assembly payload sent to Astri
 
 **Request and response.** Every interaction between the Core API and the Inventory service uses signals: the request carries the operation (`create`, `get`, `list`, `update`, `delete`), the target ids, filters and data; the response carries the same operation, a status (`200`, `201`, `204`, `401`, `403`, `404`, `405`, `409`, `422`, `500`) and the result or error. They are joined by the envelope `correlation_id`. The facts above follow a successful change.
 
-### Sample Payloads — Inventory Management
+### Sample Payloads - Inventory Management
 
 ```json
 // public.inventory.location.created
@@ -353,33 +609,146 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 
 ## Domain: Recipe Management
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-RM-001 | `public.recipe.library.created` | public | `cynthus-recipe` | `cynthus-audit` | Recipe library created with initial RBAC configuration |
-| FT-RM-001 | `public.recipe.library.updated` | public | `cynthus-recipe` | `cynthus-audit` | Library name, description, or RBAC changed |
-| FT-RM-001 | `public.recipe.library.deleted` | public | `cynthus-recipe` | `cynthus-audit` | Library and all contained recipes removed |
-| FT-RM-001 | `audit.recipe.library.role_assigned` | audit | `cynthus-recipe` | `cynthus-audit` | RBAC role granted on a recipe library |
-| FT-RM-001 | `audit.recipe.library.role_revoked` | audit | `cynthus-recipe` | `cynthus-audit` | RBAC role revoked on a recipe library |
-| FT-RM-002 | `public.recipe.created` | public | `cynthus-recipe` | `cynthus-core-api`, `cynthus-analysis`, `cynthus-audit` | New recipe added to a library; core-api updates context availability |
-| FT-RM-002 | `public.recipe.updated` | public | `cynthus-recipe` | `cynthus-core-api`, `cynthus-analysis`, `cynthus-audit` | Recipe content or metadata changed |
-| FT-RM-002 | `public.recipe.deleted` | public | `cynthus-recipe` | `cynthus-core-api`, `cynthus-audit` | Recipe removed from a library |
-| FT-RM-003 | *(synchronous gRPC query; no async signal)* | — | — | — | Recipe search is a read-only filtered query |
-| FT-RM-004 | `internal.recipe.import.url_submitted` | internal | `cynthus-recipe` | `cynthus-worker` | URL queued for web-scraping and recipe extraction |
-| FT-RM-004 | `internal.recipe.import.completed` | internal | `cynthus-worker` | `cynthus-recipe` | Scraped and cleaned recipe ready for library insertion |
-| FT-RM-004 | `internal.recipe.import.failed` | internal | `cynthus-worker` | `cynthus-recipe`, `cynthus-notification` | URL scrape or parse failed; user notified |
-| FT-RM-005 | `internal.recipe.modification.clinically_suggested` | internal | `cynthus-chat` | `cynthus-recipe`, `cynthus-audit` | Astri produced a clinically driven ingredient modification (PHI context involved; audit required) |
-| FT-RM-006 | `public.recipe.scaled` | public | `cynthus-recipe` | `cynthus-core-api`, `cynthus-analysis`, `cynthus-audit` | Recipe scaled to target portion count; updated ingredient quantities and procurement manifest emitted |
-| FT-RM-007 | `internal.recipe.pricing.updated` | internal | `cynthus-recipe` | `cynthus-core-api` | Price-per-portion recalculated after inventory cost change; updated estimate propagated to recipe metadata |
-| FT-RM-008 | `internal.recipe.ocr.image_submitted` | internal | `cynthus-recipe` | `cynthus-worker` | Recipe card or printed menu image queued for OCR processing |
-| FT-RM-008 | `internal.recipe.ocr.completed` | internal | `cynthus-worker` | `cynthus-recipe` | OCR result ready; structured recipe object awaiting library insertion |
-| FT-RM-009 | `internal.recipe.scrape.url_submitted` | internal | `cynthus-recipe` | `cynthus-worker` | Blog URL queued for backstory-stripped recipe extraction (reuses import worker path) |
-| FT-RM-009 | `internal.recipe.scrape.completed` | internal | `cynthus-worker` | `cynthus-recipe` | Cleaned recipe extracted from blog URL; ready for insertion |
-| FT-RM-010 | `internal.recipe.nutrition.enriched` | internal | `cynthus-worker` | `cynthus-recipe` | USDA FoodData Central nutritional data matched and injected into recipe ingredient array |
-| FT-RM-011 | `public.recipe.substitution.requested` | public | `cynthus-core-api` | `cynthus-chat`, `cynthus-audit` | User selected an ingredient for substitution; context bundle dispatched to Astri |
-| FT-RM-011 | `public.recipe.substitution.suggested` | public | `cynthus-chat` | `cynthus-recipe`, `cynthus-audit` | Astri returned one or more substitution alternatives with technique notes |
-| FT-RM-011 | `public.recipe.variant.saved` | public | `cynthus-recipe` | `cynthus-core-api`, `cynthus-audit` | User saved an Astri-suggested modification as a named variant alongside the original |
+- FT-RM-001
+  - Signal Namespace: `public.recipe.library.created`
+  - Topic: public
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Recipe library created with initial RBAC configuration
+- FT-RM-001
+  - Signal Namespace: `public.recipe.library.updated`
+  - Topic: public
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Library name, description, or RBAC changed
+- FT-RM-001
+  - Signal Namespace: `public.recipe.library.deleted`
+  - Topic: public
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Library and all contained recipes removed
+- FT-RM-001
+  - Signal Namespace: `audit.recipe.library.role_assigned`
+  - Topic: audit
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-audit`
+  - Synopsis: RBAC role granted on a recipe library
+- FT-RM-001
+  - Signal Namespace: `audit.recipe.library.role_revoked`
+  - Topic: audit
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-audit`
+  - Synopsis: RBAC role revoked on a recipe library
+- FT-RM-002
+  - Signal Namespace: `public.recipe.created`
+  - Topic: public
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-core-api`, `cynthus-analysis`, `cynthus-audit`
+  - Synopsis: New recipe added to a library; core-api updates context availability
+- FT-RM-002
+  - Signal Namespace: `public.recipe.updated`
+  - Topic: public
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-core-api`, `cynthus-analysis`, `cynthus-audit`
+  - Synopsis: Recipe content or metadata changed
+- FT-RM-002
+  - Signal Namespace: `public.recipe.deleted`
+  - Topic: public
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-core-api`, `cynthus-audit`
+  - Synopsis: Recipe removed from a library
+- FT-RM-003
+  - Signal Namespace: *(synchronous gRPC query; no async signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: Recipe search is a read-only filtered query
+- FT-RM-004
+  - Signal Namespace: `internal.recipe.import.url_submitted`
+  - Topic: internal
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-worker`
+  - Synopsis: URL queued for web-scraping and recipe extraction
+- FT-RM-004
+  - Signal Namespace: `internal.recipe.import.completed`
+  - Topic: internal
+  - Publisher: `cynthus-worker`
+  - Consumers: `cynthus-recipe`
+  - Synopsis: Scraped and cleaned recipe ready for library insertion
+- FT-RM-004
+  - Signal Namespace: `internal.recipe.import.failed`
+  - Topic: internal
+  - Publisher: `cynthus-worker`
+  - Consumers: `cynthus-recipe`, `cynthus-notification`
+  - Synopsis: URL scrape or parse failed; user notified
+- FT-RM-005
+  - Signal Namespace: `internal.recipe.modification.clinically_suggested`
+  - Topic: internal
+  - Publisher: `cynthus-chat`
+  - Consumers: `cynthus-recipe`, `cynthus-audit`
+  - Synopsis: Astri produced a clinically driven ingredient modification (PHI context involved; audit required)
+- FT-RM-006
+  - Signal Namespace: `public.recipe.scaled`
+  - Topic: public
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-core-api`, `cynthus-analysis`, `cynthus-audit`
+  - Synopsis: Recipe scaled to target portion count; updated ingredient quantities and procurement manifest emitted
+- FT-RM-007
+  - Signal Namespace: `internal.recipe.pricing.updated`
+  - Topic: internal
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-core-api`
+  - Synopsis: Price-per-portion recalculated after inventory cost change; updated estimate propagated to recipe metadata
+- FT-RM-008
+  - Signal Namespace: `internal.recipe.ocr.image_submitted`
+  - Topic: internal
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-worker`
+  - Synopsis: Recipe card or printed menu image queued for OCR processing
+- FT-RM-008
+  - Signal Namespace: `internal.recipe.ocr.completed`
+  - Topic: internal
+  - Publisher: `cynthus-worker`
+  - Consumers: `cynthus-recipe`
+  - Synopsis: OCR result ready; structured recipe object awaiting library insertion
+- FT-RM-009
+  - Signal Namespace: `internal.recipe.scrape.url_submitted`
+  - Topic: internal
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-worker`
+  - Synopsis: Blog URL queued for backstory-stripped recipe extraction (reuses import worker path)
+- FT-RM-009
+  - Signal Namespace: `internal.recipe.scrape.completed`
+  - Topic: internal
+  - Publisher: `cynthus-worker`
+  - Consumers: `cynthus-recipe`
+  - Synopsis: Cleaned recipe extracted from blog URL; ready for insertion
+- FT-RM-010
+  - Signal Namespace: `internal.recipe.nutrition.enriched`
+  - Topic: internal
+  - Publisher: `cynthus-worker`
+  - Consumers: `cynthus-recipe`
+  - Synopsis: USDA FoodData Central nutritional data matched and injected into recipe ingredient array
+- FT-RM-011
+  - Signal Namespace: `public.recipe.substitution.requested`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-chat`, `cynthus-audit`
+  - Synopsis: User selected an ingredient for substitution; context bundle dispatched to Astri
+- FT-RM-011
+  - Signal Namespace: `public.recipe.substitution.suggested`
+  - Topic: public
+  - Publisher: `cynthus-chat`
+  - Consumers: `cynthus-recipe`, `cynthus-audit`
+  - Synopsis: Astri returned one or more substitution alternatives with technique notes
+- FT-RM-011
+  - Signal Namespace: `public.recipe.variant.saved`
+  - Topic: public
+  - Publisher: `cynthus-recipe`
+  - Consumers: `cynthus-core-api`, `cynthus-audit`
+  - Synopsis: User saved an Astri-suggested modification as a named variant alongside the original
 
-### Sample Payloads — Recipe Management
+### Sample Payloads - Recipe Management
 
 ```json
 // public.recipe.created
@@ -438,7 +807,7 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
   "workspace_id": "ws_d4e5f6",
   "requested_by": "usr_a1b2c3",
   "target_ingredient": "Whole Milk",
-  "user_prompt": "I'm lactose intolerant — what would give the same creaminess?",
+  "user_prompt": "I'm lactose intolerant - what would give the same creaminess?",
   "context_bundle_id": "ctx_l4m5n6",
   "requested_at": "2027-04-10T11:05:00Z"
 }
@@ -483,54 +852,198 @@ Features that are purely synchronous read/query operations (Browse, Search, Repo
 
 ## Domain: Shopping List
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-SL-001 | `public.shopping_list.created` | public | `cynthus-shopping` | `cynthus-audit` | Named shopping list (notebook) created |
-| FT-SL-001 | `public.shopping_list.updated` | public | `cynthus-shopping` | `cynthus-audit` | List name, archive status, or metadata changed |
-| FT-SL-001 | `public.shopping_list.deleted` | public | `cynthus-shopping` | `cynthus-audit` | List removed; purchase history retained per retention policy |
-| FT-SL-002 | `public.shopping_list.item.added` | public | `cynthus-shopping` | `cynthus-analysis`, `cynthus-audit` | Item manually or automatically added to list |
-| FT-SL-002 | `public.shopping_list.item.updated` | public | `cynthus-shopping` | `cynthus-analysis`, `cynthus-audit` | Item quantity, unit, or notes changed |
-| FT-SL-002 | `public.shopping_list.item.checked_off` | public | `cynthus-shopping` | `cynthus-analysis`, `cynthus-audit` | Item marked as purchased in-store; updates purchase history used by Astri |
-| FT-SL-002 | `public.shopping_list.item.removed` | public | `cynthus-shopping` | `cynthus-audit` | Item removed from list without being purchased |
-| FT-SL-003 | `audit.shopping_list.role_assigned` | audit | `cynthus-shopping` | `cynthus-audit` | RBAC role granted on a shopping list |
-| FT-SL-003 | `audit.shopping_list.role_revoked` | audit | `cynthus-shopping` | `cynthus-audit` | RBAC role revoked on a shopping list |
-| FT-SL-004 | `internal.shopping_list.procurement_target.set` | internal | `cynthus-shopping` | `cynthus-core-api`, `cynthus-scheduler` | A list designated as the active procurement target for auto-append of low-inventory signals |
-| FT-SL-005 | `internal.shopping_list.item.vendor_preference_set` | internal | `cynthus-shopping` | `cynthus-chat`, `cynthus-partner-api` | Vendor preference tagged to a shopping list line item; used by Astri for fulfillment routing |
-| FT-SL-006 | `audit.shopping_list.management_delegated` | audit | `cynthus-shopping` | `cynthus-audit` | Manager-level delegation granted to a user or group |
-| FT-SL-006 | `audit.shopping_list.management_revoked` | audit | `cynthus-shopping` | `cynthus-audit` | Management delegation removed |
-| FT-SL-007 | `public.shopping_list.access_requested` | public | `cynthus-shopping` | `cynthus-notification`, `cynthus-audit` | User submitted a request to access another user's list |
-| FT-SL-007 | `public.shopping_list.access_request_withdrawn` | public | `cynthus-shopping` | `cynthus-notification`, `cynthus-audit` | Requester cancelled a pending access request before owner responded |
-| FT-SL-008 | `public.shopping_list.access_granted` | public | `cynthus-shopping` | `cynthus-notification`, `cynthus-identity`, `cynthus-audit` | List owner approved an access request; permissions provisioned immediately |
-| FT-SL-008 | `public.shopping_list.access_denied` | public | `cynthus-shopping` | `cynthus-notification`, `cynthus-audit` | List owner denied an access request |
-| FT-SL-009 | `internal.shopping_list.generation.requested` | internal | `cynthus-core-api` | `cynthus-chat` | Astri-assisted list generation triggered; context bundle (history, meal plan, inventory gaps) forwarded |
-| FT-SL-009 | `internal.shopping_list.generation.completed` | internal | `cynthus-chat` | `cynthus-shopping` | Astri returned generated item list ready for user review before saving |
-| FT-SL-009 | `internal.shopping_list.promotional_data.requested` | internal | `cynthus-chat` | `cynthus-partner-api` | Astri queried active promotional data from the user's opted-in vendors |
-| FT-SL-010 | `internal.shopping_list.autopurchase.schedule_configured` | internal | `cynthus-shopping` | `cynthus-scheduler` | User configured a recurring auto-purchase cadence for a list item |
-| FT-SL-010 | `internal.shopping_list.autopurchase.reminder_due` | internal | `cynthus-scheduler` | `cynthus-notification`, `cynthus-chat` | Grace period reminder dispatched to user before scheduled auto-purchase executes |
-| FT-SL-010 | `public.shopping_list.autopurchase.confirmed` | public | `cynthus-shopping` | `cynthus-partner-api`, `cynthus-billing-api`, `cynthus-audit` | User confirmed order (or grace period elapsed silently); order submitted to vendor |
-| FT-SL-010 | `public.shopping_list.autopurchase.cancelled` | public | `cynthus-shopping` | `cynthus-scheduler`, `cynthus-audit` | User cancelled a pending scheduled purchase during the grace period |
-| FT-SL-010 | `public.shopping_list.autopurchase.modified` | public | `cynthus-shopping` | `cynthus-scheduler`, `cynthus-audit` | User changed quantity, vendor, or frequency during the grace period |
-| FT-SL-011 | `internal.shopping_list.meal_gap.detected` | internal | `cynthus-scheduler` | `cynthus-notification`, `cynthus-chat` | Lookahead cross-check found missing ingredients for meals planned within the configured window |
+- FT-SL-001
+  - Signal Namespace: `public.shopping_list.created`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Named shopping list (notebook) created
+- FT-SL-001
+  - Signal Namespace: `public.shopping_list.updated`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-audit`
+  - Synopsis: List name, archive status, or metadata changed
+- FT-SL-001
+  - Signal Namespace: `public.shopping_list.deleted`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-audit`
+  - Synopsis: List removed; purchase history retained per retention policy
+- FT-SL-002
+  - Signal Namespace: `public.shopping_list.item.added`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-analysis`, `cynthus-audit`
+  - Synopsis: Item manually or automatically added to list
+- FT-SL-002
+  - Signal Namespace: `public.shopping_list.item.updated`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-analysis`, `cynthus-audit`
+  - Synopsis: Item quantity, unit, or notes changed
+- FT-SL-002
+  - Signal Namespace: `public.shopping_list.item.checked_off`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-analysis`, `cynthus-audit`
+  - Synopsis: Item marked as purchased in-store; updates purchase history used by Astri
+- FT-SL-002
+  - Signal Namespace: `public.shopping_list.item.removed`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Item removed from list without being purchased
+- FT-SL-003
+  - Signal Namespace: `audit.shopping_list.role_assigned`
+  - Topic: audit
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-audit`
+  - Synopsis: RBAC role granted on a shopping list
+- FT-SL-003
+  - Signal Namespace: `audit.shopping_list.role_revoked`
+  - Topic: audit
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-audit`
+  - Synopsis: RBAC role revoked on a shopping list
+- FT-SL-004
+  - Signal Namespace: `internal.shopping_list.procurement_target.set`
+  - Topic: internal
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-core-api`, `cynthus-scheduler`
+  - Synopsis: A list designated as the active procurement target for auto-append of low-inventory signals
+- FT-SL-005
+  - Signal Namespace: `internal.shopping_list.item.vendor_preference_set`
+  - Topic: internal
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-chat`, `cynthus-partner-api`
+  - Synopsis: Vendor preference tagged to a shopping list line item; used by Astri for fulfillment routing
+- FT-SL-006
+  - Signal Namespace: `audit.shopping_list.management_delegated`
+  - Topic: audit
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Manager-level delegation granted to a user or group
+- FT-SL-006
+  - Signal Namespace: `audit.shopping_list.management_revoked`
+  - Topic: audit
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Management delegation removed
+- FT-SL-007
+  - Signal Namespace: `public.shopping_list.access_requested`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: User submitted a request to access another user's list
+- FT-SL-007
+  - Signal Namespace: `public.shopping_list.access_request_withdrawn`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Requester cancelled a pending access request before owner responded
+- FT-SL-008
+  - Signal Namespace: `public.shopping_list.access_granted`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-notification`, `cynthus-identity`, `cynthus-audit`
+  - Synopsis: List owner approved an access request; permissions provisioned immediately
+- FT-SL-008
+  - Signal Namespace: `public.shopping_list.access_denied`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: List owner denied an access request
+- FT-SL-009
+  - Signal Namespace: `internal.shopping_list.generation.requested`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-chat`
+  - Synopsis: Astri-assisted list generation triggered; context bundle (history, meal plan, inventory gaps) forwarded
+- FT-SL-009
+  - Signal Namespace: `internal.shopping_list.generation.completed`
+  - Topic: internal
+  - Publisher: `cynthus-chat`
+  - Consumers: `cynthus-shopping`
+  - Synopsis: Astri returned generated item list ready for user review before saving
+- FT-SL-009
+  - Signal Namespace: `internal.shopping_list.promotional_data.requested`
+  - Topic: internal
+  - Publisher: `cynthus-chat`
+  - Consumers: `cynthus-partner-api`
+  - Synopsis: Astri queried active promotional data from the user's opted-in vendors
+- FT-SL-010
+  - Signal Namespace: `internal.shopping_list.autopurchase.schedule_configured`
+  - Topic: internal
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-scheduler`
+  - Synopsis: User configured a recurring auto-purchase cadence for a list item
+- FT-SL-010
+  - Signal Namespace: `internal.shopping_list.autopurchase.reminder_due`
+  - Topic: internal
+  - Publisher: `cynthus-scheduler`
+  - Consumers: `cynthus-notification`, `cynthus-chat`
+  - Synopsis: Grace period reminder dispatched to user before scheduled auto-purchase executes
+- FT-SL-010
+  - Signal Namespace: `public.shopping_list.autopurchase.confirmed`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-partner-api`, `cynthus-billing-api`, `cynthus-audit`
+  - Synopsis: User confirmed order (or grace period elapsed silently); order submitted to vendor
+- FT-SL-010
+  - Signal Namespace: `public.shopping_list.autopurchase.cancelled`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-scheduler`, `cynthus-audit`
+  - Synopsis: User cancelled a pending scheduled purchase during the grace period
+- FT-SL-010
+  - Signal Namespace: `public.shopping_list.autopurchase.modified`
+  - Topic: public
+  - Publisher: `cynthus-shopping`
+  - Consumers: `cynthus-scheduler`, `cynthus-audit`
+  - Synopsis: User changed quantity, vendor, or frequency during the grace period
+- FT-SL-011
+  - Signal Namespace: `internal.shopping_list.meal_gap.detected`
+  - Topic: internal
+  - Publisher: `cynthus-scheduler`
+  - Consumers: `cynthus-notification`, `cynthus-chat`
+  - Synopsis: Lookahead cross-check found missing ingredients for meals planned within the configured window
 
 ### Implemented names (phase 1)
 
 The signal classes in `cynthus-shared` repeat the aggregate in the name, as the other domains do (`public.recipe.recipe.created`), so three rows above exist under a longer name. The item signals already had four parts. The Core API asks the Shopping service for list and item work with a request and a response signal (one pair for both, because items belong to the list).
 
-| Catalog name | Implemented name | Class (in `cynthus.messaging.common`) |
-|---|---|---|
-| `public.shopping_list.created` | `public.shopping_list.list.created` | `PublicShoppingListListCreatedSignal` |
-| `public.shopping_list.updated` | `public.shopping_list.list.updated` | `PublicShoppingListListUpdatedSignal` |
-| `public.shopping_list.deleted` | `public.shopping_list.list.deleted` | `PublicShoppingListListDeletedSignal` |
-| `public.shopping_list.item.added` | same | `PublicShoppingListItemAddedSignal` |
-| `public.shopping_list.item.updated` | same | `PublicShoppingListItemUpdatedSignal` |
-| `public.shopping_list.item.checked_off` | same | `PublicShoppingListItemCheckedOffSignal` |
-| `public.shopping_list.item.removed` | same | `PublicShoppingListItemRemovedSignal` |
-| (not in the first catalog) | `public.shopping_list.list.requested` | `PublicShoppingListListRequestedSignal` |
-| (not in the first catalog) | `public.shopping_list.list.responded` | `PublicShoppingListListRespondedSignal` |
+- `public.shopping_list.created`
+  - Implemented name: `public.shopping_list.list.created`
+  - Class (in `cynthus.messaging.common`): `PublicShoppingListListCreatedSignal`
+- `public.shopping_list.updated`
+  - Implemented name: `public.shopping_list.list.updated`
+  - Class (in `cynthus.messaging.common`): `PublicShoppingListListUpdatedSignal`
+- `public.shopping_list.deleted`
+  - Implemented name: `public.shopping_list.list.deleted`
+  - Class (in `cynthus.messaging.common`): `PublicShoppingListListDeletedSignal`
+- `public.shopping_list.item.added`
+  - Implemented name: same
+  - Class (in `cynthus.messaging.common`): `PublicShoppingListItemAddedSignal`
+- `public.shopping_list.item.updated`
+  - Implemented name: same
+  - Class (in `cynthus.messaging.common`): `PublicShoppingListItemUpdatedSignal`
+- `public.shopping_list.item.checked_off`
+  - Implemented name: same
+  - Class (in `cynthus.messaging.common`): `PublicShoppingListItemCheckedOffSignal`
+- `public.shopping_list.item.removed`
+  - Implemented name: same
+  - Class (in `cynthus.messaging.common`): `PublicShoppingListItemRemovedSignal`
+- (not in the first catalog)
+  - Implemented name: `public.shopping_list.list.requested`
+  - Class (in `cynthus.messaging.common`): `PublicShoppingListListRequestedSignal`
+- (not in the first catalog)
+  - Implemented name: `public.shopping_list.list.responded`
+  - Class (in `cynthus.messaging.common`): `PublicShoppingListListRespondedSignal`
 
 `requested` is published by `cynthus-core-api` and consumed by `cynthus-shopping`; `responded` is published by `cynthus-shopping` and consumed by `cynthus-core-api`, which relays it to the waiting client. The rest of this domain (access requests, delegation, procurement target, vendor preference, auto-purchase and generation) is still to be built. The Shopping design adds list orders, procurement batches and a planner, each with signals of their own; see [../architecture/shopping-design.md](../architecture/shopping-design.md).
 
-### Sample Payloads — Shopping List
+### Sample Payloads - Shopping List
 
 ```json
 // public.shopping_list.created
@@ -662,18 +1175,56 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Group Management
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-GM-001 | `public.group.created` | public | `cynthus-core-api` | `cynthus-identity`, `cynthus-audit` | Group workspace created; identity service provisions workspace-scoped token claims |
-| FT-GM-001 | `public.group.updated` | public | `cynthus-core-api` | `cynthus-audit` | Group name, settings, or metadata changed |
-| FT-GM-001 | `public.group.deleted` | public | `cynthus-core-api` | `cynthus-identity`, `cynthus-messaging`, `cynthus-audit` | Group removed; identity revokes workspace claims; messaging removes channels |
-| FT-GM-002 | `public.group.member_added` | public | `cynthus-core-api` | `cynthus-identity`, `cynthus-notification`, `cynthus-audit` | User added to group with assigned role; JWT claims updated |
-| FT-GM-002 | `public.group.member_role_changed` | public | `cynthus-core-api` | `cynthus-identity`, `cynthus-audit` | Member's group role changed; JWT refreshed to reflect new permissions |
-| FT-GM-002 | `public.group.member_removed` | public | `cynthus-core-api` | `cynthus-identity`, `cynthus-notification`, `cynthus-audit` | Member removed from group; workspace access revoked |
-| FT-GM-003 | `public.group.join_requested` | public | `cynthus-core-api` | `cynthus-notification`, `cynthus-audit` | User submitted a join request or accepted a group invite |
-| FT-GM-003 | `public.group.join_approved` | public | `cynthus-core-api` | `cynthus-identity`, `cynthus-notification`, `cynthus-audit` | Group manager approved the join; member provisioned |
+- FT-GM-001
+  - Signal Namespace: `public.group.created`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-identity`, `cynthus-audit`
+  - Synopsis: Group workspace created; identity service provisions workspace-scoped token claims
+- FT-GM-001
+  - Signal Namespace: `public.group.updated`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Group name, settings, or metadata changed
+- FT-GM-001
+  - Signal Namespace: `public.group.deleted`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-identity`, `cynthus-messaging`, `cynthus-audit`
+  - Synopsis: Group removed; identity revokes workspace claims; messaging removes channels
+- FT-GM-002
+  - Signal Namespace: `public.group.member_added`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-identity`, `cynthus-notification`, `cynthus-audit`
+  - Synopsis: User added to group with assigned role; JWT claims updated
+- FT-GM-002
+  - Signal Namespace: `public.group.member_role_changed`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-identity`, `cynthus-audit`
+  - Synopsis: Member's group role changed; JWT refreshed to reflect new permissions
+- FT-GM-002
+  - Signal Namespace: `public.group.member_removed`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-identity`, `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Member removed from group; workspace access revoked
+- FT-GM-003
+  - Signal Namespace: `public.group.join_requested`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: User submitted a join request or accepted a group invite
+- FT-GM-003
+  - Signal Namespace: `public.group.join_approved`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-identity`, `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Group manager approved the join; member provisioned
 
-### Sample Payloads — Group Management
+### Sample Payloads - Group Management
 
 ```json
 // public.group.created
@@ -712,16 +1263,44 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Engagement Management
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-EM-001 | `public.engagement.created` | public | `cynthus-core-api` | `cynthus-chat`, `cynthus-notification`, `cynthus-audit` | Engagement event created; Astri notified to begin planning assist |
-| FT-EM-001 | `public.engagement.updated` | public | `cynthus-core-api` | `cynthus-chat`, `cynthus-notification`, `cynthus-audit` | Engagement details (attendees, date, venue, materials) changed |
-| FT-EM-001 | `public.engagement.deleted` | public | `cynthus-core-api` | `cynthus-notification`, `cynthus-audit` | Engagement cancelled; attendees notified |
-| FT-EM-002 | `public.engagement.attendee_joined` | public | `cynthus-core-api` | `cynthus-chat`, `cynthus-profile`, `cynthus-audit` | User RSVP'd; their dietary constraints shared with engagement host |
-| FT-EM-002 | `public.engagement.attendee_declined` | public | `cynthus-core-api` | `cynthus-notification`, `cynthus-audit` | User declined RSVP |
-| FT-EM-003 | `audit.engagement.manager_assigned` | audit | `cynthus-core-api` | `cynthus-audit` | Co-host delegation granted for an engagement |
+- FT-EM-001
+  - Signal Namespace: `public.engagement.created`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-chat`, `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Engagement event created; Astri notified to begin planning assist
+- FT-EM-001
+  - Signal Namespace: `public.engagement.updated`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-chat`, `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Engagement details (attendees, date, venue, materials) changed
+- FT-EM-001
+  - Signal Namespace: `public.engagement.deleted`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Engagement cancelled; attendees notified
+- FT-EM-002
+  - Signal Namespace: `public.engagement.attendee_joined`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-chat`, `cynthus-profile`, `cynthus-audit`
+  - Synopsis: User RSVP'd; their dietary constraints shared with engagement host
+- FT-EM-002
+  - Signal Namespace: `public.engagement.attendee_declined`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: User declined RSVP
+- FT-EM-003
+  - Signal Namespace: `audit.engagement.manager_assigned`
+  - Topic: audit
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Co-host delegation granted for an engagement
 
-### Sample Payloads — Engagement Management
+### Sample Payloads - Engagement Management
 
 ```json
 // public.engagement.created
@@ -729,7 +1308,7 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
   "engagement_id": "eng_m4n5o6",
   "workspace_id": "ws_d4e5f6",
   "created_by": "usr_a1b2c3",
-  "name": "Birthday Dinner — Sofia",
+  "name": "Birthday Dinner - Sofia",
   "scheduled_date": "2028-02-14",
   "location": "Home",
   "estimated_attendees": 8,
@@ -751,13 +1330,26 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Live Companion
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-LC-001 | `public.live_session.started` | public | `cynthus-core-api` | `cynthus-messaging`, `cynthus-audit` | Live peer-to-peer or user-to-provider session initiated |
-| FT-LC-001 | `public.live_session.ended` | public | `cynthus-core-api` | `cynthus-audit` | Live session terminated; duration and participant record closed |
-| FT-LC-001 | `internal.live_session.step_advanced` | internal | `cynthus-chat` | `cynthus-messaging` | Astri advanced to next step in real-time guided cooking session |
+- FT-LC-001
+  - Signal Namespace: `public.live_session.started`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-messaging`, `cynthus-audit`
+  - Synopsis: Live peer-to-peer or user-to-provider session initiated
+- FT-LC-001
+  - Signal Namespace: `public.live_session.ended`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Live session terminated; duration and participant record closed
+- FT-LC-001
+  - Signal Namespace: `internal.live_session.step_advanced`
+  - Topic: internal
+  - Publisher: `cynthus-chat`
+  - Consumers: `cynthus-messaging`
+  - Synopsis: Astri advanced to next step in real-time guided cooking session
 
-### Sample Payloads — Live Companion
+### Sample Payloads - Live Companion
 
 ```json
 // public.live_session.started
@@ -779,7 +1371,7 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
   "recipe_id": "rec_c5d6e7",
   "current_step": 3,
   "total_steps": 7,
-  "step_description": "Add the diced onions to the pan and sauté until translucent, about 4 minutes.",
+  "step_description": "Add the diced onions to the pan and saute until translucent, about 4 minutes.",
   "advanced_at": "2029-01-15T18:35:00Z"
 }
 ```
@@ -788,18 +1380,56 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: AI Companion
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-AI-001 | `internal.intelligence.chat.session_started` | internal | `cynthus-core-api` | `cynthus-chat`, `cynthus-audit` | User initiated an Astri conversation session |
-| FT-AI-001 | `internal.intelligence.chat.session_ended` | internal | `cynthus-chat` | `cynthus-core-api`, `cynthus-audit` | Astri conversation session closed |
-| FT-AI-002 | `internal.intelligence.context.assembled` | internal | `cynthus-core-api` | `cynthus-chat` | Context bundle (inventory snapshot + profile constraints + filtered recipes) assembled and dispatched to Intelligence subnet; for the chat flow the bundle travels inside `internal.intelligence.chat.message_requested`, because Chat has no route to Core |
-| FT-AI-001, FT-AI-002 | `internal.intelligence.chat.message_requested` | internal | `cynthus-core-api` | `cynthus-chat` | User message and the assembled context dispatched to the Intelligence subnet; not sent to audit because the payload holds health data; the answer streams on the Chat websocket |
-| FT-AI-001 | `internal.intelligence.chat.message_generated` | internal | `cynthus-chat` | `cynthus-core-api`, `cynthus-audit` | An answer is complete; records the model configuration hash, token counts and the hard-constraint check; carries no answer text |
-| FT-AI-003 | *(internal cynthus-chat processing; no Service Bus signal)* | — | — | — | Screen-reader linearization is an in-process formatting step within the Intelligence subnet |
-| FT-AI-004 | *(hot path WebSocket stream; no Service Bus signal)* | — | — | — | TTS token streaming operates on a direct WebSocket channel, bypassing Service Bus |
-| FT-AI-005 | `internal.intelligence.chat.interaction_recorded` | internal | `cynthus-chat` | `cynthus-core-api`, `cynthus-audit` | Astri received a real-world state disclosure from user (e.g., "I just used the last of the milk"); downstream services independently mutate their state |
+- FT-AI-001
+  - Signal Namespace: `internal.intelligence.chat.session_started`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-chat`, `cynthus-audit`
+  - Synopsis: User initiated an Astri conversation session
+- FT-AI-001
+  - Signal Namespace: `internal.intelligence.chat.session_ended`
+  - Topic: internal
+  - Publisher: `cynthus-chat`
+  - Consumers: `cynthus-core-api`, `cynthus-audit`
+  - Synopsis: Astri conversation session closed
+- FT-AI-002
+  - Signal Namespace: `internal.intelligence.context.assembled`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-chat`
+  - Synopsis: Context bundle (inventory snapshot + profile constraints + filtered recipes) assembled and dispatched to Intelligence subnet; for the chat flow the bundle travels inside `internal.intelligence.chat.message_requested`, because Chat has no route to Core
+- FT-AI-001, FT-AI-002
+  - Signal Namespace: `internal.intelligence.chat.message_requested`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-chat`
+  - Synopsis: User message and the assembled context dispatched to the Intelligence subnet; not sent to audit because the payload holds health data; the answer streams on the Chat websocket
+- FT-AI-001
+  - Signal Namespace: `internal.intelligence.chat.message_generated`
+  - Topic: internal
+  - Publisher: `cynthus-chat`
+  - Consumers: `cynthus-core-api`, `cynthus-audit`
+  - Synopsis: An answer is complete; records the model configuration hash, token counts and the hard-constraint check; carries no answer text
+- FT-AI-003
+  - Signal Namespace: *(internal cynthus-chat processing; no Service Bus signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: Screen-reader linearization is an in-process formatting step within the Intelligence subnet
+- FT-AI-004
+  - Signal Namespace: *(hot path WebSocket stream; no Service Bus signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: TTS token streaming operates on a direct WebSocket channel, bypassing Service Bus
+- FT-AI-005
+  - Signal Namespace: `internal.intelligence.chat.interaction_recorded`
+  - Topic: internal
+  - Publisher: `cynthus-chat`
+  - Consumers: `cynthus-core-api`, `cynthus-audit`
+  - Synopsis: Astri received a real-world state disclosure from user (e.g., "I just used the last of the milk"); downstream services independently mutate their state
 
-### Sample Payloads — AI Companion
+### Sample Payloads - AI Companion
 
 ```json
 // internal.intelligence.context.assembled
@@ -867,15 +1497,38 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Messaging
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-MS-001 | `public.messaging.message.sent` | public | `cynthus-messaging` | `cynthus-notification`, `cynthus-audit` | Text message sent to a group channel |
-| FT-MS-001 | `public.messaging.message.deleted` | public | `cynthus-messaging` | `cynthus-audit` | Message removed from a channel |
-| FT-MS-002 | *(triggered by domain signals; no dedicated signal)* | — | — | — | Interactive cards are rendered by `cynthus-messaging` when it consumes signals such as `public.meal.vote.initiated` or `public.inventory.item.low`; no separate card signal is published |
-| FT-MS-003 | `public.messaging.recipe.shared` | public | `cynthus-messaging` | `cynthus-audit` | Recipe rich-link card shared into a group channel |
-| FT-MS-003 | `public.messaging.inventory_item.shared` | public | `cynthus-messaging` | `cynthus-audit` | Inventory item rich-link card shared into a group channel |
+- FT-MS-001
+  - Signal Namespace: `public.messaging.message.sent`
+  - Topic: public
+  - Publisher: `cynthus-messaging`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Text message sent to a group channel
+- FT-MS-001
+  - Signal Namespace: `public.messaging.message.deleted`
+  - Topic: public
+  - Publisher: `cynthus-messaging`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Message removed from a channel
+- FT-MS-002
+  - Signal Namespace: *(triggered by domain signals; no dedicated signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: Interactive cards are rendered by `cynthus-messaging` when it consumes signals such as `public.meal.vote.initiated` or `public.inventory.item.low`; no separate card signal is published
+- FT-MS-003
+  - Signal Namespace: `public.messaging.recipe.shared`
+  - Topic: public
+  - Publisher: `cynthus-messaging`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Recipe rich-link card shared into a group channel
+- FT-MS-003
+  - Signal Namespace: `public.messaging.inventory_item.shared`
+  - Topic: public
+  - Publisher: `cynthus-messaging`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Inventory item rich-link card shared into a group channel
 
-### Sample Payloads — Messaging
+### Sample Payloads - Messaging
 
 ```json
 // public.messaging.message.sent
@@ -906,16 +1559,44 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Clinical Monitoring
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-CL-001 | `internal.health.telemetry.snapshot_recorded` | internal | `cynthus-analysis` | `cynthus-audit` | Warm-path biometric snapshot committed after aggregation from the hot-path time-series buffer; raw stream bypasses Service Bus entirely |
-| FT-CL-002 | `audit.health.provider_data_access` | audit | `cynthus-health-api` | `cynthus-audit` | Provider read a patient's health dataset; immutable record per HIPAA |
-| FT-CL-003 | `public.health.biometric.anomaly_detected` | public | `cynthus-analysis` | `cynthus-notification`, `cynthus-chat`, `cynthus-health-api`, `cynthus-audit` | Biometric telemetry breached a threshold; alert dispatched to user and forwarded to provider triage if consented |
-| FT-CL-004 | `internal.health.analysis.correlation_completed` | internal | `cynthus-analysis` | `cynthus-chat`, `cynthus-health-api` | Correlation model linked dietary patterns to biometric anomalies or reported symptoms; surfaced as Astri insight |
-| FT-CL-005 | `internal.health.rpm.transmission_logged` | internal | `cynthus-health-api` | `cynthus-billing-api`, `cynthus-audit` | Qualifying physiologic data transmission event recorded for CPT billing cycle |
-| FT-CL-005 | `internal.health.rpm.clinician_interaction_logged` | internal | `cynthus-health-api` | `cynthus-billing-api`, `cynthus-audit` | Clinician interaction time recorded for RPM billing compliance |
+- FT-CL-001
+  - Signal Namespace: `internal.health.telemetry.snapshot_recorded`
+  - Topic: internal
+  - Publisher: `cynthus-analysis`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Warm-path biometric snapshot committed after aggregation from the hot-path time-series buffer; raw stream bypasses Service Bus entirely
+- FT-CL-002
+  - Signal Namespace: `audit.health.provider_data_access`
+  - Topic: audit
+  - Publisher: `cynthus-health-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Provider read a patient's health dataset; immutable record per HIPAA
+- FT-CL-003
+  - Signal Namespace: `public.health.biometric.anomaly_detected`
+  - Topic: public
+  - Publisher: `cynthus-analysis`
+  - Consumers: `cynthus-notification`, `cynthus-chat`, `cynthus-health-api`, `cynthus-audit`
+  - Synopsis: Biometric telemetry breached a threshold; alert dispatched to user and forwarded to provider triage if consented
+- FT-CL-004
+  - Signal Namespace: `internal.health.analysis.correlation_completed`
+  - Topic: internal
+  - Publisher: `cynthus-analysis`
+  - Consumers: `cynthus-chat`, `cynthus-health-api`
+  - Synopsis: Correlation model linked dietary patterns to biometric anomalies or reported symptoms; surfaced as Astri insight
+- FT-CL-005
+  - Signal Namespace: `internal.health.rpm.transmission_logged`
+  - Topic: internal
+  - Publisher: `cynthus-health-api`
+  - Consumers: `cynthus-billing-api`, `cynthus-audit`
+  - Synopsis: Qualifying physiologic data transmission event recorded for CPT billing cycle
+- FT-CL-005
+  - Signal Namespace: `internal.health.rpm.clinician_interaction_logged`
+  - Topic: internal
+  - Publisher: `cynthus-health-api`
+  - Consumers: `cynthus-billing-api`, `cynthus-audit`
+  - Synopsis: Clinician interaction time recorded for RPM billing compliance
 
-### Sample Payloads — Clinical Monitoring
+### Sample Payloads - Clinical Monitoring
 
 ```json
 // internal.health.telemetry.snapshot_recorded
@@ -966,22 +1647,80 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Service and Resource Management
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-SR-001 | `public.service_registry.created` | public | `cynthus-partner-api` | `cynthus-audit` | Service registry created by a provider or supplier |
-| FT-SR-001 | `public.service_registry.updated` | public | `cynthus-partner-api` | `cynthus-audit` | Registry content or availability updated |
-| FT-SR-001 | `public.service_registry.deleted` | public | `cynthus-partner-api` | `cynthus-audit` | Registry removed |
-| FT-SR-002 | `audit.service_registry.management_delegated` | audit | `cynthus-partner-api` | `cynthus-audit` | Staff member granted management rights on a service registry |
-| FT-SR-003 | `public.promotion.created` | public | `cynthus-partner-api` | `cynthus-notification`, `cynthus-chat`, `cynthus-audit` | Promotion published; delivered only to users with active opt-in subscription to that vendor |
-| FT-SR-003 | `public.promotion.updated` | public | `cynthus-partner-api` | `cynthus-notification`, `cynthus-audit` | Promotion terms or dates changed |
-| FT-SR-003 | `public.promotion.expired` | public | `cynthus-scheduler` | `cynthus-notification`, `cynthus-partner-api`, `cynthus-audit` | Promotion reached its end date; removed from active listings |
-| FT-SR-004 | `public.device_registry.device_listed` | public | `cynthus-partner-api` | `cynthus-audit` | Partner registered a hardware device for user discovery |
-| FT-SR-004 | `public.device_registry.device_removed` | public | `cynthus-partner-api` | `cynthus-audit` | Device delisted from the partner device registry |
-| FT-SR-006 | `public.vendor.subscription_created` | public | `cynthus-core-api` | `cynthus-notification`, `cynthus-partner-api`, `cynthus-chat`, `cynthus-audit` | User explicitly opted in to receive promotional notifications from a specific vendor |
-| FT-SR-006 | `public.vendor.subscription_removed` | public | `cynthus-core-api` | `cynthus-notification`, `cynthus-partner-api`, `cynthus-audit` | User unsubscribed from a vendor's promotional notifications |
-| FT-SR-007 | `internal.vendor_directory.search.performed` | internal | `cynthus-core-api` | `cynthus-partner-api` | User performed a vendor discovery search; analytics telemetry captured |
+- FT-SR-001
+  - Signal Namespace: `public.service_registry.created`
+  - Topic: public
+  - Publisher: `cynthus-partner-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Service registry created by a provider or supplier
+- FT-SR-001
+  - Signal Namespace: `public.service_registry.updated`
+  - Topic: public
+  - Publisher: `cynthus-partner-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Registry content or availability updated
+- FT-SR-001
+  - Signal Namespace: `public.service_registry.deleted`
+  - Topic: public
+  - Publisher: `cynthus-partner-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Registry removed
+- FT-SR-002
+  - Signal Namespace: `audit.service_registry.management_delegated`
+  - Topic: audit
+  - Publisher: `cynthus-partner-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Staff member granted management rights on a service registry
+- FT-SR-003
+  - Signal Namespace: `public.promotion.created`
+  - Topic: public
+  - Publisher: `cynthus-partner-api`
+  - Consumers: `cynthus-notification`, `cynthus-chat`, `cynthus-audit`
+  - Synopsis: Promotion published; delivered only to users with active opt-in subscription to that vendor
+- FT-SR-003
+  - Signal Namespace: `public.promotion.updated`
+  - Topic: public
+  - Publisher: `cynthus-partner-api`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Promotion terms or dates changed
+- FT-SR-003
+  - Signal Namespace: `public.promotion.expired`
+  - Topic: public
+  - Publisher: `cynthus-scheduler`
+  - Consumers: `cynthus-notification`, `cynthus-partner-api`, `cynthus-audit`
+  - Synopsis: Promotion reached its end date; removed from active listings
+- FT-SR-004
+  - Signal Namespace: `public.device_registry.device_listed`
+  - Topic: public
+  - Publisher: `cynthus-partner-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Partner registered a hardware device for user discovery
+- FT-SR-004
+  - Signal Namespace: `public.device_registry.device_removed`
+  - Topic: public
+  - Publisher: `cynthus-partner-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Device delisted from the partner device registry
+- FT-SR-006
+  - Signal Namespace: `public.vendor.subscription_created`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-notification`, `cynthus-partner-api`, `cynthus-chat`, `cynthus-audit`
+  - Synopsis: User explicitly opted in to receive promotional notifications from a specific vendor
+- FT-SR-006
+  - Signal Namespace: `public.vendor.subscription_removed`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-notification`, `cynthus-partner-api`, `cynthus-audit`
+  - Synopsis: User unsubscribed from a vendor's promotional notifications
+- FT-SR-007
+  - Signal Namespace: `internal.vendor_directory.search.performed`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-partner-api`
+  - Synopsis: User performed a vendor discovery search; analytics telemetry captured
 
-### Sample Payloads — Service and Resource Management
+### Sample Payloads - Service and Resource Management
 
 ```json
 // public.promotion.created
@@ -1027,11 +1766,14 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Contribution Management
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-CO-001 | `audit.partner.contribution_recorded` | audit | `cynthus-partner-api` | `cynthus-audit`, `cynthus-billing-api` | Partner contribution (capital, hardware grant, sponsorship) committed to ledger |
+- FT-CO-001
+  - Signal Namespace: `audit.partner.contribution_recorded`
+  - Topic: audit
+  - Publisher: `cynthus-partner-api`
+  - Consumers: `cynthus-audit`, `cynthus-billing-api`
+  - Synopsis: Partner contribution (capital, hardware grant, sponsorship) committed to ledger
 
-### Sample Payload — Contribution Management
+### Sample Payload - Contribution Management
 
 ```json
 // audit.partner.contribution_recorded
@@ -1040,7 +1782,7 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
   "partner_id": "prt_i4j5k6",
   "workspace_id": "ws_d4e5f6",
   "type": "hardware_grant",
-  "description": "10x SmartShelf sensor units — Dev Pilot Program",
+  "description": "10x SmartShelf sensor units - Dev Pilot Program",
   "estimated_value_usd": 2500.00,
   "recorded_at": "2028-04-01T14:00:00Z"
 }
@@ -1050,14 +1792,32 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Billing Management
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-BL-001, FT-BL-002 | `internal.system.payment_method.updated` | internal | `cynthus-billing-api` | `cynthus-audit` | User added, changed, or removed a payment method |
-| FT-BL-001, FT-BL-002 | `internal.system.subscription.upgraded` | internal | `cynthus-billing-api` | `cynthus-identity`, `cynthus-audit` | User moved to a higher subscription tier; identity issues refreshed JWT |
-| FT-BL-001, FT-BL-002 | `internal.system.subscription.downgraded` | internal | `cynthus-billing-api` | `cynthus-identity`, `cynthus-audit` | User moved to a lower tier; token claims reduced on next JWT refresh |
-| FT-BL-001, FT-BL-002 | `internal.system.entitlement.updated` | internal | `cynthus-billing-api` | `cynthus-identity` | Booster pack purchased or cancelled (ADR-005 canonical signal); identity immediately issues refreshed JWT with updated entitlement claims |
+- FT-BL-001, FT-BL-002
+  - Signal Namespace: `internal.system.payment_method.updated`
+  - Topic: internal
+  - Publisher: `cynthus-billing-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: User added, changed, or removed a payment method
+- FT-BL-001, FT-BL-002
+  - Signal Namespace: `internal.system.subscription.upgraded`
+  - Topic: internal
+  - Publisher: `cynthus-billing-api`
+  - Consumers: `cynthus-identity`, `cynthus-audit`
+  - Synopsis: User moved to a higher subscription tier; identity issues refreshed JWT
+- FT-BL-001, FT-BL-002
+  - Signal Namespace: `internal.system.subscription.downgraded`
+  - Topic: internal
+  - Publisher: `cynthus-billing-api`
+  - Consumers: `cynthus-identity`, `cynthus-audit`
+  - Synopsis: User moved to a lower tier; token claims reduced on next JWT refresh
+- FT-BL-001, FT-BL-002
+  - Signal Namespace: `internal.system.entitlement.updated`
+  - Topic: internal
+  - Publisher: `cynthus-billing-api`
+  - Consumers: `cynthus-identity`
+  - Synopsis: Booster pack purchased or cancelled (ADR-005 canonical signal); identity immediately issues refreshed JWT with updated entitlement claims
 
-### Sample Payloads — Billing Management
+### Sample Payloads - Billing Management
 
 ```json
 // internal.system.subscription.upgraded
@@ -1093,29 +1853,112 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Account Management
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-AM-001 | `audit.account.contact_updated` | audit | `cynthus-core-api` | `cynthus-audit` | User changed their name, email, or phone number |
-| FT-AM-002 | `internal.profile.soft_preferences.updated` | internal | `cynthus-profile` | `cynthus-chat`, `cynthus-audit` | Soft preferences updated (cuisine, portion size, Energy Banker baseline, venue) |
-| FT-AM-002 | `audit.profile.hard_constraint.updated` | audit | `cynthus-profile` | `cynthus-audit` | Hard constraint changed (allergen added or removed, medical condition updated); safety-critical; requires immutable audit entry |
-| FT-AM-002 | `public.profile.profile.requested` | public | `cynthus-core-api` | `cynthus-profile`, `cynthus-audit` | A caller asked to create, get, update or delete their own profile; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Profile service |
-| FT-AM-002 | `public.profile.profile.responded` | public | `cynthus-profile` | `cynthus-core-api`, `cynthus-audit` | The Profile service's answer with an HTTP-style status and the profile or error; the API relays it only to the caller who asked |
-| FT-AM-002 | `public.profile.profile.created` | public | `cynthus-profile` | `cynthus-audit` | A profile was created; names which parts were set, not their contents |
-| FT-AM-002 | `public.profile.profile.updated` | public | `cynthus-profile` | `cynthus-audit` | A profile was changed; names which parts changed, not their contents |
-| FT-AM-002 | `public.profile.profile.deleted` | public | `cynthus-profile` | `cynthus-audit` | A profile was deleted; names which parts it held, not their contents |
-| FT-AM-002 | `public.profile.snapshot.published` | public | `cynthus-profile` | `cynthus-analysis`, `cynthus-audit` | A user signed in and has a profile: the profile (allergies, likes, dislikes, favorites, conditions) is pushed for the Analysis engine to correlate with inventory and shopping patterns |
-| FT-AM-003 | *(handled by billing signals; see FT-BL-001)* | — | — | — | Subscription preference changes route through cynthus-billing-api |
-| FT-AM-004, FT-AM-005, FT-AM-006, FT-AM-007 | `audit.account.business_profile_updated` | audit | `cynthus-core-api` | `cynthus-audit` | Business or partner profile details changed |
-| FT-AM-008 | `internal.account.deletion_requested` | internal | `cynthus-core-api` | `cynthus-scheduler`, `cynthus-audit` | User submitted account deletion request; 30-day grace period clock started |
-| FT-AM-008 | `internal.account.deletion_confirmed` | internal | `cynthus-scheduler` | `cynthus-core-api`, `cynthus-worker`, `cynthus-audit` | Grace period elapsed without cancellation; irreversible purge queued |
-| FT-AM-008 | `audit.account.data_erased` | audit | `cynthus-worker` | `cynthus-audit` | PII purge completed; audit records pseudonymized per GDPR/CCPA |
-| FT-AM-009 | `internal.profile.notification_preferences.updated` | internal | `cynthus-profile` | `cynthus-notification`, `cynthus-scheduler` | User updated notification channel, per-type toggles, quiet hours, or batching preferences |
-| FT-AM-010 | `internal.account.onboarding_started` | internal | `cynthus-core-api` | `cynthus-audit` | First-run wizard launched for new user |
-| FT-AM-010 | `internal.account.onboarding_completed` | internal | `cynthus-core-api` | `cynthus-chat`, `cynthus-audit` | Onboarding wizard completed; Astri greeting session triggered |
+- FT-AM-001
+  - Signal Namespace: `audit.account.contact_updated`
+  - Topic: audit
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: User changed their name, email, or phone number
+- FT-AM-002
+  - Signal Namespace: `internal.profile.soft_preferences.updated`
+  - Topic: internal
+  - Publisher: `cynthus-profile`
+  - Consumers: `cynthus-chat`, `cynthus-audit`
+  - Synopsis: Soft preferences updated (cuisine, portion size, Energy Banker baseline, venue)
+- FT-AM-002
+  - Signal Namespace: `audit.profile.hard_constraint.updated`
+  - Topic: audit
+  - Publisher: `cynthus-profile`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Hard constraint changed (allergen added or removed, medical condition updated); safety-critical; requires immutable audit entry
+- FT-AM-002
+  - Signal Namespace: `public.profile.profile.requested`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-profile`, `cynthus-audit`
+  - Synopsis: A caller asked to create, get, update or delete their own profile; the API acknowledges the client at once and hands the request, with the caller token as a message property, to the Profile service
+- FT-AM-002
+  - Signal Namespace: `public.profile.profile.responded`
+  - Topic: public
+  - Publisher: `cynthus-profile`
+  - Consumers: `cynthus-core-api`, `cynthus-audit`
+  - Synopsis: The Profile service's answer with an HTTP-style status and the profile or error; the API relays it only to the caller who asked
+- FT-AM-002
+  - Signal Namespace: `public.profile.profile.created`
+  - Topic: public
+  - Publisher: `cynthus-profile`
+  - Consumers: `cynthus-audit`
+  - Synopsis: A profile was created; names which parts were set, not their contents
+- FT-AM-002
+  - Signal Namespace: `public.profile.profile.updated`
+  - Topic: public
+  - Publisher: `cynthus-profile`
+  - Consumers: `cynthus-audit`
+  - Synopsis: A profile was changed; names which parts changed, not their contents
+- FT-AM-002
+  - Signal Namespace: `public.profile.profile.deleted`
+  - Topic: public
+  - Publisher: `cynthus-profile`
+  - Consumers: `cynthus-audit`
+  - Synopsis: A profile was deleted; names which parts it held, not their contents
+- FT-AM-002
+  - Signal Namespace: `public.profile.snapshot.published`
+  - Topic: public
+  - Publisher: `cynthus-profile`
+  - Consumers: `cynthus-analysis`, `cynthus-audit`
+  - Synopsis: A user signed in and has a profile: the profile (allergies, likes, dislikes, favorites, conditions) is pushed for the Analysis engine to correlate with inventory and shopping patterns
+- FT-AM-003
+  - Signal Namespace: *(handled by billing signals; see FT-BL-001)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: Subscription preference changes route through cynthus-billing-api
+- FT-AM-004, FT-AM-005, FT-AM-006, FT-AM-007
+  - Signal Namespace: `audit.account.business_profile_updated`
+  - Topic: audit
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Business or partner profile details changed
+- FT-AM-008
+  - Signal Namespace: `internal.account.deletion_requested`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-scheduler`, `cynthus-audit`
+  - Synopsis: User submitted account deletion request; 30-day grace period clock started
+- FT-AM-008
+  - Signal Namespace: `internal.account.deletion_confirmed`
+  - Topic: internal
+  - Publisher: `cynthus-scheduler`
+  - Consumers: `cynthus-core-api`, `cynthus-worker`, `cynthus-audit`
+  - Synopsis: Grace period elapsed without cancellation; irreversible purge queued
+- FT-AM-008
+  - Signal Namespace: `audit.account.data_erased`
+  - Topic: audit
+  - Publisher: `cynthus-worker`
+  - Consumers: `cynthus-audit`
+  - Synopsis: PII purge completed; audit records pseudonymized per GDPR/CCPA
+- FT-AM-009
+  - Signal Namespace: `internal.profile.notification_preferences.updated`
+  - Topic: internal
+  - Publisher: `cynthus-profile`
+  - Consumers: `cynthus-notification`, `cynthus-scheduler`
+  - Synopsis: User updated notification channel, per-type toggles, quiet hours, or batching preferences
+- FT-AM-010
+  - Signal Namespace: `internal.account.onboarding_started`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: First-run wizard launched for new user
+- FT-AM-010
+  - Signal Namespace: `internal.account.onboarding_completed`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-chat`, `cynthus-audit`
+  - Synopsis: Onboarding wizard completed; Astri greeting session triggered
 
 **Profile request and response.** The profile request, response, fact and snapshot signals are `public.*` by decision, although the other profile signals above are `internal.*`. Allergies and medical conditions are hard constraints: the Profile service publishes `audit.profile.hard_constraint.updated` before it commits a change to them, and refuses the change if it cannot. Profile signal bodies hold health information and are never logged.
 
-### Sample Payloads — Account Management
+### Sample Payloads - Account Management
 
 ```json
 // audit.profile.hard_constraint.updated
@@ -1172,14 +2015,32 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Rating Management
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-RT-001 | `public.rating.created` | public | `cynthus-core-api` | `cynthus-analysis`, `cynthus-chat`, `cynthus-audit` | User submitted a rating for a recipe, meal, provider, or venue; feeds preference model |
-| FT-RT-001 | `public.rating.updated` | public | `cynthus-core-api` | `cynthus-analysis`, `cynthus-audit` | User revised an existing rating |
-| FT-RT-002 | `internal.profile.favorite.added` | internal | `cynthus-profile` | `cynthus-chat`, `cynthus-analysis` | User flagged an entity as a favorite; Astri prioritizes in future suggestions |
-| FT-RT-002 | `internal.profile.favorite.removed` | internal | `cynthus-profile` | `cynthus-chat`, `cynthus-analysis` | Favorite flag removed from an entity |
+- FT-RT-001
+  - Signal Namespace: `public.rating.created`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-analysis`, `cynthus-chat`, `cynthus-audit`
+  - Synopsis: User submitted a rating for a recipe, meal, provider, or venue; feeds preference model
+- FT-RT-001
+  - Signal Namespace: `public.rating.updated`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-analysis`, `cynthus-audit`
+  - Synopsis: User revised an existing rating
+- FT-RT-002
+  - Signal Namespace: `internal.profile.favorite.added`
+  - Topic: internal
+  - Publisher: `cynthus-profile`
+  - Consumers: `cynthus-chat`, `cynthus-analysis`
+  - Synopsis: User flagged an entity as a favorite; Astri prioritizes in future suggestions
+- FT-RT-002
+  - Signal Namespace: `internal.profile.favorite.removed`
+  - Topic: internal
+  - Publisher: `cynthus-profile`
+  - Consumers: `cynthus-chat`, `cynthus-analysis`
+  - Synopsis: Favorite flag removed from an entity
 
-### Sample Payloads — Rating Management
+### Sample Payloads - Rating Management
 
 ```json
 // public.rating.created
@@ -1210,13 +2071,26 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Tag Management
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-TG-001 | `internal.tag.created` | internal | `cynthus-core-api` | `cynthus-audit` | User-defined tag created in the workspace tag registry |
-| FT-TG-001 | `internal.tag.assigned` | internal | `cynthus-core-api` | `cynthus-analysis`, `cynthus-audit` | Tag assigned to an entity (recipe, item, venue, provider) |
-| FT-TG-001 | `internal.tag.removed` | internal | `cynthus-core-api` | `cynthus-audit` | Tag unassigned from an entity or deleted from the registry |
+- FT-TG-001
+  - Signal Namespace: `internal.tag.created`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: User-defined tag created in the workspace tag registry
+- FT-TG-001
+  - Signal Namespace: `internal.tag.assigned`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-analysis`, `cynthus-audit`
+  - Synopsis: Tag assigned to an entity (recipe, item, venue, provider)
+- FT-TG-001
+  - Signal Namespace: `internal.tag.removed`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Tag unassigned from an entity or deleted from the registry
 
-### Sample Payload — Tag Management
+### Sample Payload - Tag Management
 
 ```json
 // internal.tag.assigned
@@ -1235,16 +2109,44 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Access Control
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-AC-001 | `audit.access.provider_data_consent_granted` | audit | `cynthus-health-api` | `cynthus-audit`, `cynthus-identity` | User granted a provider access to their health data; scope, duration, and data types recorded |
-| FT-AC-001 | `audit.access.provider_data_consent_revoked` | audit | `cynthus-health-api` | `cynthus-audit`, `cynthus-identity` | User revoked provider data access; identity service immediately invalidates affected claims |
-| FT-AC-002 | `public.access.request.submitted` | public | `cynthus-core-api` | `cynthus-notification`, `cynthus-audit` | Access request submitted to the owner of a resource (inventory location, recipe library, group, engagement) |
-| FT-AC-002 | `public.access.request.approved` | public | `cynthus-core-api` | `cynthus-identity`, `cynthus-notification`, `cynthus-audit` | Resource owner approved access request; permissions provisioned |
-| FT-AC-002 | `public.access.request.denied` | public | `cynthus-core-api` | `cynthus-notification`, `cynthus-audit` | Resource owner denied the request |
-| FT-AC-003 | *(same signal flow as FT-AC-002; provider is the requesting actor)* | — | — | — | Provider data access requests use the same `public.access.request.*` signals with actor_type set to PROVIDER |
+- FT-AC-001
+  - Signal Namespace: `audit.access.provider_data_consent_granted`
+  - Topic: audit
+  - Publisher: `cynthus-health-api`
+  - Consumers: `cynthus-audit`, `cynthus-identity`
+  - Synopsis: User granted a provider access to their health data; scope, duration, and data types recorded
+- FT-AC-001
+  - Signal Namespace: `audit.access.provider_data_consent_revoked`
+  - Topic: audit
+  - Publisher: `cynthus-health-api`
+  - Consumers: `cynthus-audit`, `cynthus-identity`
+  - Synopsis: User revoked provider data access; identity service immediately invalidates affected claims
+- FT-AC-002
+  - Signal Namespace: `public.access.request.submitted`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Access request submitted to the owner of a resource (inventory location, recipe library, group, engagement)
+- FT-AC-002
+  - Signal Namespace: `public.access.request.approved`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-identity`, `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Resource owner approved access request; permissions provisioned
+- FT-AC-002
+  - Signal Namespace: `public.access.request.denied`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-notification`, `cynthus-audit`
+  - Synopsis: Resource owner denied the request
+- FT-AC-003
+  - Signal Namespace: *(same signal flow as FT-AC-002; provider is the requesting actor)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: Provider data access requests use the same `public.access.request.*` signals with actor_type set to PROVIDER
 
-### Sample Payloads — Access Control
+### Sample Payloads - Access Control
 
 ```json
 // audit.access.provider_data_consent_granted
@@ -1289,14 +2191,32 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Accessibility
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-AX-001, FT-AX-002, FT-AX-003, FT-AX-005 | `internal.profile.accessibility_preference.updated` | internal | `cynthus-profile` | `cynthus-chat`, `cynthus-core-api` | Accessibility setting changed — screen reader mode, haptics, Zen Mode, high-contrast, or dark mode toggled; Astri response formatter and UI rendering update accordingly |
-| FT-AX-004 | `internal.spatial.object_detected` | internal | `cynthus-video` | `cynthus-chat` | Object identified in smart glasses video frame with clock-face position metadata |
-| FT-AX-004 | `internal.spatial.frame_processed` | internal | `cynthus-video` | `cynthus-chat` | Batch of video frames processed; spatial map of kitchen environment updated |
-| FT-AX-006 | `internal.profile.locale.updated` | internal | `cynthus-profile` | `cynthus-core-api`, `cynthus-chat` | User changed language or locale setting |
+- FT-AX-001, FT-AX-002, FT-AX-003, FT-AX-005
+  - Signal Namespace: `internal.profile.accessibility_preference.updated`
+  - Topic: internal
+  - Publisher: `cynthus-profile`
+  - Consumers: `cynthus-chat`, `cynthus-core-api`
+  - Synopsis: Accessibility setting changed - screen reader mode, haptics, Zen Mode, high-contrast, or dark mode toggled; Astri response formatter and UI rendering update accordingly
+- FT-AX-004
+  - Signal Namespace: `internal.spatial.object_detected`
+  - Topic: internal
+  - Publisher: `cynthus-video`
+  - Consumers: `cynthus-chat`
+  - Synopsis: Object identified in smart glasses video frame with clock-face position metadata
+- FT-AX-004
+  - Signal Namespace: `internal.spatial.frame_processed`
+  - Topic: internal
+  - Publisher: `cynthus-video`
+  - Consumers: `cynthus-chat`
+  - Synopsis: Batch of video frames processed; spatial map of kitchen environment updated
+- FT-AX-006
+  - Signal Namespace: `internal.profile.locale.updated`
+  - Topic: internal
+  - Publisher: `cynthus-profile`
+  - Consumers: `cynthus-core-api`, `cynthus-chat`
+  - Synopsis: User changed language or locale setting
 
-### Sample Payloads — Accessibility
+### Sample Payloads - Accessibility
 
 ```json
 // internal.profile.accessibility_preference.updated
@@ -1336,16 +2256,44 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Reporting and Compliance
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-RP-001 | *(synchronous audit log query; no async signal)* | — | — | — | User Data Access Report is a read-only query against the immutable audit ledger |
-| FT-RP-002 | *(synchronous analytics query; no async signal)* | — | — | — | Provider Service Usage Report is a read-only aggregation query |
-| FT-RP-003 | *(synchronous analytics query; no async signal)* | — | — | — | Partner Device Usage Report is a read-only aggregation query |
-| FT-RP-004 | *(synchronous ledger query; no async signal)* | — | — | — | Partner Contribution Report is a read-only ledger query |
-| FT-RP-005 | `internal.data_export.requested` | internal | `cynthus-core-api` | `cynthus-worker` | User submitted a data portability export request; worker job queued |
-| FT-RP-005 | `internal.data_export.completed` | internal | `cynthus-worker` | `cynthus-notification` | Export archive packaged; secure download link sent to user |
+- FT-RP-001
+  - Signal Namespace: *(synchronous audit log query; no async signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: User Data Access Report is a read-only query against the immutable audit ledger
+- FT-RP-002
+  - Signal Namespace: *(synchronous analytics query; no async signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: Provider Service Usage Report is a read-only aggregation query
+- FT-RP-003
+  - Signal Namespace: *(synchronous analytics query; no async signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: Partner Device Usage Report is a read-only aggregation query
+- FT-RP-004
+  - Signal Namespace: *(synchronous ledger query; no async signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: Partner Contribution Report is a read-only ledger query
+- FT-RP-005
+  - Signal Namespace: `internal.data_export.requested`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-worker`
+  - Synopsis: User submitted a data portability export request; worker job queued
+- FT-RP-005
+  - Signal Namespace: `internal.data_export.completed`
+  - Topic: internal
+  - Publisher: `cynthus-worker`
+  - Consumers: `cynthus-notification`
+  - Synopsis: Export archive packaged; secure download link sent to user
 
-### Sample Payloads — Reporting and Compliance
+### Sample Payloads - Reporting and Compliance
 
 ```json
 // internal.data_export.requested
@@ -1376,17 +2324,50 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Data Analytics and Dashboards
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-DA-001, FT-DA-002 | *(synchronous analytics query; no async signal)* | — | — | — | Group Sentiment and Voting Dashboards are read-only queries over data written by `public.rating.created` and `public.meal.vote.*` signals |
-| FT-DA-003 | *(synchronous analytics query; no async signal)* | — | — | — | Enterprise Multi-Group Sentiment Dashboard is a read-only cross-tenancy aggregation |
-| FT-DA-004 | `internal.analysis.harmony_score.computed` | internal | `cynthus-analysis` | `cynthus-core-api`, `cynthus-notification` | 24-hour Harmony Score computed; low score triggers Astri rebalancing recommendations |
-| FT-DA-005 | *(synchronous dashboard query; no async signal)* | — | — | — | Clinical Triage Dashboard reads from `cynthus-health-db` and the audit ledger; access itself is recorded via `audit.health.provider_data_access` |
-| FT-DA-006 | `internal.analytics.spend.snapshot_recorded` | internal | `cynthus-analysis` | `cynthus-core-api` | Weekly/monthly grocery spend aggregation computed; result available for dashboard queries |
-| FT-DA-007 | `internal.analytics.trend.computed` | internal | `cynthus-analysis` | `cynthus-partner-api` | Anonymized culinary trend batch computation complete; output available for B2B Predictive Reporting Portal |
-| FT-DA-008 | *(synchronous dashboard query consuming DA-007 output; no async signal)* | — | — | — | B2B Supplier Predictive Reporting Portal serves the trend data produced by FT-DA-007 via synchronous query |
+- FT-DA-001, FT-DA-002
+  - Signal Namespace: *(synchronous analytics query; no async signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: Group Sentiment and Voting Dashboards are read-only queries over data written by `public.rating.created` and `public.meal.vote.*` signals
+- FT-DA-003
+  - Signal Namespace: *(synchronous analytics query; no async signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: Enterprise Multi-Group Sentiment Dashboard is a read-only cross-tenancy aggregation
+- FT-DA-004
+  - Signal Namespace: `internal.analysis.harmony_score.computed`
+  - Topic: internal
+  - Publisher: `cynthus-analysis`
+  - Consumers: `cynthus-core-api`, `cynthus-notification`
+  - Synopsis: 24-hour Harmony Score computed; low score triggers Astri rebalancing recommendations
+- FT-DA-005
+  - Signal Namespace: *(synchronous dashboard query; no async signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: Clinical Triage Dashboard reads from `cynthus-health-db` and the audit ledger; access itself is recorded via `audit.health.provider_data_access`
+- FT-DA-006
+  - Signal Namespace: `internal.analytics.spend.snapshot_recorded`
+  - Topic: internal
+  - Publisher: `cynthus-analysis`
+  - Consumers: `cynthus-core-api`
+  - Synopsis: Weekly/monthly grocery spend aggregation computed; result available for dashboard queries
+- FT-DA-007
+  - Signal Namespace: `internal.analytics.trend.computed`
+  - Topic: internal
+  - Publisher: `cynthus-analysis`
+  - Consumers: `cynthus-partner-api`
+  - Synopsis: Anonymized culinary trend batch computation complete; output available for B2B Predictive Reporting Portal
+- FT-DA-008
+  - Signal Namespace: *(synchronous dashboard query consuming DA-007 output; no async signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: B2B Supplier Predictive Reporting Portal serves the trend data produced by FT-DA-007 via synchronous query
 
-### Sample Payloads — Data Analytics and Dashboards
+### Sample Payloads - Data Analytics and Dashboards
 
 ```json
 // internal.analysis.harmony_score.computed
@@ -1440,18 +2421,56 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Platform Infrastructure
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-PL-001 | *(consumer, not publisher)* | — | — | — | Cache sync (`cynthus-core-cache`) consumes `public.inventory.mutation.recorded` and other inventory signals; emits no dedicated signal of its own |
-| FT-PL-001 | `internal.cache.sync.invalidated` | internal | `cynthus-core-cache` | `cynthus-core-api` | A cache entry expired or was explicitly invalidated; next read will hydrate from `cynthus-core-db` |
-| FT-PL-002 | *(real-time WebSocket infrastructure; no Service Bus signal)* | — | — | — | The WebSocket hub is a stateless ingress gateway; session events are logged in-process |
-| FT-PL-003 | `internal.spatial.object_detected` | internal | `cynthus-video` | `cynthus-chat` | (Shared with FT-AX-004) — Object identified in smart glasses feed |
-| FT-PL-003 | `internal.spatial.frame_processed` | internal | `cynthus-video` | `cynthus-chat` | (Shared with FT-AX-004) — Batch of video frames processed |
-| FT-PL-004 | `internal.worker.job.queued` | internal | `cynthus-core-api`, `cynthus-recipe`, `cynthus-worker` | `cynthus-worker` | Long-running job enqueued in the worker cluster |
-| FT-PL-004 | `internal.worker.job.completed` | internal | `cynthus-worker` | originating service | Async job finished successfully; result reference returned to caller |
-| FT-PL-004 | `internal.worker.job.failed` | internal | `cynthus-worker` | originating service, `cynthus-notification` | Async job failed; originating service may retry; user notified if user-visible |
+- FT-PL-001
+  - Signal Namespace: *(consumer, not publisher)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: Cache sync (`cynthus-core-cache`) consumes `public.inventory.mutation.recorded` and other inventory signals; emits no dedicated signal of its own
+- FT-PL-001
+  - Signal Namespace: `internal.cache.sync.invalidated`
+  - Topic: internal
+  - Publisher: `cynthus-core-cache`
+  - Consumers: `cynthus-core-api`
+  - Synopsis: A cache entry expired or was explicitly invalidated; next read will hydrate from `cynthus-core-db`
+- FT-PL-002
+  - Signal Namespace: *(real-time WebSocket infrastructure; no Service Bus signal)*
+  - Topic: none
+  - Publisher: none
+  - Consumers: none
+  - Synopsis: The WebSocket hub is a stateless ingress gateway; session events are logged in-process
+- FT-PL-003
+  - Signal Namespace: `internal.spatial.object_detected`
+  - Topic: internal
+  - Publisher: `cynthus-video`
+  - Consumers: `cynthus-chat`
+  - Synopsis: (Shared with FT-AX-004) - Object identified in smart glasses feed
+- FT-PL-003
+  - Signal Namespace: `internal.spatial.frame_processed`
+  - Topic: internal
+  - Publisher: `cynthus-video`
+  - Consumers: `cynthus-chat`
+  - Synopsis: (Shared with FT-AX-004) - Batch of video frames processed
+- FT-PL-004
+  - Signal Namespace: `internal.worker.job.queued`
+  - Topic: internal
+  - Publisher: `cynthus-core-api`, `cynthus-recipe`, `cynthus-worker`
+  - Consumers: `cynthus-worker`
+  - Synopsis: Long-running job enqueued in the worker cluster
+- FT-PL-004
+  - Signal Namespace: `internal.worker.job.completed`
+  - Topic: internal
+  - Publisher: `cynthus-worker`
+  - Consumers: originating service
+  - Synopsis: Async job finished successfully; result reference returned to caller
+- FT-PL-004
+  - Signal Namespace: `internal.worker.job.failed`
+  - Topic: internal
+  - Publisher: `cynthus-worker`
+  - Consumers: originating service, `cynthus-notification`
+  - Synopsis: Async job failed; originating service may retry; user notified if user-visible
 
-### Sample Payloads — Platform Infrastructure
+### Sample Payloads - Platform Infrastructure
 
 ```json
 // internal.cache.sync.invalidated
@@ -1499,24 +2518,82 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Domain: Security and Identity
 
-| Feature | Signal Namespace | Topic | Publisher | Consumers | Synopsis |
-|---|---|---|---|---|---|
-| FT-SI-001 | `internal.identity.svid.issued` | internal | `spire-agent` | `cynthus-audit` | New X.509 SVID issued to a service workload container |
-| FT-SI-001 | `internal.identity.svid.rotated` | internal | `spire-agent` | `cynthus-audit` | Short-lived SVID auto-rotated without service restart |
-| FT-SI-001 | `audit.identity.svid.revoked` | audit | `spire-server` | `cynthus-audit` | SVID revoked; potential container compromise or policy violation |
-| FT-SI-002 | `audit.identity.token_exchanged` | audit | `cynthus-core-api` | `cynthus-audit` | External JWT successfully exchanged for internal context headers |
-| FT-SI-002 | `audit.identity.token_exchange_failed` | audit | `cynthus-core-api` | `cynthus-audit`, `cynthus-notification` | Token exchange rejected (invalid, expired, or tampered JWT); security event |
-| FT-SI-004 | `audit.identity.user.authenticated` | audit | `cynthus-identity` | `cynthus-audit`, `cynthus-profile` | A user signed in with correct credentials. Carries the user id and username; never the password |
-| FT-SI-004 | `audit.identity.user.rejected` | audit | `cynthus-identity` | `cynthus-audit` | A sign-in was refused. Carries the username that was tried and no tenant (nil UUID); never the password |
-| FT-SI-004 | `audit.identity.token.issued` | audit | `cynthus-identity` | `cynthus-audit` | An access token was issued. Carries the token id (`jti`), signing key id, lifetime, roles and permissions; never the token |
-| FT-SI-005 | `audit.identity.access.granted` | audit | `cynthus-core-api`, `cynthus-inventory` | `cynthus-audit` | A request carried a valid token that grants the permission it needs (HTTP 2xx path) |
-| FT-SI-005 | `audit.identity.access.rejected` | audit | `cynthus-core-api`, `cynthus-inventory` | `cynthus-audit` | A request had no valid token: missing, malformed, expired, forged or for another caller (HTTP 401); security event |
-| FT-SI-005 | `audit.identity.access.denied` | audit | `cynthus-core-api`, `cynthus-inventory` | `cynthus-audit` | A valid token lacked the permission the request needs (HTTP 403): the role-based access violation; security event |
-| FT-SI-003 | `audit.system.ledger.entry_written` | audit | `cynthus-audit` | SIEM / archive system | Audit entry committed to write-once ledger; consumed by external SIEM integrations |
+- FT-SI-001
+  - Signal Namespace: `internal.identity.svid.issued`
+  - Topic: internal
+  - Publisher: `spire-agent`
+  - Consumers: `cynthus-audit`
+  - Synopsis: New X.509 SVID issued to a service workload container
+- FT-SI-001
+  - Signal Namespace: `internal.identity.svid.rotated`
+  - Topic: internal
+  - Publisher: `spire-agent`
+  - Consumers: `cynthus-audit`
+  - Synopsis: Short-lived SVID auto-rotated without service restart
+- FT-SI-001
+  - Signal Namespace: `audit.identity.svid.revoked`
+  - Topic: audit
+  - Publisher: `spire-server`
+  - Consumers: `cynthus-audit`
+  - Synopsis: SVID revoked; potential container compromise or policy violation
+- FT-SI-002
+  - Signal Namespace: `audit.identity.token_exchanged`
+  - Topic: audit
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-audit`
+  - Synopsis: External JWT successfully exchanged for internal context headers
+- FT-SI-002
+  - Signal Namespace: `audit.identity.token_exchange_failed`
+  - Topic: audit
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-audit`, `cynthus-notification`
+  - Synopsis: Token exchange rejected (invalid, expired, or tampered JWT); security event
+- FT-SI-004
+  - Signal Namespace: `audit.identity.user.authenticated`
+  - Topic: audit
+  - Publisher: `cynthus-identity`
+  - Consumers: `cynthus-audit`, `cynthus-profile`
+  - Synopsis: A user signed in with correct credentials. Carries the user id and username; never the password
+- FT-SI-004
+  - Signal Namespace: `audit.identity.user.rejected`
+  - Topic: audit
+  - Publisher: `cynthus-identity`
+  - Consumers: `cynthus-audit`
+  - Synopsis: A sign-in was refused. Carries the username that was tried and no tenant (nil UUID); never the password
+- FT-SI-004
+  - Signal Namespace: `audit.identity.token.issued`
+  - Topic: audit
+  - Publisher: `cynthus-identity`
+  - Consumers: `cynthus-audit`
+  - Synopsis: An access token was issued. Carries the token id (`jti`), signing key id, lifetime, roles and permissions; never the token
+- FT-SI-005
+  - Signal Namespace: `audit.identity.access.granted`
+  - Topic: audit
+  - Publisher: `cynthus-core-api`, `cynthus-inventory`
+  - Consumers: `cynthus-audit`
+  - Synopsis: A request carried a valid token that grants the permission it needs (HTTP 2xx path)
+- FT-SI-005
+  - Signal Namespace: `audit.identity.access.rejected`
+  - Topic: audit
+  - Publisher: `cynthus-core-api`, `cynthus-inventory`
+  - Consumers: `cynthus-audit`
+  - Synopsis: A request had no valid token: missing, malformed, expired, forged or for another caller (HTTP 401); security event
+- FT-SI-005
+  - Signal Namespace: `audit.identity.access.denied`
+  - Topic: audit
+  - Publisher: `cynthus-core-api`, `cynthus-inventory`
+  - Consumers: `cynthus-audit`
+  - Synopsis: A valid token lacked the permission the request needs (HTTP 403): the role-based access violation; security event
+- FT-SI-003
+  - Signal Namespace: `audit.system.ledger.entry_written`
+  - Topic: audit
+  - Publisher: `cynthus-audit`
+  - Consumers: SIEM / archive system
+  - Synopsis: Audit entry committed to write-once ledger; consumed by external SIEM integrations
 
 **Reading the access signals.** `audit.identity.access.rejected` means the caller could not be identified (401). `audit.identity.access.denied` means the caller was identified but their role does not allow the request (403), so it is the signal that shows a role-based access violation. Signals about an unknown caller carry the nil UUID as organization, workspace and actor. The `identity` publisher is the auth container; the API and Inventory services publish the access signals for the requests they check, so a request the API forwards to Inventory is recorded by both.
 
-### Sample Payloads — Security and Identity
+### Sample Payloads - Security and Identity
 
 ```json
 // internal.identity.svid.issued
@@ -1575,37 +2652,69 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ## Appendix A: Signal Count by Topic
 
-| Topic | Signal Count |
-|---|---|
-| `cynthus-topic-public` | 62 |
-| `cynthus-topic-internal` | 61 |
-| `cynthus-topic-audit` | 22 |
-| **Total** | **145** |
+- `cynthus-topic-public`: 62
+- `cynthus-topic-internal`: 61
+- `cynthus-topic-audit`: 22
+- **Total**: **145**
 
 ---
 
 ## Appendix B: Services as Publishers and Consumers
 
-| Service | Primary Publisher Domains | Primary Consumer Role |
-|---|---|---|
-| `cynthus-core-api` | Meal planning, inventory CRUD, group, engagement, account, access control, shopping list requests | Context assembly; routes to Intelligence subnet; forwards to notification |
-| `cynthus-recipe` | Recipe CRUD, import, scaling, substitution | Consumes worker job completion signals |
-| `cynthus-profile` | Profile mutations (hard constraints, soft preferences, notification prefs, favorites, accessibility) | Consumed by `cynthus-chat` and `cynthus-core-api` for suggestion filtering |
-| `cynthus-chat` | AI companion interaction facts, substitution suggestions, vote auto-resolution | Consumes context bundles from `cynthus-core-api`; never calls back into Core at runtime |
-| `cynthus-identity` | *(no direct publisher)* | Consumes `internal.system.entitlement.updated`, `public.group.member_added`, `public.access.request.approved` to issue refreshed JWTs |
-| `cynthus-billing-api` | Subscription, payment, and entitlement signals | Consumes RPM billing log signals; source of truth for booster state |
-| `cynthus-scheduler` | Inventory low/expiry, meal suggestion schedule trigger, auto-purchase reminders, meal gap detection, promotion expiry | Consumes meal plan, shopping list schedule, and notification preference signals |
-| `cynthus-worker` | Worker job completion, OCR, scrape, export, nutrition enrichment | Consumes job-queued signals from Service Bus worker queue |
-| `cynthus-partner-api` | Service registry, promotions, device registry, vendor directory, fulfillment orders | Consumes vendor subscription and fulfillment signals |
-| `cynthus-shopping` | Shopping list CRUD and all shopping list item lifecycle signals | Consumes `public.inventory.item.low` to auto-append items to procurement list |
-| `cynthus-messaging` | Message sent, recipe/item share signals | Consumes meal vote, inventory low, and other signals to render interactive chat cards |
-| `cynthus-notification` | *(no direct publisher)* | Consumes signals from all domains that carry notification fan-out requirements |
-| `cynthus-analysis` | Harmony Score, spend snapshots, trend computation, anomaly detection, correlation results | Consumes rating, vote, telemetry, and inventory signals |
-| `cynthus-health-api` | Provider data access audit events, RPM billing logs | Consumes biometric anomaly and consent signals |
-| `cynthus-video` | Spatial object detection and frame processing signals | Independent consumer of camera feed; publishes to `cynthus-topic-internal` only |
-| `cynthus-audit` | Ledger entry written | Exclusive consumer of `cynthus-topic-audit`; write-once; never publishes domain signals |
-| `cynthus-core-cache` | Cache invalidation signals | Exclusive consumer of inventory mutation signals for cache hydration |
-| `spire-agent` / `spire-server` | SVID lifecycle signals | Consumed by `cynthus-audit` only |
+- `cynthus-core-api`
+  - Primary Publisher Domains: Meal planning, inventory CRUD, group, engagement, account, access control, shopping list requests
+  - Primary Consumer Role: Context assembly; routes to Intelligence subnet; forwards to notification
+- `cynthus-recipe`
+  - Primary Publisher Domains: Recipe CRUD, import, scaling, substitution
+  - Primary Consumer Role: Consumes worker job completion signals
+- `cynthus-profile`
+  - Primary Publisher Domains: Profile mutations (hard constraints, soft preferences, notification prefs, favorites, accessibility)
+  - Primary Consumer Role: Consumed by `cynthus-chat` and `cynthus-core-api` for suggestion filtering
+- `cynthus-chat`
+  - Primary Publisher Domains: AI companion interaction facts, substitution suggestions, vote auto-resolution
+  - Primary Consumer Role: Consumes context bundles from `cynthus-core-api`; never calls back into Core at runtime
+- `cynthus-identity`
+  - Primary Publisher Domains: *(no direct publisher)*
+  - Primary Consumer Role: Consumes `internal.system.entitlement.updated`, `public.group.member_added`, `public.access.request.approved` to issue refreshed JWTs
+- `cynthus-billing-api`
+  - Primary Publisher Domains: Subscription, payment, and entitlement signals
+  - Primary Consumer Role: Consumes RPM billing log signals; source of truth for booster state
+- `cynthus-scheduler`
+  - Primary Publisher Domains: Inventory low/expiry, meal suggestion schedule trigger, auto-purchase reminders, meal gap detection, promotion expiry
+  - Primary Consumer Role: Consumes meal plan, shopping list schedule, and notification preference signals
+- `cynthus-worker`
+  - Primary Publisher Domains: Worker job completion, OCR, scrape, export, nutrition enrichment
+  - Primary Consumer Role: Consumes job-queued signals from Service Bus worker queue
+- `cynthus-partner-api`
+  - Primary Publisher Domains: Service registry, promotions, device registry, vendor directory, fulfillment orders
+  - Primary Consumer Role: Consumes vendor subscription and fulfillment signals
+- `cynthus-shopping`
+  - Primary Publisher Domains: Shopping list CRUD and all shopping list item lifecycle signals
+  - Primary Consumer Role: Consumes `public.inventory.item.low` to auto-append items to procurement list
+- `cynthus-messaging`
+  - Primary Publisher Domains: Message sent, recipe/item share signals
+  - Primary Consumer Role: Consumes meal vote, inventory low, and other signals to render interactive chat cards
+- `cynthus-notification`
+  - Primary Publisher Domains: *(no direct publisher)*
+  - Primary Consumer Role: Consumes signals from all domains that carry notification fan-out requirements
+- `cynthus-analysis`
+  - Primary Publisher Domains: Harmony Score, spend snapshots, trend computation, anomaly detection, correlation results
+  - Primary Consumer Role: Consumes rating, vote, telemetry, and inventory signals
+- `cynthus-health-api`
+  - Primary Publisher Domains: Provider data access audit events, RPM billing logs
+  - Primary Consumer Role: Consumes biometric anomaly and consent signals
+- `cynthus-video`
+  - Primary Publisher Domains: Spatial object detection and frame processing signals
+  - Primary Consumer Role: Independent consumer of camera feed; publishes to `cynthus-topic-internal` only
+- `cynthus-audit`
+  - Primary Publisher Domains: Ledger entry written
+  - Primary Consumer Role: Exclusive consumer of `cynthus-topic-audit`; write-once; never publishes domain signals
+- `cynthus-core-cache`
+  - Primary Publisher Domains: Cache invalidation signals
+  - Primary Consumer Role: Exclusive consumer of inventory mutation signals for cache hydration
+- `spire-agent` / `spire-server`
+  - Primary Publisher Domains: SVID lifecycle signals
+  - Primary Consumer Role: Consumed by `cynthus-audit` only
 
 ---
 
@@ -1613,23 +2722,21 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 The following features operate exclusively via synchronous gRPC queries and produce no Service Bus signals:
 
-| Feature | Reason |
-|---|---|
-| FT-MP-003 — Browse Meals by Category | Read-only catalog query |
-| FT-RM-003 — Search Recipes | Read-only filtered query |
-| FT-AI-003 — Screen-Reader Response Linearization | In-process formatting within `cynthus-chat` |
-| FT-AI-004 — Low-Latency TTS Voice Streaming | Hot-path WebSocket stream; bypasses Service Bus |
-| FT-MS-002 — Interactive In-Chat Cards | Rendered by `cynthus-messaging` upon consuming other domain signals |
-| FT-AC-003 — Provider Requests Access to User Data | Reuses `public.access.request.*` signal flow |
-| FT-AM-003 — Manage Subscription Preferences | Handled by `cynthus-billing-api` billing signals |
-| FT-RP-001 — User Data Access Report | Read-only audit ledger query |
-| FT-RP-002 — Provider Service Usage Report | Read-only analytics aggregation |
-| FT-RP-003 — Partner Device Usage Report | Read-only analytics aggregation |
-| FT-RP-004 — Partner Contribution Report | Read-only ledger query |
-| FT-DA-001 — Group Sentiment Dashboard | Read-only query over rating/vote data |
-| FT-DA-002 — Group Voting History Dashboard | Read-only query over vote history |
-| FT-DA-003 — Enterprise Multi-Group Sentiment Dashboard | Read-only cross-tenancy aggregation |
-| FT-DA-005 — Clinical Triage Dashboard | Read-only health data query; access logged via `audit.health.provider_data_access` |
-| FT-DA-008 — B2B Supplier Predictive Reporting | Read-only query consuming DA-007 trend output |
-| FT-PL-002 — WebSocket Hub | Real-time streaming infrastructure; no Service Bus involvement |
-| FT-SR-005 — Device and Service Promotions | Reuses `public.promotion.*` signal flow from FT-SR-003 |
+- FT-MP-003 - Browse Meals by Category: Read-only catalog query
+- FT-RM-003 - Search Recipes: Read-only filtered query
+- FT-AI-003 - Screen-Reader Response Linearization: In-process formatting within `cynthus-chat`
+- FT-AI-004 - Low-Latency TTS Voice Streaming: Hot-path WebSocket stream; bypasses Service Bus
+- FT-MS-002 - Interactive In-Chat Cards: Rendered by `cynthus-messaging` upon consuming other domain signals
+- FT-AC-003 - Provider Requests Access to User Data: Reuses `public.access.request.*` signal flow
+- FT-AM-003 - Manage Subscription Preferences: Handled by `cynthus-billing-api` billing signals
+- FT-RP-001 - User Data Access Report: Read-only audit ledger query
+- FT-RP-002 - Provider Service Usage Report: Read-only analytics aggregation
+- FT-RP-003 - Partner Device Usage Report: Read-only analytics aggregation
+- FT-RP-004 - Partner Contribution Report: Read-only ledger query
+- FT-DA-001 - Group Sentiment Dashboard: Read-only query over rating/vote data
+- FT-DA-002 - Group Voting History Dashboard: Read-only query over vote history
+- FT-DA-003 - Enterprise Multi-Group Sentiment Dashboard: Read-only cross-tenancy aggregation
+- FT-DA-005 - Clinical Triage Dashboard: Read-only health data query; access logged via `audit.health.provider_data_access`
+- FT-DA-008 - B2B Supplier Predictive Reporting: Read-only query consuming DA-007 trend output
+- FT-PL-002 - WebSocket Hub: Real-time streaming infrastructure; no Service Bus involvement
+- FT-SR-005 - Device and Service Promotions: Reuses `public.promotion.*` signal flow from FT-SR-003

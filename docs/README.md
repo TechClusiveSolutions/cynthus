@@ -1,17 +1,35 @@
 # Cynthus documentation index
 
-| Document | What it is | Version |
-|---|---|---|
-| [PRD.md](PRD.md) | Master product requirements | 4.2 (June 2026) |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Master architectural design document | 6.0 (June 2026) |
-| [ROADMAP.md](ROADMAP.md) | Master roadmap: phases 1-8 from the PRD, plus engineering work before Phase 1 | 1.0 |
-| [features/feature-registry.md](features/feature-registry.md) | Feature map: tiers, features, phases, booster packs | 1.1 |
-| [signals/signal-catalog.md](signals/signal-catalog.md) | Signal map: every signal by domain, with publishers and consumers | 1.0 |
-| [signals/signal-list-by-service.md](signals/signal-list-by-service.md) | The same signals viewed per service, plus discrepancies found | 1.0 |
-| [adr/](adr) | Architecture decision records | |
-| [architecture/](architecture) | Web-app conversion plan; [Shopping design](architecture/shopping-design.md) | |
-| [engineering-standards.md](engineering-standards.md) | How we write, test, review and merge code | |
-| [archive/](archive/README.md) | Superseded drafts, kept for history | |
+- [PRD.md](PRD.md)
+  - What it is: Master product requirements
+  - Version: 4.2 (June 2026)
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+  - What it is: Master architectural design document
+  - Version: 6.0 (June 2026)
+- [ROADMAP.md](ROADMAP.md)
+  - What it is: Master roadmap: phases 1-8 from the PRD, plus engineering work before Phase 1
+  - Version: 1.0
+- [features/feature-registry.md](features/feature-registry.md)
+  - What it is: Feature map: tiers, features, phases, booster packs
+  - Version: 1.1
+- [signals/signal-catalog.md](signals/signal-catalog.md)
+  - What it is: Signal map: every signal by domain, with publishers and consumers
+  - Version: 1.0
+- [signals/signal-list-by-service.md](signals/signal-list-by-service.md)
+  - What it is: The same signals viewed per service, plus discrepancies found
+  - Version: 1.0
+- [adr/](adr)
+  - What it is: Architecture decision records
+  - Version: none
+- [architecture/](architecture)
+  - What it is: Web-app conversion plan; [Shopping design](architecture/shopping-design.md)
+  - Version: none
+- [engineering-standards.md](engineering-standards.md)
+  - What it is: How we write, test, review and merge code
+  - Version: none
+- [archive/](archive/README.md)
+  - What it is: Superseded drafts, kept for history
+  - Version: none
 
 Conventions: masters carry no date or version in the file name; the version lives inside the file. Superseded files
 move to `archive/`; nothing is deleted.

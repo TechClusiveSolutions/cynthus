@@ -3,7 +3,7 @@
 **Product Name:** Cynthus (also referred to as Cynthus Life or Cynthus Life Ecosystem)
 **Parent Organization:** Tech-Clusive Solutions, LLC
 **Document Version:** 4.2 (June 2026)
-**Status:** Architectural Design Phase — Pricing, Roadmap, and Booster Pack Model Finalized
+**Status:** Architectural Design Phase - Pricing, Roadmap, and Booster Pack Model Finalized
 **Guiding Principle:** Universal Design and Accessibility-First Architecture. Screen-reader efficiency, semantic clarity, and high-contrast layouts are treated as core architectural parameters rather than compliance updates.
 
 ---
@@ -64,67 +64,67 @@ As an event planner, I need Cynthus to scale a recipe for 50 people with varying
 
 As a user, I open the Cynthus app and am immediately presented with a chat window. Astri greets me and asks about my day.
 
-**Path A — Cook at home:** Astri asks a few questions about my preferences. She retrieves my current inventory and selects a recipe that matches my preferences and satisfies all of my registered dietary and medical hard constraints. She presents a meal suggestion I can accept or reject. If I reject it, she offers an alternative.
+**Path A - Cook at home:** Astri asks a few questions about my preferences. She retrieves my current inventory and selects a recipe that matches my preferences and satisfies all of my registered dietary and medical hard constraints. She presents a meal suggestion I can accept or reject. If I reject it, she offers an alternative.
 
-**Path B — Go out or order in:** Astri generates a realistic meal idea based on my current preferences and hard constraints without consulting inventory.
+**Path B - Go out or order in:** Astri generates a realistic meal idea based on my current preferences and hard constraints without consulting inventory.
 
-**Path C — Manual mode:** I dismiss the chat and enter planning mode. I browse my inventory by food category. The app presents a meal suggestion that matches my current preferences and satisfies my hard constraints without requiring me to interact with Astri.
+**Path C - Manual mode:** I dismiss the chat and enter planning mode. I browse my inventory by food category. The app presents a meal suggestion that matches my current preferences and satisfies my hard constraints without requiring me to interact with Astri.
 
 ---
 
 ## 4. Functional Requirements Matrix
 
-Features are segmented into four priority levels (P1–P4) aligned to phased delivery milestones. Priority 1 and Priority 2 features comprise the Free Tier. Priority 3 and Priority 4 features map to paid and partner tiers.
+Features are segmented into four priority levels (P1-P4) aligned to phased delivery milestones. Priority 1 and Priority 2 features comprise the Free Tier. Priority 3 and Priority 4 features map to paid and partner tiers.
 
 ### 4.1 Module A: Cynthus Trust (Identity & Compliance)
 
-- **Req A.1 — Workspace Boundary Stub (P1):** Every user account must be assigned a `workspace_id` at registration. In Phase 1 this is a 1:1 mapping (one user, one workspace). The `workspace_id` must be present in all database schemas, API contracts, JWT token claims, and message envelopes from day one to support multi-user workspace expansion in Phase 2 without schema migration.
+- **Req A.1 - Workspace Boundary Stub (P1):** Every user account must be assigned a `workspace_id` at registration. In Phase 1 this is a 1:1 mapping (one user, one workspace). The `workspace_id` must be present in all database schemas, API contracts, JWT token claims, and message envelopes from day one to support multi-user workspace expansion in Phase 2 without schema migration.
 
-- **Req A.2 — Organizational Tenant Boundary (P1):** The system must isolate data at the multi-tenant organization level (`organization_id`) and further separate operations into distinct workspaces (`workspace_id`). No cross-tenant data leaks are permitted on the shared message bus.
+- **Req A.2 - Organizational Tenant Boundary (P1):** The system must isolate data at the multi-tenant organization level (`organization_id`) and further separate operations into distinct workspaces (`workspace_id`). No cross-tenant data leaks are permitted on the shared message bus.
 
-- **Req A.3 — Granular Role-Based Access Control (P1):** Profiles within a workspace must support distinct role allocations based on both RBAC and Attribute-Based Access Control (ABAC), accommodating designations such as Primary Caregiver, Care Recipient, Standard User, or commercial administrative managers. Phase 1 implements single-user accounts only; role expansion targets Phase 2.
+- **Req A.3 - Granular Role-Based Access Control (P1):** Profiles within a workspace must support distinct role allocations based on both RBAC and Attribute-Based Access Control (ABAC), accommodating designations such as Primary Caregiver, Care Recipient, Standard User, or commercial administrative managers. Phase 1 implements single-user accounts only; role expansion targets Phase 2.
 
-- **Req A.4 — Cryptographic Vault Isolation (P4):** Access to sensitive clinical or private security signals inside `cynthus-intelligence` repositories requires a separate decryption handshake using user-derived cryptographic keys, distinct from standard application tokens.
+- **Req A.4 - Cryptographic Vault Isolation (P4):** Access to sensitive clinical or private security signals inside `cynthus-intelligence` repositories requires a separate decryption handshake using user-derived cryptographic keys, distinct from standard application tokens.
 
 ### 4.2 Module B: Cynthus Core (Life-Logistics)
 
-- **Req B.1 — Basic Inventory & Mutation Tracking (P1):** The system must support standard logging and predictive state tracking of pantry, fridge, and freezer items. The inventory engine must process physical asset mutations with an absolute processing latency of less than 200ms.
+- **Req B.1 - Basic Inventory & Mutation Tracking (P1):** The system must support standard logging and predictive state tracking of pantry, fridge, and freezer items. The inventory engine must process physical asset mutations with an absolute processing latency of less than 200ms.
 
-- **Req B.2 — User Profile & Hard-Constraint Registry (P1):** The `cynthus-profile` service must maintain a strict separation between soft preferences and hard constraints for each user profile. Soft preferences (favorite cuisines, portion sizes, UI preferences, Energy Banker energy defaults) are freely mutable. Hard constraints (allergens, diagnosed dietary conditions, medication-driven restrictions) are safety-critical and must generate a timestamped audit event on every modification. The allergy hard-filter must be evaluated and applied by `cynthus-profile` before any meal suggestion is rendered, regardless of the suggestion pathway.
+- **Req B.2 - User Profile & Hard-Constraint Registry (P1):** The `cynthus-profile` service must maintain a strict separation between soft preferences and hard constraints for each user profile. Soft preferences (favorite cuisines, portion sizes, UI preferences, Energy Banker energy defaults) are freely mutable. Hard constraints (allergens, diagnosed dietary conditions, medication-driven restrictions) are safety-critical and must generate a timestamped audit event on every modification. The allergy hard-filter must be evaluated and applied by `cynthus-profile` before any meal suggestion is rendered, regardless of the suggestion pathway.
 
-- **Req B.3 — Recipe Management & Constraint Filtering (P1):** The system must maintain a recipe library. `cynthus-recipe` must expose a constraint-filtered recipe query API that accepts a set of hard constraints from `cynthus-profile` and returns only safe candidates. No recipe result set may bypass this filter.
+- **Req B.3 - Recipe Management & Constraint Filtering (P1):** The system must maintain a recipe library. `cynthus-recipe` must expose a constraint-filtered recipe query API that accepts a set of hard constraints from `cynthus-profile` and returns only safe candidates. No recipe result set may bypass this filter.
 
-- **Req B.4 — Context Assembly (P1):** `cynthus-core-api` must act as the context aggregator for all AI-powered suggestion flows. Before any user message or intent is forwarded to `cynthus-chat`, the API layer must retrieve the current inventory snapshot from `cynthus-inventory`, the filtered recipe candidates from `cynthus-recipe`, and the user's full constraint and preference profile from `cynthus-profile`, then package them into a single structured context payload. The Intelligence subnet receives assembled context only — it never calls back into Core services directly.
+- **Req B.4 - Context Assembly (P1):** `cynthus-core-api` must act as the context aggregator for all AI-powered suggestion flows. Before any user message or intent is forwarded to `cynthus-chat`, the API layer must retrieve the current inventory snapshot from `cynthus-inventory`, the filtered recipe candidates from `cynthus-recipe`, and the user's full constraint and preference profile from `cynthus-profile`, then package them into a single structured context payload. The Intelligence subnet receives assembled context only - it never calls back into Core services directly.
 
-- **Req B.5 — Smart List Engine & Shared Grocery Sync (P2):** The platform must maintain shared, real-time lists for households, roommates, and commercial operations. When an asset signal flags an essential item as depleted, background workers must automatically append it to the workspace procurement registry, filtered by preferred merchant categories.
+- **Req B.5 - Smart List Engine & Shared Grocery Sync (P2):** The platform must maintain shared, real-time lists for households, roommates, and commercial operations. When an asset signal flags an essential item as depleted, background workers must automatically append it to the workspace procurement registry, filtered by preferred merchant categories.
 
-- **Req B.6 — Cynthus-AI "Daily Spark" (P1):** Provide contextual, real-time meal suggestions based on the user's current time of day, available inventory, and pre-assembled profile context.
+- **Req B.6 - Cynthus-AI "Daily Spark" (P1):** Provide contextual, real-time meal suggestions based on the user's current time of day, available inventory, and pre-assembled profile context.
 
-- **Req B.7 — Harmony Score (P2):** Utilize AI-mediated conflict resolution to balance group meal voting, workload distribution, resource usage, operational completion patterns, and individual safety and wellness thresholds across a workspace. Targets Phase 2 multi-user workspaces.
+- **Req B.7 - Harmony Score (P2):** Utilize AI-mediated conflict resolution to balance group meal voting, workload distribution, resource usage, operational completion patterns, and individual safety and wellness thresholds across a workspace. Targets Phase 2 multi-user workspaces.
 
-- **Req B.8 — Energy Banker (P2):** Implement a recipe filtering mechanism based on current versus future energy levels, leveraging Spoon Theory logic to adapt to user fatigue. Energy defaults are stored as a soft preference in `cynthus-profile`.
+- **Req B.8 - Energy Banker (P2):** Implement a recipe filtering mechanism based on current versus future energy levels, leveraging Spoon Theory logic to adapt to user fatigue. Energy defaults are stored as a soft preference in `cynthus-profile`.
 
-- **Req B.9 — Advanced Costing & Wholesale Logistics (P3):** Provide real-time price-per-portion analysis, recipe scaling logic, volume logistics, and automatic wholesale order generation for small business owners and caterers.
+- **Req B.9 - Advanced Costing & Wholesale Logistics (P3):** Provide real-time price-per-portion analysis, recipe scaling logic, volume logistics, and automatic wholesale order generation for small business owners and caterers.
 
 ### 4.3 Module C: Cynthus Intelligence (Astri AI Engine)
 
-- **Req C.1 — Conversational Lifestyle Companion (P1):** `cynthus-chat` must support a real-time streaming conversational interface (Astri) capable of processing pre-assembled context payloads from `cynthus-core-api` to generate meal suggestions, lifestyle guidance, and general companionship dialogue. The Intelligence subnet must maintain no direct outbound dependencies to Core services at runtime.
+- **Req C.1 - Conversational Lifestyle Companion (P1):** `cynthus-chat` must support a real-time streaming conversational interface (Astri) capable of processing pre-assembled context payloads from `cynthus-core-api` to generate meal suggestions, lifestyle guidance, and general companionship dialogue. The Intelligence subnet must maintain no direct outbound dependencies to Core services at runtime.
 
-- **Req C.2 — Non-Visual Dialogue Strategy & Sensory Profiles (P1):** Provide real-time interface adaptations for screen readers (Blind), haptics and strobes (Deaf), and Zen Mode (Dyslexic). All interface payloads returned by the chat service must be structured to ensure seamless parsing by assistive technologies, avoiding layout elements that rely on spatial placement or geometric orientation.
+- **Req C.2 - Non-Visual Dialogue Strategy & Sensory Profiles (P1):** Provide real-time interface adaptations for screen readers (Blind), haptics and strobes (Deaf), and Zen Mode (Dyslexic). All interface payloads returned by the chat service must be structured to ensure seamless parsing by assistive technologies, avoiding layout elements that rely on spatial placement or geometric orientation.
 
-- **Req C.3 — Multimodal Wearable Integration & Anomaly Detection (P2):** Support basic health statistic synchronization with wearable watches and smart rings. The analytical processor must continuously monitor incoming telemetry streams (blood glucose, heart rate, blood pressure, steps). High-frequency raw tracking lines must bypass the service bus via a dedicated ingestion buffer. If a calculated aggregate slice or biometric threshold breaches a predefined margin, the system must instantly emit a priority alert lifecycle event.
+- **Req C.3 - Multimodal Wearable Integration & Anomaly Detection (P2):** Support basic health statistic synchronization with wearable watches and smart rings. The analytical processor must continuously monitor incoming telemetry streams (blood glucose, heart rate, blood pressure, steps). High-frequency raw tracking lines must bypass the service bus via a dedicated ingestion buffer. If a calculated aggregate slice or biometric threshold breaches a predefined margin, the system must instantly emit a priority alert lifecycle event.
 
-- **Req C.4 — Core Harmony Computation (P2):** The intelligence engine must evaluate historical activity completion patterns, resource balances, and task loads once every 24 hours to generate the updated workspace Harmony index.
+- **Req C.4 - Core Harmony Computation (P2):** The intelligence engine must evaluate historical activity completion patterns, resource balances, and task loads once every 24 hours to generate the updated workspace Harmony index.
 
-- **Req C.5 — Advanced Wearable HUD (P3):** Support smart glasses integrations to render step-by-step preparation, kitchen guidance, and logistics assistance via `cynthus-video`.
+- **Req C.5 - Advanced Wearable HUD (P3):** Support smart glasses integrations to render step-by-step preparation, kitchen guidance, and logistics assistance via `cynthus-video`.
 
 ### 4.4 Module D: Cynthus Health (B2B Clinical Gateway)
 
-- **Req D.1 — Read-Only HIPAA Auditing (P3):** Restrict external clinical stakeholders and enterprise partners to read-only views of authorized signals. Every data access action must write an immutable entry to an independent secure audit log to meet HIPAA regulations.
+- **Req D.1 - Read-Only HIPAA Auditing (P3):** Restrict external clinical stakeholders and enterprise partners to read-only views of authorized signals. Every data access action must write an immutable entry to an independent secure audit log to meet HIPAA regulations.
 
-- **Req D.2 — Patient & Tenant Consent Verification (P3):** The portal gateway must inspect token signatures issued by authentication services before exposing historical telemetry streams, ensuring active consent and access scopes are validated per session.
+- **Req D.2 - Patient & Tenant Consent Verification (P3):** The portal gateway must inspect token signatures issued by authentication services before exposing historical telemetry streams, ensuring active consent and access scopes are validated per session.
 
-- **Req D.3 — RPM Billing Compliance (P3):** Automate the logging of physiologic data transmissions to support CPT code tracking. Clinician interaction time must be logged to support practice billing. All RPM workflows must pass regulatory review before deployment.
+- **Req D.3 - RPM Billing Compliance (P3):** Automate the logging of physiologic data transmissions to support CPT code tracking. Clinician interaction time must be logged to support practice billing. All RPM workflows must pass regulatory review before deployment.
 
 ---
 
@@ -163,80 +163,68 @@ All operational tracking and telemetry are categorized into three abstract domai
 
 The ecosystem is partitioned into seven domain segments isolating business logic, licensing models, and runtime deployment contexts.
 
-#### Cynthus Trust — Closed-Source
+#### Cynthus Trust - Closed-Source
 
 Manages identity, authentication, authorization, and compliance auditing. Closed-source to protect security architecture and regulatory audit integrity.
 
-| Service | Function |
-|---|---|
-| `cynthus-identity` | Multi-tenant identity management, JWT issuance, RBAC/ABAC access control. Maps user profiles to organizations and workspaces. |
-| `cynthus-audit` | Immutable append-only audit ledger. Records every data access and hard-constraint mutation event. |
-| `cynthus-trust-cache` | High-speed caching layer for trust domain (token validation, session data). |
-| `cynthus-trust-db` | Clustered persistent storage for the trust domain with schema-isolated partitions per service. |
+- `cynthus-identity`: Multi-tenant identity management, JWT issuance, RBAC/ABAC access control. Maps user profiles to organizations and workspaces.
+- `cynthus-audit`: Immutable append-only audit ledger. Records every data access and hard-constraint mutation event.
+- `cynthus-trust-cache`: High-speed caching layer for trust domain (token validation, session data).
+- `cynthus-trust-db`: Clustered persistent storage for the trust domain with schema-isolated partitions per service.
 
-#### Cynthus Core — Open-Source
+#### Cynthus Core - Open-Source
 
 Governed by open-source community contribution. Handles physical data domains, logistics foundations, user profiles, and the primary consumer interface.
 
-| Service | Function |
-|---|---|
-| `cynthus-core-api` | Primary public HTTPS/REST and WebSocket edge. Handles user sessions, context assembly, and request routing. Acts as the context aggregator before forwarding to Intelligence. |
-| `cynthus-inventory` | Predictive state management for pantry, fridge, and freezer items. Processes physical asset mutations. |
-| `cynthus-recipe` | Recipe library management, external recipe ingestion, OCR parsing, and constraint-filtered recipe query API. |
-| `cynthus-logistics` | Purchase manifests, automated reorders, delivery tracking, and external supplier integrations. |
-| `cynthus-profile` | User preference and hard-constraint registry. Owns the allergy hard-filter. Distinguishes soft preferences (mutable) from hard constraints (audit-logged on mutation). |
-| `cynthus-scheduler` | Background cron engine for periodic tasks, item expiration windows, and time-based system loops. |
-| `cynthus-worker` | Asynchronous background task processor for data ingestion, OCR jobs, receipt scanning, and non-time-sensitive formatting tasks. |
-| `cynthus-core-web` | Fully accessible, semantic consumer UI renderer (React/Next.js, SSR). |
-| `cynthus-core-cache` | High-speed caching layer for core domain services. |
-| `cynthus-core-db` | Clustered persistent storage for the core domain with schema-isolated partitions per service. |
+- `cynthus-core-api`: Primary public HTTPS/REST and WebSocket edge. Handles user sessions, context assembly, and request routing. Acts as the context aggregator before forwarding to Intelligence.
+- `cynthus-inventory`: Predictive state management for pantry, fridge, and freezer items. Processes physical asset mutations.
+- `cynthus-recipe`: Recipe library management, external recipe ingestion, OCR parsing, and constraint-filtered recipe query API.
+- `cynthus-logistics`: Purchase manifests, automated reorders, delivery tracking, and external supplier integrations.
+- `cynthus-profile`: User preference and hard-constraint registry. Owns the allergy hard-filter. Distinguishes soft preferences (mutable) from hard constraints (audit-logged on mutation).
+- `cynthus-scheduler`: Background cron engine for periodic tasks, item expiration windows, and time-based system loops.
+- `cynthus-worker`: Asynchronous background task processor for data ingestion, OCR jobs, receipt scanning, and non-time-sensitive formatting tasks.
+- `cynthus-core-web`: Fully accessible, semantic consumer UI renderer (React/Next.js, SSR).
+- `cynthus-core-cache`: High-speed caching layer for core domain services.
+- `cynthus-core-db`: Clustered persistent storage for the core domain with schema-isolated partitions per service.
 
-#### Cynthus Intelligence — Closed-Source
+#### Cynthus Intelligence - Closed-Source
 
 Private, dark subnet. Contains no public IP allocations. All inbound traffic arrives via pre-assembled context payloads through VNet peering from Core. Makes no outbound runtime calls to Core services.
 
-| Service | Function |
-|---|---|
-| `cynthus-chat` | Runtime for the Astri AI persona. Processes pre-assembled context payloads and generates streaming conversational responses. |
-| `cynthus-analysis` | Autonomous AI agent executing predictive lifestyle analysis, biometric trend modeling, Harmony index calculations, and sentiment analysis. |
-| `cynthus-video` | Smart glasses HUD pipeline. Processes real-time video frames, calculates spatial coordinates, and generates clock-face orientation guidance for low-vision users. |
-| `cynthus-intel-cache` | High-speed caching layer for intelligence domain services. |
-| `cynthus-intel-db` | Clustered persistent storage for the intelligence domain with schema-isolated partitions per service. |
+- `cynthus-chat`: Runtime for the Astri AI persona. Processes pre-assembled context payloads and generates streaming conversational responses.
+- `cynthus-analysis`: Autonomous AI agent executing predictive lifestyle analysis, biometric trend modeling, Harmony index calculations, and sentiment analysis.
+- `cynthus-video`: Smart glasses HUD pipeline. Processes real-time video frames, calculates spatial coordinates, and generates clock-face orientation guidance for low-vision users.
+- `cynthus-intel-cache`: High-speed caching layer for intelligence domain services.
+- `cynthus-intel-db`: Clustered persistent storage for the intelligence domain with schema-isolated partitions per service.
 
-#### Cynthus Health — Closed-Source
+#### Cynthus Health - Closed-Source
 
 Demilitarized subnet hosting external healthcare provider and clinical partner interfaces. Enforces regulatory validation and consent verification before all data exchange.
 
-| Service | Function |
-|---|---|
-| `cynthus-health-api` | Primary edge for clinical integrations. Enforces HIPAA consent token verification and read-only data access patterns. |
-| `cynthus-device` | Device telemetry aggregator (provisional: expected in the `cynthus-health` repository; HUD data may need a different home). Ingests wearable and biometric data streams. Routes hot-path data (raw telemetry) to time-series buffers and warm-path summaries to the Service Bus. |
-| `cynthus-health-web` | Clinical dashboard UI renderer for authorized B2B healthcare partners. |
-| `cynthus-health-cache` | High-speed caching layer for health domain services. |
-| `cynthus-health-db` | Dedicated PHI-isolated persistent storage implementing field-level encryption for all biometric and patient data. |
+- `cynthus-health-api`: Primary edge for clinical integrations. Enforces HIPAA consent token verification and read-only data access patterns.
+- `cynthus-device`: Device telemetry aggregator (provisional: expected in the `cynthus-health` repository; HUD data may need a different home). Ingests wearable and biometric data streams. Routes hot-path data (raw telemetry) to time-series buffers and warm-path summaries to the Service Bus.
+- `cynthus-health-web`: Clinical dashboard UI renderer for authorized B2B healthcare partners.
+- `cynthus-health-cache`: High-speed caching layer for health domain services.
+- `cynthus-health-db`: Dedicated PHI-isolated persistent storage implementing field-level encryption for all biometric and patient data.
 
-#### Cynthus Commerce — Closed-Source
+#### Cynthus Commerce - Closed-Source
 
 Manages monetization structures, payment processing, subscription management, supplier relationships, and partner integrations.
 
-| Service | Function |
-|---|---|
-| `cynthus-billing-api` | Subscription lifecycle management, payment processing, and account tier enforcement. |
-| `cynthus-partner-api` | Partner and supplier integrations, wholesale API connections, slotting and bounty tracking. |
-| `cynthus-comm-web` | UI renderer for partner, supplier, and provider commercial interactions. |
-| `cynthus-comm-cache` | High-speed caching layer for commerce domain services. |
-| `cynthus-comm-db` | Clustered persistent storage for the commerce domain with schema-isolated partitions per service. |
+- `cynthus-billing-api`: Subscription lifecycle management, payment processing, and account tier enforcement.
+- `cynthus-partner-api`: Partner and supplier integrations, wholesale API connections, slotting and bounty tracking.
+- `cynthus-comm-web`: UI renderer for partner, supplier, and provider commercial interactions.
+- `cynthus-comm-cache`: High-speed caching layer for commerce domain services.
+- `cynthus-comm-db`: Clustered persistent storage for the commerce domain with schema-isolated partitions per service.
 
-#### Cynthus Emulators — Open-Source (Developer Environment Only)
+#### Cynthus Emulators - Open-Source (Developer Environment Only)
 
 Local developer container environment. Not deployed to production. Enables community contributors to run the full Core stack locally without cloud dependencies.
 
-| Service | Function |
-|---|---|
-| `cynthus-signal-bus` | Azure Service Bus emulator container for local message routing. |
-| `cynthus-signal-db` | MS SQL storage backend for the Service Bus emulator. |
+- `cynthus-signal-bus`: Azure Service Bus emulator container for local message routing.
+- `cynthus-signal-db`: MS SQL storage backend for the Service Bus emulator.
 
-#### Cynthus Shared — Open-Source
+#### Cynthus Shared - Open-Source
 
 Shared Pydantic model library distributed as a Python wheel. Contains common signal schema primitives used across both open-source and closed-source repositories. The public wheel exposes envelope headers only; closed-source services install the private internal wheel for deep payload validation (see ADR-004).
 
@@ -244,7 +232,7 @@ Shared Pydantic model library distributed as a Python wheel. Contains common sig
 
 The context assembly pattern is the critical boundary between open-source Core and closed-source Intelligence. `cynthus-core-api` is solely responsible for aggregating all data required by Astri before any AI processing occurs.
 
-```
+```text
 User Request
      |
      v
@@ -260,7 +248,7 @@ cynthus-core-api
 Assembled Context Payload
      |
      v
-cynthus-chat (Intelligence VNet — dark subnet)
+cynthus-chat (Intelligence VNet - dark subnet)
      |
      v
 Streaming Response --> cynthus-core-api --> User
@@ -273,11 +261,18 @@ Streaming Response --> cynthus-core-api --> User
 - **Enterprise Messaging Spine:** Azure Service Bus (AMQP), with Redis utilized for high-speed cache and local message routing.
 - **Three-Topic Architecture:** The Service Bus is partitioned into three distinct topics aligned to visibility and compliance boundaries. This enforces access control at the topic level rather than relying solely on subscription filters, and allows each topic to carry its own retention, access policy, and monitoring configuration independently.
 
-| Topic | Namespace Prefix | Publishers | Purpose |
-|---|---|---|---|
-| `cynthus-topic-public` | `public.*` | All open-source Core services | All signals visible to open-source consumers. Carries inventory, recipe, user, group, logistics, and device namespace events. |
-| `cynthus-topic-internal` | `internal.*` | Closed-source services only | Private signals not exposed to open-source repositories. Carries lifestyle, chat, video, and system namespace events. Open-source services may consume envelope headers only (opaque payload). |
-| `cynthus-topic-audit` | `internal.audit.*` | `cynthus-portal-api`, `cynthus-identity`, `cynthus-profile` | Append-only compliance and safety audit events. Separate topic ensures audit records cannot be co-mingled with operational traffic and supports independent retention and integrity policies. |
+- `cynthus-topic-public`
+  - Namespace Prefix: `public.*`
+  - Publishers: All open-source Core services
+  - Purpose: All signals visible to open-source consumers. Carries inventory, recipe, user, group, logistics, and device namespace events.
+- `cynthus-topic-internal`
+  - Namespace Prefix: `internal.*`
+  - Publishers: Closed-source services only
+  - Purpose: Private signals not exposed to open-source repositories. Carries lifestyle, chat, video, and system namespace events. Open-source services may consume envelope headers only (opaque payload).
+- `cynthus-topic-audit`
+  - Namespace Prefix: `internal.audit.*`
+  - Publishers: `cynthus-portal-api`, `cynthus-identity`, `cynthus-profile`
+  - Purpose: Append-only compliance and safety audit events. Separate topic ensures audit records cannot be co-mingled with operational traffic and supports independent retention and integrity policies.
 
 - **Four Lifecycle Actions:** To prevent event explosion, all domains emit events using exactly four atomic state mutation types attached to message metadata: `created`, `updated`, `deleted`, and `snapshot`. Downstream processors evaluate the state snapshot to compute deltas, minimizing subscription overhead.
 - **Correlation Tracking:** Every message carries a `correlation_id` (UUIDv4) enabling cross-service trace mapping through the full ecosystem.
@@ -286,7 +281,7 @@ Streaming Response --> cynthus-core-api --> User
 
 To support wearable device ingestion without overloading the centralized topic bus, telemetry processing splits into a Hot Path and a Warm Path.
 
-```
+```text
 [ Wearable Device ]
         |
         +-- Hot Path (WebSockets) --> Time-Series Buffer --> cynthus-messaging aggregation
@@ -314,14 +309,14 @@ Every event published to any Service Bus topic must adopt the following standard
 
 ```json
 {
-  "signal_id": "string (UUIDv4 — global message instance)",
-  "correlation_id": "string (UUIDv4 — cross-service trace identifier)",
+  "signal_id": "string (UUIDv4 - global message instance)",
+  "correlation_id": "string (UUIDv4 - cross-service trace identifier)",
   "timestamp": "string (ISO 8601 UTC Z-notation)",
   "sender_service": "string (originating microservice identifier)",
   "schema_version": "string (semantic version, e.g., '1.0.0')",
   "topic": "string (cynthus-topic-public | cynthus-topic-internal | cynthus-topic-audit)",
   "organization_id": "string (corporate tenant boundary key)",
-  "workspace_id": "string (functional isolation partition key — present from Phase 1)",
+  "workspace_id": "string (functional isolation partition key - present from Phase 1)",
   "payload": {
     "type": "object (domain-specific entity state structure)"
   }
@@ -353,105 +348,193 @@ Every write operation against a user's hard-constraint profile (allergen additio
 
 ### 8.1 Domain Portfolio Routing
 
-| Domain | Service |
-|---|---|
-| `cynthus.app` | Primary consumer and commercial gateway hosting `cynthus-core-web`. |
-| `auth.cynthus.app` | Global multi-tenant authentication gateway managed by `cynthus-identity`. The `auth.` subdomain is intentionally preserved over `id.` for external developer clarity — OAuth and OIDC conventions make this endpoint immediately recognizable to third-party integrators and clinical partners without documentation. |
-| `cynthus.tech` | Open-source developer documentation, API architecture logs, and community contribution hub. |
-| `cynthus.health` | Secure B2B partner gateway hosting `cynthus-health-web` for clinical and enterprise stakeholders. |
-| `api.cynthus.health` | High-performance private API endpoint for biometric telemetry and clinical workflows via `cynthus-health-api`. |
+- `cynthus.app`: Primary consumer and commercial gateway hosting `cynthus-core-web`.
+- `auth.cynthus.app`: Global multi-tenant authentication gateway managed by `cynthus-identity`. The `auth.` subdomain is intentionally preserved over `id.` for external developer clarity - OAuth and OIDC conventions make this endpoint immediately recognizable to third-party integrators and clinical partners without documentation.
+- `cynthus.tech`: Open-source developer documentation, API architecture logs, and community contribution hub.
+- `cynthus.health`: Secure B2B partner gateway hosting `cynthus-health-web` for clinical and enterprise stakeholders.
+- `api.cynthus.health`: High-performance private API endpoint for biometric telemetry and clinical workflows via `cynthus-health-api`.
 
 ### 8.2 Subscription Tier Structure
 
 Tiers follow the naming convention `{AccountType}-{Class}-{Level}`. Class codes: `MP` (Meal Planning), `IM` (Inventory Management), `MI` (Meal Planning + Inventory), `CM` (Clinical Monitoring), `DA` (Data Analytics). Basic tier is free forever across all account types. The complete pricing matrix, base tier resource limits, and booster pack add-ons are defined in the Cynthus Feature Registry (companion document).
 
-#### Consumer — Meal Planning Only (MP)
+#### Consumer - Meal Planning Only (MP)
 
-| Tier | Monthly | Annual |
-|---|---|---|
-| Residential-MP-Basic | $0 | $0 |
-| Residential-MP-Premium | $10 | $100 |
-| Residential-MP-Professional | $20 | $200 |
-| Residential-MP-Enterprise | $30 | $300 |
-| Commercial-MP-Basic | $0 | $0 |
-| Commercial-MP-Premium | $10 | $100 |
-| Commercial-MP-Professional | $20 | $200 |
-| Commercial-MP-Enterprise | $30 | $300 |
+- Residential-MP-Basic
+  - Monthly: $0
+  - Annual: $0
+- Residential-MP-Premium
+  - Monthly: $10
+  - Annual: $100
+- Residential-MP-Professional
+  - Monthly: $20
+  - Annual: $200
+- Residential-MP-Enterprise
+  - Monthly: $30
+  - Annual: $300
+- Commercial-MP-Basic
+  - Monthly: $0
+  - Annual: $0
+- Commercial-MP-Premium
+  - Monthly: $10
+  - Annual: $100
+- Commercial-MP-Professional
+  - Monthly: $20
+  - Annual: $200
+- Commercial-MP-Enterprise
+  - Monthly: $30
+  - Annual: $300
 
-#### Consumer — Inventory Management Only (IM)
+#### Consumer - Inventory Management Only (IM)
 
-| Tier | Monthly | Annual |
-|---|---|---|
-| Residential-IM-Basic | $0 | $0 |
-| Residential-IM-Premium | $10 | $100 |
-| Residential-IM-Professional | $20 | $200 |
-| Residential-IM-Enterprise | $30 | $300 |
-| Commercial-IM-Basic | $0 | $0 |
-| Commercial-IM-Premium | $10 | $100 |
-| Commercial-IM-Professional | $20 | $200 |
-| Commercial-IM-Enterprise | $30 | $300 |
-| Supplier-IM-Basic | $0 | $0 |
-| Supplier-IM-Premium | $10 | $100 |
-| Supplier-IM-Professional | $20 | $200 |
-| Supplier-IM-Enterprise | $30 | $300 |
+- Residential-IM-Basic
+  - Monthly: $0
+  - Annual: $0
+- Residential-IM-Premium
+  - Monthly: $10
+  - Annual: $100
+- Residential-IM-Professional
+  - Monthly: $20
+  - Annual: $200
+- Residential-IM-Enterprise
+  - Monthly: $30
+  - Annual: $300
+- Commercial-IM-Basic
+  - Monthly: $0
+  - Annual: $0
+- Commercial-IM-Premium
+  - Monthly: $10
+  - Annual: $100
+- Commercial-IM-Professional
+  - Monthly: $20
+  - Annual: $200
+- Commercial-IM-Enterprise
+  - Monthly: $30
+  - Annual: $300
+- Supplier-IM-Basic
+  - Monthly: $0
+  - Annual: $0
+- Supplier-IM-Premium
+  - Monthly: $10
+  - Annual: $100
+- Supplier-IM-Professional
+  - Monthly: $20
+  - Annual: $200
+- Supplier-IM-Enterprise
+  - Monthly: $30
+  - Annual: $300
 
-#### Consumer — Meal Planning + Inventory (MI)
+#### Consumer - Meal Planning + Inventory (MI)
 
-| Tier | Monthly | Annual |
-|---|---|---|
-| Residential-MI-Basic | $0 | $0 |
-| Residential-MI-Premium | $15 | $150 |
-| Residential-MI-Professional | $30 | $300 |
-| Residential-MI-Enterprise | $50 | $500 |
-| Commercial-MI-Basic | $0 | $0 |
-| Commercial-MI-Premium | $15 | $150 |
-| Commercial-MI-Professional | $30 | $300 |
-| Commercial-MI-Enterprise | $50 | $500 |
+- Residential-MI-Basic
+  - Monthly: $0
+  - Annual: $0
+- Residential-MI-Premium
+  - Monthly: $15
+  - Annual: $150
+- Residential-MI-Professional
+  - Monthly: $30
+  - Annual: $300
+- Residential-MI-Enterprise
+  - Monthly: $50
+  - Annual: $500
+- Commercial-MI-Basic
+  - Monthly: $0
+  - Annual: $0
+- Commercial-MI-Premium
+  - Monthly: $15
+  - Annual: $150
+- Commercial-MI-Professional
+  - Monthly: $30
+  - Annual: $300
+- Commercial-MI-Enterprise
+  - Monthly: $50
+  - Annual: $500
 
-#### Provider — Clinical Monitoring (CM)
+#### Provider - Clinical Monitoring (CM)
 
-| Tier | Monthly | Annual | Included Patients |
-|---|---|---|---|
-| Provider-CM-Basic | $0 | $0 | 3 (view-only) |
-| Provider-CM-Premium | $149 | $1,490 | 25 |
-| Provider-CM-Professional | $299 | $2,990 | 50 |
+- Provider-CM-Basic
+  - Monthly: $0
+  - Annual: $0
+  - Included Patients: 3 (view-only)
+- Provider-CM-Premium
+  - Monthly: $149
+  - Annual: $1,490
+  - Included Patients: 25
+- Provider-CM-Professional
+  - Monthly: $299
+  - Annual: $2,990
+  - Included Patients: 50
 
 Per-patient booster: $8/patient/month above Premium threshold; $6/patient/month above Professional threshold.
 
-#### Provider & Supplier — Data Analytics (DA)
+#### Provider & Supplier - Data Analytics (DA)
 
-| Tier | Monthly | Annual |
-|---|---|---|
-| Provider-DA-Basic | $0 | $0 |
-| Provider-DA-Premium | $49 | $490 |
-| Provider-DA-Professional | $99 | $990 |
-| Supplier-DA-Basic | $0 | $0 |
-| Supplier-DA-Premium | $29 | $290 |
-| Supplier-DA-Professional | $79 | $790 |
+- Provider-DA-Basic
+  - Monthly: $0
+  - Annual: $0
+- Provider-DA-Premium
+  - Monthly: $49
+  - Annual: $490
+- Provider-DA-Professional
+  - Monthly: $99
+  - Annual: $990
+- Supplier-DA-Basic
+  - Monthly: $0
+  - Annual: $0
+- Supplier-DA-Premium
+  - Monthly: $29
+  - Annual: $290
+- Supplier-DA-Professional
+  - Monthly: $79
+  - Annual: $790
 
 #### Partner
 
-| Tier | Monthly | Annual | Description |
-|---|---|---|---|
-| Partner-Community | $0 | $0 | Open-source access, developer documentation, community forums. |
-| Partner-Integration | $199 | $1,990 | Device registry, promotion listings, standard API access, basic reporting. |
-| Partner-Strategic | Custom | Custom | Co-development, co-marketing, custom revenue-sharing, dedicated partner success. |
+- Partner-Community
+  - Monthly: $0
+  - Annual: $0
+  - Description: Open-source access, developer documentation, community forums.
+- Partner-Integration
+  - Monthly: $199
+  - Annual: $1,990
+  - Description: Device registry, promotion listings, standard API access, basic reporting.
+- Partner-Strategic
+  - Monthly: Custom
+  - Annual: Custom
+  - Description: Co-development, co-marketing, custom revenue-sharing, dedicated partner success.
 
 #### Booster Packs (Add-Ons)
 
 Booster packs expand a single resource dimension without a full tier upgrade. Representative examples:
 
-| Account Type | Booster | Unit Price |
-|---|---|---|
-| Residential | Group Size Pack (+5 members) | $0.99/month |
-| Residential | Library Pack (+1 library) | $0.99/month |
-| Residential | Location Pack (+1 location) | $1.99/month |
-| Commercial | Group Size Pack (+10 members) | $4.99/month |
-| Commercial | Location Pack (+1 location) | $4.99/month |
-| Provider | Patient Capacity (Premium) | $8.00/patient/month |
-| Provider | Patient Capacity (Professional) | $6.00/patient/month |
-| Supplier | Promotion Slots (+3 slots) | $9.99/month |
-| Partner | Device Registry Pack (+10 listings) | $49.00/month |
+- Residential
+  - Booster: Group Size Pack (+5 members)
+  - Unit Price: $0.99/month
+- Residential
+  - Booster: Library Pack (+1 library)
+  - Unit Price: $0.99/month
+- Residential
+  - Booster: Location Pack (+1 location)
+  - Unit Price: $1.99/month
+- Commercial
+  - Booster: Group Size Pack (+10 members)
+  - Unit Price: $4.99/month
+- Commercial
+  - Booster: Location Pack (+1 location)
+  - Unit Price: $4.99/month
+- Provider
+  - Booster: Patient Capacity (Premium)
+  - Unit Price: $8.00/patient/month
+- Provider
+  - Booster: Patient Capacity (Professional)
+  - Unit Price: $6.00/patient/month
+- Supplier
+  - Booster: Promotion Slots (+3 slots)
+  - Unit Price: $9.99/month
+- Partner
+  - Booster: Device Registry Pack (+10 listings)
+  - Unit Price: $49.00/month
 
 Full booster catalog is defined in the Feature Registry (Section 6).
 
@@ -466,7 +549,7 @@ Full booster catalog is defined in the Feature Registry (Section 6).
 
 ## 9. Phased Rollout Plan
 
-Each phase has a defined Astri capability version. Astri grows incrementally — each phase makes her smarter and more contextually aware without requiring full rewrites of prior capability.
+Each phase has a defined Astri capability version. Astri grows incrementally - each phase makes her smarter and more contextually aware without requiring full rewrites of prior capability.
 
 **Schema forward-compatibility commitment (all phases):** All database schemas and API contracts include `organization_id` and `workspace_id` fields from initial Phase 1 deployment. These fields are auto-populated with defaults for single-user accounts in Phase 1 and become functionally active in Phase 3 when multi-user group workspaces are introduced.
 
@@ -474,115 +557,115 @@ Each phase has a defined Astri capability version. Astri grows incrementally —
 
 ---
 
-### Phase 1 — Core MVP (Target: January 2027)
+### Phase 1 - Core MVP (Target: January 2027)
 
-**Astri v1.0 — Single-Session Conversational Assistant.** Greets the user, gathers current preferences, and generates meal suggestions from the pre-assembled context payload (inventory snapshot + filtered recipe candidates + hard constraints). No cross-session memory. No group awareness. Streaming response via WebSocket.
+**Astri v1.0 - Single-Session Conversational Assistant.** Greets the user, gathers current preferences, and generates meal suggestions from the pre-assembled context payload (inventory snapshot + filtered recipe candidates + hard constraints). No cross-session memory. No group awareness. Streaming response via WebSocket.
 
 **Services activated:**
 
-- `cynthus-identity` — single-user auth, JWT with `workspace_id` and entitlement stubs
-- `cynthus-core-api` — context assembly, WebSocket routing to Intelligence
-- `cynthus-core-web` — consumer UI (React/Next.js SSR)
-- `cynthus-inventory` — pantry CRUD, mutation tracking (<200ms latency requirement)
-- `cynthus-recipe` — recipe library, constraint-filtered query API
-- `cynthus-profile` — soft preferences + hard constraints, allergy hard-filter, mutation audit events
-- `cynthus-chat` — Astri conversational engine (streaming)
-- `cynthus-core-db`, `cynthus-trust-db`, `cynthus-intel-db` — schema-isolated persistence
-- `cynthus-signal-bus`, `cynthus-signal-db` — local development emulators
-- `cynthus-shared` — common `SignalMessageEnvelope` primitives
+- `cynthus-identity` - single-user auth, JWT with `workspace_id` and entitlement stubs
+- `cynthus-core-api` - context assembly, WebSocket routing to Intelligence
+- `cynthus-core-web` - consumer UI (React/Next.js SSR)
+- `cynthus-inventory` - pantry CRUD, mutation tracking (<200ms latency requirement)
+- `cynthus-recipe` - recipe library, constraint-filtered query API
+- `cynthus-profile` - soft preferences + hard constraints, allergy hard-filter, mutation audit events
+- `cynthus-chat` - Astri conversational engine (streaming)
+- `cynthus-core-db`, `cynthus-trust-db`, `cynthus-intel-db` - schema-isolated persistence
+- `cynthus-signal-bus`, `cynthus-signal-db` - local development emulators
+- `cynthus-shared` - common `SignalMessageEnvelope` primitives
 
-**Features delivered:** FT-MP-001–005, FT-AI-001, FT-AC-002, FT-AM-001
+**Features delivered:** FT-MP-001-005, FT-AI-001, FT-AC-002, FT-AM-001
 
 **Deferred:** All group, messaging, billing, clinical, commerce, and analytics features.
 
 ---
 
-### Phase 2 — Inventory Intelligence & User Profile (Target: Q2 2027)
+### Phase 2 - Inventory Intelligence & User Profile (Target: Q2 2027)
 
-**Astri v1.5 — Profile-Persistent and Inventory-Aware.** Astri carries the full preference and constraint profile between sessions. She knows what is expiring in the user's inventory and factors it into meal suggestions proactively without being asked. Scheduled meal suggestion subscriptions activated.
-
-**Services activated:**
-
-- `cynthus-worker` — background data ingestion, OCR jobs, receipt scanning
-- `cynthus-scheduler` — item expiry alerting, scheduled suggestion delivery
-
-**Features delivered:** FT-IM-001–003, FT-IM-005, FT-IM-007, FT-RM-001–003, FT-AM-002, FT-RT-002, FT-MP-002
-
----
-
-### Phase 3 — Group Workspaces, Messaging & Billing (Target: Q4 2027)
-
-**Astri v2.0 — Group-Aware.** Astri understands group composition and all member preference and constraint profiles simultaneously. She generates meal suggestions that satisfy every member's hard constraints at once, can facilitate the voting flow conversationally, and maintains group context within a session.
+**Astri v1.5 - Profile-Persistent and Inventory-Aware.** Astri carries the full preference and constraint profile between sessions. She knows what is expiring in the user's inventory and factors it into meal suggestions proactively without being asked. Scheduled meal suggestion subscriptions activated.
 
 **Services activated:**
 
-- `cynthus-messaging-engine` — real-time WebSocket hub for group chat and interactive cards
-- `cynthus-billing-api` — subscription management, booster pack entitlements, tier enforcement
-- `cynthus-analysis` — initial activation for Harmony Score baseline computation
+- `cynthus-worker` - background data ingestion, OCR jobs, receipt scanning
+- `cynthus-scheduler` - item expiry alerting, scheduled suggestion delivery
 
-**Features delivered:** FT-MP-006–009, FT-GM-001–003, FT-IM-002, FT-IM-004, FT-IM-006, FT-IM-008, FT-MS-001–003, FT-BL-001, FT-AM-003, FT-AX-001–002
+**Features delivered:** FT-IM-001-003, FT-IM-005, FT-IM-007, FT-RM-001-003, FT-AM-002, FT-RT-002, FT-MP-002
 
 ---
 
-### Phase 4 — Engagements, Analytics & Recipe Import (Target: H1 2028)
+### Phase 3 - Group Workspaces, Messaging & Billing (Target: Q4 2027)
 
-**Astri v2.5 — Event-Planning Assistant with Early Predictive Logic.** Astri can plan engagements by cross-referencing attendee constraint matrices, detect meal fatigue patterns from voting history, and act as an impartial tie-breaker using inventory expiry data and historical preferences.
+**Astri v2.0 - Group-Aware.** Astri understands group composition and all member preference and constraint profiles simultaneously. She generates meal suggestions that satisfy every member's hard constraints at once, can facilitate the voting flow conversationally, and maintains group context within a session.
 
 **Services activated:**
 
-- `cynthus-logistics` — purchase manifests, smart list reorders, supplier cart sync
-- `cynthus-partner-api` (read-only integration stubs) — groundwork for Phase 5 B2B
+- `cynthus-messaging-engine` - real-time WebSocket hub for group chat and interactive cards
+- `cynthus-billing-api` - subscription management, booster pack entitlements, tier enforcement
+- `cynthus-analysis` - initial activation for Harmony Score baseline computation
 
-**Features delivered:** FT-MP-010, FT-RM-004, FT-EM-001–003, FT-CO-001, FT-RT-001, FT-TG-001, FT-DA-001–002
+**Features delivered:** FT-MP-006-009, FT-GM-001-003, FT-IM-002, FT-IM-004, FT-IM-006, FT-IM-008, FT-MS-001-003, FT-BL-001, FT-AM-003, FT-AX-001-002
 
 ---
 
-### Phase 5 — B2B Commercial Launch (Target: H2 2028)
+### Phase 4 - Engagements, Analytics & Recipe Import (Target: H1 2028)
 
-**Astri v3.0 — Commerce-Aware.** Astri can initiate inventory reorders from registered suppliers, interact with supplier catalogs, understand commercial recipe scale (50+ portions), and assist with catering logistics and B2B planning workflows.
+**Astri v2.5 - Event-Planning Assistant with Early Predictive Logic.** Astri can plan engagements by cross-referencing attendee constraint matrices, detect meal fatigue patterns from voting history, and act as an impartial tie-breaker using inventory expiry data and historical preferences.
 
 **Services activated:**
 
-- `cynthus-partner-api` (full) — wholesale supplier integrations, slotting, bounty tracking
-- `cynthus-comm-web` — partner and supplier commercial portal
+- `cynthus-logistics` - purchase manifests, smart list reorders, supplier cart sync
+- `cynthus-partner-api` (read-only integration stubs) - groundwork for Phase 5 B2B
 
-**Features delivered:** FT-IM-009, FT-SR-001–003, FT-BL-002, FT-AM-004, FT-RP-002
+**Features delivered:** FT-MP-010, FT-RM-004, FT-EM-001-003, FT-CO-001, FT-RT-001, FT-TG-001, FT-DA-001-002
 
 ---
 
-### Phase 6 — Live Companion & Partner Platform (Target: H1 2029)
+### Phase 5 - B2B Commercial Launch (Target: H2 2028)
 
-**Astri v3.5 — Real-Time Cooking Guide.** Astri provides step-by-step recipe guidance during active cooking sessions, responds to live queries mid-preparation, and coordinates with live human companions or providers sharing the same session. Hardware partner device integrations (smart scales, connected fridges) become active.
+**Astri v3.0 - Commerce-Aware.** Astri can initiate inventory reorders from registered suppliers, interact with supplier catalogs, understand commercial recipe scale (50+ portions), and assist with catering logistics and B2B planning workflows.
 
 **Services activated:**
 
-- `cynthus-video` — smart glasses HUD, real-time video frame processing, clock-face orientation guidance
+- `cynthus-partner-api` (full) - wholesale supplier integrations, slotting, bounty tracking
+- `cynthus-comm-web` - partner and supplier commercial portal
 
-**Features delivered:** FT-LC-001, FT-SR-004–005, FT-AM-005–007, FT-RP-003–004
+**Features delivered:** FT-IM-009, FT-SR-001-003, FT-BL-002, FT-AM-004, FT-RP-002
 
 ---
 
-### Phase 7 — Clinical Integration (Target: H2 2029 — Pending Regulatory Approval)
+### Phase 6 - Live Companion & Partner Platform (Target: H1 2029)
 
-**Astri v4.0 — Clinical Intelligence.** Astri interprets biometric telemetry (CGM trends, heart rate patterns), correlates dietary patterns with health outcomes, generates clinician-grade dietary modification suggestions, and communicates findings in plain accessible language for both users and providers. All outputs carry AI transparency disclosures per applicable governance frameworks.
+**Astri v3.5 - Real-Time Cooking Guide.** Astri provides step-by-step recipe guidance during active cooking sessions, responds to live queries mid-preparation, and coordinates with live human companions or providers sharing the same session. Hardware partner device integrations (smart scales, connected fridges) become active.
+
+**Services activated:**
+
+- `cynthus-video` - smart glasses HUD, real-time video frame processing, clock-face orientation guidance
+
+**Features delivered:** FT-LC-001, FT-SR-004-005, FT-AM-005-007, FT-RP-003-004
+
+---
+
+### Phase 7 - Clinical Integration (Target: H2 2029 - Pending Regulatory Approval)
+
+**Astri v4.0 - Clinical Intelligence.** Astri interprets biometric telemetry (CGM trends, heart rate patterns), correlates dietary patterns with health outcomes, generates clinician-grade dietary modification suggestions, and communicates findings in plain accessible language for both users and providers. All outputs carry AI transparency disclosures per applicable governance frameworks.
 
 **Go-live contingent on:** Completed SaMD regulatory strategy review, BAA execution with provider partners, HIPAA penetration testing, and FDA SaMD classification determination for wearable-assisted RPM workflows.
 
 **Services activated:**
 
-- `cynthus-health-api` — clinical partner ingress, consent token verification
-- `cynthus-health-web` — clinical dashboard for authorized providers
-- `cynthus-device` — wearable device telemetry aggregator (hot/warm dual-stream path)
-- `cynthus-audit` — immutable PHI access logging
-- `cynthus-health-db` — PHI-isolated, field-level encrypted storage
+- `cynthus-health-api` - clinical partner ingress, consent token verification
+- `cynthus-health-web` - clinical dashboard for authorized providers
+- `cynthus-device` - wearable device telemetry aggregator (hot/warm dual-stream path)
+- `cynthus-audit` - immutable PHI access logging
+- `cynthus-health-db` - PHI-isolated, field-level encrypted storage
 
-**Features delivered:** FT-CL-001–002, FT-RM-005, FT-AC-001, FT-AC-003
+**Features delivered:** FT-CL-001-002, FT-RM-005, FT-AC-001, FT-AC-003
 
 ---
 
-### Phase 8 — Enterprise Scale & Compliance (Target: 2030)
+### Phase 8 - Enterprise Scale & Compliance (Target: 2030)
 
-**Astri v4.5 — Enterprise Intelligence.** Astri analyzes sentiment and preference patterns across full organizational tenancies, identifies systemic trends (e.g., meal fatigue across a corporate catering operation), generates proactive enterprise-level recommendations, and produces compliance-ready audit summaries on demand.
+**Astri v4.5 - Enterprise Intelligence.** Astri analyzes sentiment and preference patterns across full organizational tenancies, identifies systemic trends (e.g., meal fatigue across a corporate catering operation), generates proactive enterprise-level recommendations, and produces compliance-ready audit summaries on demand.
 
 **Features delivered:** FT-RP-001, FT-DA-003
 
@@ -614,11 +697,15 @@ The messaging contract is distributed as two distinct Python wheel packages unde
 - `cynthus-messaging-public` (Open-Source): Contains the `SignalMessageEnvelope[T]` generic envelope and shared primitive models. Open-source services parse private signal payloads as opaque `dict` buckets, validating only envelope headers (`organization_id`, `workspace_id`, `correlation_id`) to preserve multi-tenant security isolation without exposing closed-source payload schemas.
 - `cynthus-messaging-internal` (Closed-Source / Private Azure Artifact): Extends the public package with deep, strongly-typed Pydantic model validation for all private signal namespaces. Available only to closed-source services authenticating against the private Azure Artifacts feed.
 
-| Service Type | Signal Classification | Validation Depth |
-|---|---|---|
-| Open-Source | Public (`public.device.*`, `public.inventory.*`) | Deep (strict Pydantic model) |
-| Open-Source | Private (`internal.lifestyle.*`, `internal.video.*`) | Opaque (`SignalMessageEnvelope[dict]`) |
-| Closed-Source | Any | Deep (strict Pydantic via internal wheel) |
+- Open-Source
+  - Signal Classification: Public (`public.device.*`, `public.inventory.*`)
+  - Validation Depth: Deep (strict Pydantic model)
+- Open-Source
+  - Signal Classification: Private (`internal.lifestyle.*`, `internal.video.*`)
+  - Validation Depth: Opaque (`SignalMessageEnvelope[dict]`)
+- Closed-Source
+  - Signal Classification: Any
+  - Validation Depth: Deep (strict Pydantic via internal wheel)
 
 ### 10.5 Community Contribution Boundary
 

@@ -6,11 +6,15 @@ version they share.
 
 ## Version scheme
 
-| Layer | Scheme | Where it lives |
-|---|---|---|
-| Ecosystem | `MAJOR.MINOR` manifest (this folder) | `releases/<version>.md` |
-| App or library | Semantic Versioning, tag `vX.Y.Z` on the repo | git tag and the repo's `CHANGELOG.md` |
-| Signal schema | Semantic Versioning, `SIGNAL_SCHEMA_VERSION` in cynthus-shared | cynthus-shared (issue 102) |
+- Ecosystem
+  - Scheme: `MAJOR.MINOR` manifest (this folder)
+  - Where it lives: `releases/<version>.md`
+- App or library
+  - Scheme: Semantic Versioning, tag `vX.Y.Z` on the repo
+  - Where it lives: git tag and the repo's `CHANGELOG.md`
+- Signal schema
+  - Scheme: Semantic Versioning, `SIGNAL_SCHEMA_VERSION` in cynthus-shared
+  - Where it lives: cynthus-shared (issue 102)
 
 - Ecosystem **major**: a milestone. The current milestones all say 1.0.
 - Ecosystem **minor**: a feature set that ships across several apps.

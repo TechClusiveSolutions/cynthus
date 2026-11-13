@@ -8,7 +8,7 @@ Per your instructions, all original features, payload fields, and business logic
 
 All events broadcast across the `cynthus-events-topic` share an identical top-level envelope. The `payload` object shifts dynamically based on the target `event_type` and the `lifecycle_action`.
 
-### Global Envelope Template
+## Global Envelope Template
 
 ```json
 {
@@ -34,7 +34,7 @@ All events broadcast across the `cynthus-events-topic` share an identical top-le
 
 Emitted when a partner initializes a promotional offer.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -48,7 +48,7 @@ Emitted when a partner initializes a promotional offer.
 
 Emitted when a partner terminates an existing promotion.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -67,7 +67,7 @@ Emitted when a partner terminates an existing promotion.
 
 Emitted when a provider adds a new operational capability to their catalog.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -81,7 +81,7 @@ Emitted when a provider adds a new operational capability to their catalog.
 
 Emitted when a provider flags a service as permanently unavailable.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -96,7 +96,7 @@ Emitted when a provider flags a service as permanently unavailable.
 
 Emitted when a master service list container is created.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -110,7 +110,7 @@ Emitted when a master service list container is created.
 
 Emitted when a service offering is added to or removed from a service list.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -131,7 +131,7 @@ Emitted when a service offering is added to or removed from a service list.
 
 Emitted when a service list configuration is unlinked from the provider profile.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -146,7 +146,7 @@ Emitted when a service list configuration is unlinked from the provider profile.
 
 Emitted when a provider sets up an active operational center or clinic.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -166,7 +166,7 @@ Emitted when a provider sets up an active operational center or clinic.
 
 Emitted when a user successfully passes credential checks and logs in.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -180,7 +180,7 @@ Emitted when a user successfully passes credential checks and logs in.
 
 Emitted when a user successfully processes a secondary cryptographic decryption handshake to access closed-source clinical data domains.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -195,7 +195,7 @@ Emitted when a user successfully processes a secondary cryptographic decryption 
 
 Emitted when an active profile token explicitly expires or is revoked.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -212,7 +212,7 @@ Emitted when an active profile token explicitly expires or is revoked.
 
 Emitted when internal system tasks flag upcoming shelf expirations or generate automated alert payloads.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -231,7 +231,7 @@ Emitted when internal system tasks flag upcoming shelf expirations or generate a
 
 Emitted when core edge processing layers cross internal lifecycle initialization steps.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -255,7 +255,7 @@ Emitted when core edge processing layers cross internal lifecycle initialization
 
 Emitted when a secure household tenant container is generated.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -271,7 +271,7 @@ Emitted when a secure household tenant container is generated.
 
 Emitted when adding or removing members from a household boundary without altering underlying tenant data rules.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -292,7 +292,7 @@ Emitted when adding or removing members from a household boundary without alteri
 
 Emitted when a user terminates a household group context.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -307,7 +307,7 @@ Emitted when a user terminates a household group context.
 
 Emitted when a user initializes a physical tracking tracking workspace.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -321,7 +321,7 @@ Emitted when a user initializes a physical tracking tracking workspace.
 
 Emitted when items are used, replenished, or otherwise manipulated within an active tracking context.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -338,14 +338,14 @@ Emitted when items are used, replenished, or otherwise manipulated within an act
 ```
 
 > Note: Consolidates `ItemReplenished`, `ItemUsed`, `ShelfAdded`, and `ItemAdded` into state updates, simplifying the tasks processed by `cynthus-worker`.
-> 
-> 
+>
+>
 
 #### user.inventory.deleted
 
 Emitted when an entire inventory configuration is dropped.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -360,7 +360,7 @@ Emitted when an entire inventory configuration is dropped.
 
 Emitted when a profile generates a collection registry space.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -374,7 +374,7 @@ Emitted when a profile generates a collection registry space.
 
 Emitted when content indexes or attached recipes are added or removed.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -393,7 +393,7 @@ Emitted when content indexes or attached recipes are added or removed.
 
 Emitted when a library container asset is scrubbed.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -408,7 +408,7 @@ Emitted when a library container asset is scrubbed.
 
 Emitted when a user configures a target recipe execution target.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -422,7 +422,7 @@ Emitted when a user configures a target recipe execution target.
 
 Emitted when a user modifies tags, updates preferences, or toggles selection states.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -442,7 +442,7 @@ Emitted when a user modifies tags, updates preferences, or toggles selection sta
 
 Emitted when a user drops a planned meal option.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -457,7 +457,7 @@ Emitted when a user drops a planned meal option.
 
 Emitted when a recipe data array is loaded into the user system.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -471,7 +471,7 @@ Emitted when a recipe data array is loaded into the user system.
 
 Emitted when ingredients, allergen declarations, or instructional guides are altered.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -485,7 +485,7 @@ Emitted when ingredients, allergen declarations, or instructional guides are alt
 
 Emitted when a user removes a custom recipe blueprint from their records.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -500,7 +500,7 @@ Emitted when a user removes a custom recipe blueprint from their records.
 
 Emitted when a household tracking calendar framework is established.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -513,7 +513,7 @@ Emitted when a household tracking calendar framework is established.
 
 Emitted when scheduled windows accept alternative meal variants, re-arrange cooking slots, or resolve calendar contentions.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -538,7 +538,7 @@ Emitted when scheduled windows accept alternative meal variants, re-arrange cook
 
 Emitted when a raw data point is ingested via an active external webhook or localized Bluetooth proxy node.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -559,7 +559,7 @@ Emitted when a raw data point is ingested via an active external webhook or loca
 
 Emitted when Astri registers a dynamic configuration mutation, such as when user targets accept a meal selection change or trigger localized resolution protocols.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -581,7 +581,7 @@ Emitted when Astri registers a dynamic configuration mutation, such as when user
 
 Emitted as a permanent, read-only event footprint confirming whenever B2B partners access clinical data views via secure access checkpoints.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -604,7 +604,7 @@ Emitted as a permanent, read-only event footprint confirming whenever B2B partne
 
 Emitted when automated intelligence passes complete calculations back down to the worker stream, such as calculating biometric anomalies or the household's current harmony index.
 
-* **Payload:**
+- **Payload:**
 
 ```json
 {
@@ -621,11 +621,8 @@ Emitted when automated intelligence passes complete calculations back down to th
 
 ### Summary of Improvements
 
-* **Topic Count Safety:** Reduced your planned baseline topics from **38 separate event names down to 17 standard lifecycle paths**, avoiding potential maintenance challenges on Azure Service Bus.
+- **Topic Count Safety:** Reduced your planned baseline topics from **38 separate event names down to 17 standard lifecycle paths**, avoiding potential maintenance challenges on Azure Service Bus.
 
-
-* **Astri AI Processing:** The conversational and predictive systems (`cynthus-chat` / `cynthus-analysis`) can now process the complete state of an entity directly from the event payload, reducing the need to request full records back from the databases via API.
-
-
+- **Astri AI Processing:** The conversational and predictive systems (`cynthus-chat` / `cynthus-analysis`) can now process the complete state of an entity directly from the event payload, reducing the need to request full records back from the databases via API.
 
 Rule 2: Would you like to write a set of Pydantic model configurations that match this unified lifecycle state layout next?
