@@ -7,6 +7,9 @@ These standards apply to every Cynthus repository. They follow the conventions o
 
 - **One class per module.** A module defines exactly one class (plus private helpers it needs). The module is named
   for the class in `snake_case`: `ConstraintMatcher` lives in `constraint_matcher.py`.
+- **A module name may leave out one word of the class name when that word is the name of the parent directory.**
+  `payload/inventory_shelf_created.py` holds `InventoryShelfCreatedPayload`, and `signal/base.py` holds `SignalBase`.
+  Only the immediate parent directory counts, and only one word may be left out.
 - Packages re-export their public classes from `__init__.py`; `__init__.py` holds no logic.
 - No module-level mutable state. Resources (database sessions, HTTP clients, brokers) are created in the application
   lifespan, stored on `app.state`, and handed to code through FastAPI dependencies or constructor arguments.
@@ -23,9 +26,12 @@ class InventorySnapshotBuilder:
 
 ## 2. Tests
 
-- **One test module per source module**, named `test_<module>.py`, in the same relative position under `test/`.
-  `src/inventory/service/inventory_snapshot_builder.py` is tested by
-  `test/service/test_inventory_snapshot_builder.py`.
+- **Every module with logic has its own test module**, named `test_<module>.py`, in the same relative position under
+  `test/`. `src/inventory/service/inventory_snapshot_builder.py` is tested by
+  `test/service/test_inventory_snapshot_builder.py`. Logic is any function or method that does more than store or return
+  a value, including validators and computed properties. Pure data classes (fields only), DTOs and enums need no test
+  module of their own; the code that uses them is tested, and the generated contract tests of message and payload classes
+  guard their shape.
 - Unit tests use fakes for collaborators (repositories, HTTP clients, the broker). They never need Docker, the
   network or a real database; SQLite in memory stands in for PostgreSQL.
 - Every behaviour change ships with a test that fails without it. Bug fixes begin with a failing test.

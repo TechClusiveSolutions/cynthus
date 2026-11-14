@@ -10,6 +10,7 @@ version and date.
 
 ## [Unreleased]
 
+- Engineering standards (issue 77): a module name may leave out one word of the class name when it is the parent directory; only modules with logic need their own unit test module.
 - Coverage gate (issue 74): CI runs the tests with `--cov-branch` and `.github/scripts/check_coverage.py` checks 90 percent of lines and 80 percent of branches separately.
 - Design for the persistence layer abstraction (issue 71): `docs/features/persistence-layer.md`.
 - Unix line endings (issue 68): `.gitattributes` (`* text=auto eol=lf`), `.editorconfig`, every text file committed with LF, and a CI check (`.github/scripts/check_line_endings.py`) that rejects CRLF.

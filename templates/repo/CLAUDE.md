@@ -9,7 +9,7 @@ The rules that matter most:
   (<https://github.com/orgs/TechClusiveSolutions/projects/6>), and move it to `In Progress`.
 - **Branch with `gh issue develop <number> --base dev`.** Feature branches merge into `dev`; `dev` merges into `main`.
   No direct commits to either.
-- **One class per module, one unit test module per source module.**
+- **One class per module, one unit test module per module with logic.**
 - **Lint and tests must pass** (`ruff check .`, `python -m pytest --cov=src --cov-branch --cov-report=json` and `python .github/scripts/check_coverage.py`) before a pull request
   merges. Request GitHub Copilot as a reviewer and address its feedback.
 - Pull requests use the template in `.github/pull_request_template.md` and contain `Closes #<issue>`.
