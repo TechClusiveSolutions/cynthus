@@ -24,6 +24,9 @@
 - [architecture/](architecture)
   - What it is: Web-app conversion plan; [Shopping design](architecture/shopping-design.md)
   - Version: none
+- [infrastructure.md](infrastructure.md)
+  - What it is: Versions of PostgreSQL, Redis, RabbitMQ and the emulators, and first-time setup
+  - Version: none
 - [engineering-standards.md](engineering-standards.md)
   - What it is: How we write, test, review and merge code
   - Version: none
