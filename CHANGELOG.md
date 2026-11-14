@@ -10,6 +10,7 @@ version and date.
 
 ## [Unreleased]
 
+- Coverage gate (issue 74): CI runs the tests with `--cov-branch` and `.github/scripts/check_coverage.py` checks 90 percent of lines and 80 percent of branches separately.
 - Design for the persistence layer abstraction (issue 71): `docs/features/persistence-layer.md`.
 - Unix line endings (issue 68): `.gitattributes` (`* text=auto eol=lf`), `.editorconfig`, every text file committed with LF, and a CI check (`.github/scripts/check_line_endings.py`) that rejects CRLF.
 - ADR-014 (issue 61): each segment keeps its own database and cache so it can run alone during an attack or an outage; ADR-012 (`cynthus-storage`) is Superseded; `docs/infrastructure.md` states the isolation.

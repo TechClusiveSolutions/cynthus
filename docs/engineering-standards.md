@@ -29,7 +29,7 @@ class InventorySnapshotBuilder:
 - Unit tests use fakes for collaborators (repositories, HTTP clients, the broker). They never need Docker, the
   network or a real database; SQLite in memory stands in for PostgreSQL.
 - Every behaviour change ships with a test that fails without it. Bug fixes begin with a failing test.
-- `python -m pytest --cov=src --cov-fail-under=75` must pass. Coverage is a floor, not a goal.
+- `python -m pytest --cov=src --cov-branch --cov-report=json` and `python .github/scripts/check_coverage.py` must pass. Coverage is a floor, not a goal.
 - **Tests come in three levels.** A *unit test* checks one function or object: can the event be created, does it have
   the right properties, do its methods return the right values. A *feature integration test* checks a whole feature, or
   a series of features, inside one repository with the outside mocked: when an inventory item created event is
