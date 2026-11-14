@@ -80,9 +80,11 @@ class InventorySnapshotBuilder:
 4. **Feature branches merge into `dev`; `dev` merges into `main`.** There are no direct commits to either.
 5. Open a pull request into `dev`. Its description follows `.github/pull_request_template.md` and contains
    `Closes #<issue>`.
-6. CI must pass (`lint` and `test`). Request GitHub Copilot as a reviewer, read its feedback, and address or explicitly
-   dismiss each point. Re-request the review after pushing fixes.
-7. Merge with a squash commit once the checks are green and the feedback is resolved. Delete the branch.
+6. CI must pass (`lint`, `test` and `docs-lint`). Review is by an independent reviewer who sees only the spec and the
+   diff (section 9). GitHub Copilot reviews are not requested at present.
+7. The owner gives an explicit yes, then the pull request is merged with a merge commit once the checks are green. A
+   pull request into `dev` does not close its issue (`Closes` acts only on the default branch), so close the issue by
+   hand after the pull request shows as merged. Delete the branch.
 8. Trivial fixes still get an issue; it may be one line.
 
 ### Issue types
@@ -162,8 +164,3 @@ is described there.
   caught it: tests, coverage, CI, review or self-review.
 - A run that is done entirely in the main session is logged the same way. It is the baseline for comparing the
   workflow, and the comparison is made per phase and per artifact, not on totals alone, because sizes differ.
-
-### 9.6 Known gaps
-
-- Squash merging and the Copilot review in section 7 are not what the team does today (merge commits, no Copilot
-  review). Section 7 is to be brought in line in its own issue.
