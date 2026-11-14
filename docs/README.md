@@ -10,6 +10,7 @@
   - What it is: Master roadmap: phases 1-8 from the PRD, plus engineering work before Phase 1
   - Version: 1.0
 - [features/feature-registry.md](features/feature-registry.md)
+- [features/persistence-layer.md](features/persistence-layer.md)
   - What it is: Feature map: tiers, features, phases, booster packs
   - Version: 1.1
 - [signals/signal-catalog.md](signals/signal-catalog.md)
