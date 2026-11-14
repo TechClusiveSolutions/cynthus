@@ -1,6 +1,7 @@
 # ADR-012: A cynthus-storage repository for the databases and caches
 
-**Status:** Proposed (2026-11-12)
+**Status:** Superseded by ADR-014 (2026-11-13). The owner rejected the consolidation: each segment keeps its own
+database and cache so that it can run alone during an attack or an outage. Kept for the record.
 **Relates to:** ADR-008 (fewer, larger containers), ADR-010 (tenants), the hosting cost analysis of 2026-11-10.
 
 ## Context

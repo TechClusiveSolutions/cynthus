@@ -44,7 +44,8 @@ Each segment has its own database and cache container, on its own internal netwo
 
 The shared services, from `cynthus-emulators`: the mail sink (`cynthus-infra-mail`), the RabbitMQ broker
 (`cynthus-infra-rabbitmq`) and the Service Bus emulator (`cynthus-infra-messaging` with `cynthus-infra-store`).
-Whether the segments should share one PostgreSQL and one Redis is still open (ADR-012 is only proposed).
+The segments do not share a PostgreSQL or a Redis, on purpose: each can run alone when another is down or under
+attack (ADR-014, which supersedes ADR-012).
 
 ## First-time setup
 
