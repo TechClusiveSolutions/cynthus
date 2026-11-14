@@ -29,16 +29,19 @@ class InventorySnapshotBuilder:
 - Unit tests use fakes for collaborators (repositories, HTTP clients, the broker). They never need Docker, the
   network or a real database; SQLite in memory stands in for PostgreSQL.
 - Every behaviour change ships with a test that fails without it. Bug fixes begin with a failing test.
-- `python -m pytest --cov=src --cov-branch --cov-report=json` and `python .github/scripts/check_coverage.py` must pass. Coverage is a floor, not a goal.
+- `python -m pytest --cov=src --cov-branch --cov-report=json` and `python .github/scripts/check_coverage.py` must pass.
+  The check enforces 90 percent of lines and 80 percent of branches, separately. Coverage is a floor, not a goal.
 - **Tests come in three levels.** A *unit test* checks one function or object: can the event be created, does it have
   the right properties, do its methods return the right values. A *feature integration test* checks a whole feature, or
   a series of features, inside one repository with the outside mocked: when an inventory item created event is
   generated, a `public.inventory.item.created` message reaches the mocked broker. A *system integration test* checks
   that a subsystem works across services and lives in `cynthus-testing`: when a user creates an item through the API
   service, the Inventory service builds the event from the signal on the broker.
-- **Coverage targets.** The floor above stays until a repository adopts the targets: 90 percent of lines and 80
-  percent of branches, measured with `--cov-branch`. Each repository adopts them in its own issue. New modules are
-  expected to be at 100 percent line and branch.
+- **Coverage targets.** pytest-cov can gate only one combined number, so `.github/scripts/check_coverage.py` (a copy of
+  `cynthus-tools/ci/check_coverage.py`) reads the JSON report and checks lines and branches separately. Every
+  repository with code adopted the targets on 2026-11-14. New modules are expected to be at 100 percent line and
+  branch. A repository whose branch coverage falls below 80 percent may lower its own `--branches` value only with an
+  issue that raises it again.
 - **User-facing functionality meets WCAG 2.2 level AA** and is checked automatically in CI where a page is rendered, and
   by hand with a screen reader before release. Automated checks find only part of the problems.
 - Expected failures (`xfail`) are allowed only for a documented, tracked defect, and name the issue number.
