@@ -30,6 +30,17 @@ class InventorySnapshotBuilder:
   network or a real database; SQLite in memory stands in for PostgreSQL.
 - Every behaviour change ships with a test that fails without it. Bug fixes begin with a failing test.
 - `python -m pytest --cov=src --cov-fail-under=75` must pass. Coverage is a floor, not a goal.
+- **Tests come in three levels.** A *unit test* checks one function or object: can the event be created, does it have
+  the right properties, do its methods return the right values. A *feature integration test* checks a whole feature, or
+  a series of features, inside one repository with the outside mocked: when an inventory item created event is
+  generated, a `public.inventory.item.created` message reaches the mocked broker. A *system integration test* checks
+  that a subsystem works across services and lives in `cynthus-testing`: when a user creates an item through the API
+  service, the Inventory service builds the event from the signal on the broker.
+- **Coverage targets.** The floor above stays until a repository adopts the targets: 90 percent of lines and 80
+  percent of branches, measured with `--cov-branch`. Each repository adopts them in its own issue. New modules are
+  expected to be at 100 percent line and branch.
+- **User-facing functionality meets WCAG 2.2 level AA** and is checked automatically in CI where a page is rendered, and
+  by hand with a screen reader before release. Automated checks find only part of the problems.
 - Expected failures (`xfail`) are allowed only for a documented, tracked defect, and name the issue number.
 
 ## 3. Linting
@@ -96,3 +107,63 @@ Platform Foundation, Identity & Profile, Inventory & Recipe, Planning & Logistic
 ## 8. Releases
 
 `dev` is the integration branch. A release is a pull request from `dev` into `main`, followed by a version tag.
+
+## 9. Feature development with roles
+
+A feature is finished only when it has: an entry in a design document, an issue, unit tests and a feature integration
+test, developer documentation, and (where a user sees it) user documentation and a WCAG check. A pull request exists
+for every feature that reaches production. The user documentation requirement is a soft rule: not every line of code
+is described there.
+
+### 9.1 Roles
+
+- **Designer** writes the spec: inputs, outputs, use cases, numbered acceptance criteria, and which test level covers
+  each criterion. Before writing it, the designer reads the existing classes it will build on.
+- **Coder** implements the production code and its documentation from the spec.
+- **Tester** writes the tests from the spec alone and does not read the coder's new files.
+- **Reviewer** reads only the spec and the diff, never the coder's or the tester's reasoning, and reports findings
+  ranked by severity with a failure scenario for each.
+- **Coordinator** is the main session. It talks to the owner, opens the issue, branch and pull request, keeps them up to
+  date, runs the full checks, fixes small findings and routes the rest back to the right role.
+- **Recorder** is a script, not an agent (section 9.5).
+
+### 9.2 Steps
+
+1. Design: the owner states the task, the coordinator proposes, and the owner approves or asks for options.
+2. Open the issue and the branch (section 7).
+3. Implement and test. For work of size M or larger the coder and tester run in parallel from the spec. For XS and S
+   work one agent writes both and a fresh reviewer still reviews.
+4. Run lint, the full test suite and the coverage report locally.
+5. Independent review. Fix blockers and should-fix findings, then ask the same reviewer for a short delta check when
+   production code changed after the first review.
+6. Commit, push, and open the pull request into `dev`.
+7. The coordinator reports and waits. The owner's explicit yes is required before every merge and every deploy; a
+   notification or an agent's report is never approval.
+
+### 9.3 Briefs and context
+
+- Each agent gets a short written brief: the spec, the files it may read and write, and what it must not touch. It never
+  gets another agent's transcript.
+- Resume an agent for follow-up work instead of starting a new one; it already holds the context.
+- Agents do not commit, push or open pull requests. The coordinator does.
+
+### 9.4 Specs
+
+- Check the existing classes before writing a spec. A spec that ignores what already exists is the most expensive
+  mistake: the first design of the event-to-signal work was reworked after review for this reason.
+- Number the acceptance criteria. Name the exception type each failure raises; tests that accept several exception types
+  let a wrong implementation pass.
+- Say what is out of scope and where it goes (a follow-up issue).
+
+### 9.5 Recording
+
+- A run log and a main-session usage report are kept outside every repository, so recording never needs a pull request.
+  The log records each phase with a timestamp, the tokens and seconds each subagent reports, and every defect with who
+  caught it: tests, coverage, CI, review or self-review.
+- A run that is done entirely in the main session is logged the same way. It is the baseline for comparing the
+  workflow, and the comparison is made per phase and per artifact, not on totals alone, because sizes differ.
+
+### 9.6 Known gaps
+
+- Squash merging and the Copilot review in section 7 are not what the team does today (merge commits, no Copilot
+  review). Section 7 is to be brought in line in its own issue.
