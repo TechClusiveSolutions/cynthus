@@ -10,6 +10,7 @@ version and date.
 
 ## [Unreleased]
 
+- Unix line endings (issue 68): `.gitattributes` (`* text=auto eol=lf`), `.editorconfig`, every text file committed with LF, and a CI check (`.github/scripts/check_line_endings.py`) that rejects CRLF.
 - ADR-014 (issue 61): each segment keeps its own database and cache so it can run alone during an attack or an outage; ADR-012 (`cynthus-storage`) is Superseded; `docs/infrastructure.md` states the isolation.
 - Infrastructure versions and first-time setup (issue 59): `docs/infrastructure.md` records the PostgreSQL, Redis, RabbitMQ, mail sink and Service Bus emulator versions, each segment's database and cache, and the order to start a stack; linked from `docs/README.md`.
 - Standard README structure (issue 57): `check_markdown.py` (and its copy in `templates/repo`) fails a root `README.md` whose headings are not Description, Prerequisites, Installation, Minimal configuration, Gotchas and More documentation, after one level 1 heading. New `templates/repo/README.md` model; the standards describe the rule; this repository's README follows it.
