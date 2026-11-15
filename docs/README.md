@@ -16,6 +16,9 @@
 - [features/axe-audit-script.md](features/axe-audit-script.md)
   - What it is: Design of the live, signed-in accessibility audit (axe-core) and its test stack
   - Version: 1.0
+- [features/ecosystem-bootstrap.md](features/ecosystem-bootstrap.md)
+  - What it is: Design of the cynthus-env script that builds, runs, tests and removes the whole stack
+  - Version: 1.0
 - [signals/signal-catalog.md](signals/signal-catalog.md)
   - What it is: Signal map: every signal by domain, with publishers and consumers
   - Version: 1.0
