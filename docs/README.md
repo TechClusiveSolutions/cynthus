@@ -13,6 +13,9 @@
 - [features/persistence-layer.md](features/persistence-layer.md)
   - What it is: Feature map: tiers, features, phases, booster packs
   - Version: 1.1
+- [features/axe-audit-script.md](features/axe-audit-script.md)
+  - What it is: Design of the live, signed-in accessibility audit (axe-core) and its test stack
+  - Version: 1.0
 - [signals/signal-catalog.md](signals/signal-catalog.md)
   - What it is: Signal map: every signal by domain, with publishers and consumers
   - Version: 1.0

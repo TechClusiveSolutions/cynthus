@@ -49,7 +49,9 @@ class InventorySnapshotBuilder:
   branch. A repository whose branch coverage falls below 80 percent may lower its own `--branches` value only with an
   issue that raises it again.
 - **User-facing functionality meets WCAG 2.2 level AA** and is checked automatically in CI where a page is rendered, and
-  by hand with a screen reader before release. Automated checks find only part of the problems.
+  by hand with a screen reader before release. Automated checks find only part of the problems. Two automated checks exist: the CI job `a11y` in
+  cynthus-core (the built markup, every change) and the live audit in cynthus-tools (signed-in pages with data, on demand;
+  see `features/axe-audit-script.md`).
 - Expected failures (`xfail`) are allowed only for a documented, tracked defect, and name the issue number.
 
 ## 3. Linting
