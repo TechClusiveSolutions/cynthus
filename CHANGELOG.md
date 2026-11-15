@@ -10,6 +10,7 @@ version and date.
 
 ## [Unreleased]
 
+- Design document `docs/features/axe-audit-script.md` (issue 81): the live, signed-in axe accessibility audit, run on a throwaway test stack on the cynthus VM; cynthus-tools issues 1 to 4.
 - Engineering standards (issue 77): a module name may leave out one word of the class name when it is the parent directory; only modules with logic need their own unit test module.
 - Coverage gate (issue 74): CI runs the tests with `--cov-branch` and `.github/scripts/check_coverage.py` checks 90 percent of lines and 80 percent of branches separately.
 - Design for the persistence layer abstraction (issue 71): `docs/features/persistence-layer.md`.
