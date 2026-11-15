@@ -49,6 +49,7 @@ Verified 2026-11-15 on cynthus-core dev (after PR 245), cynthus-testing dev (589
 ## Design
 
 Python package `cynthus-tools/a11y/` (no import of any service code):
+
 - `config.py`: `AuditConfig` (frozen dataclass: `base_url`, `user`, `password`, `out_dir`, `run_id`, `headless`) and `load_config(env)`; raises `ConfigError` (missing or malformed variable, host not allowed). `password` is excluded from `repr`.
 - `browser.py`: `open_session(config)` context manager (Chromium, one context, viewport 1280 by 900) and `sign_in(page, config)` which drives the real `/login` page and waits for `/inventory`; raises `SignInError` on any other outcome and never retries.
 - `axe.py`: `AxeRunner` with `scan(page, state_name) -> list[Violation]`, same tags as CI, axe-core source loaded from the pinned file; `Violation` and `Node` dataclasses.
