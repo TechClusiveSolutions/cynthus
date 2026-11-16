@@ -17,6 +17,7 @@
   - What it is: Design of the live, signed-in accessibility audit (axe-core) and its test stack
   - Version: 1.0
 - [features/ecosystem-bootstrap.md](features/ecosystem-bootstrap.md)
+- [features/signal-broker-reconnect.md](features/signal-broker-reconnect.md)
   - What it is: Design of the cynthus-env script that builds, runs, tests and removes the whole stack
   - Version: 1.0
 - [signals/signal-catalog.md](signals/signal-catalog.md)
