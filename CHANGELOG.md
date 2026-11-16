@@ -9,7 +9,6 @@ Every pull request adds a line under `Unreleased`; a release renames that sectio
 version and date.
 
 ## [Unreleased]
-
 - Added the design document for the signal broker reconnect feature (`docs/features/signal-broker-reconnect.md`).
 
 - Design document `docs/features/ecosystem-bootstrap.md` (issue 84): the cynthus-env script (install-prereqs, build, configure, run, test, remove, bus backend, accept-all); slices in cynthus-tools 5 to 10, cynthus-testing 23, cynthus-core 246.
