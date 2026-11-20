@@ -75,7 +75,9 @@ Verified in the code and documents on 2026-11-18 to 2026-11-20, clones on `dev` 
 - F12 (cynthus-trust, auth/tenancy.py, routes/token.py): the token's `owner` claim means the subject owns the tenant of
   the token. Only a tenant's owner can create a workspace in it. The workspace's `owner_id` is only in Auth's
   database. `TokenClaims` has `organization_id` (tenant), `workspace_id`, `roles`, `permissions`, `owner`; it has no
-  subscription tier and no workspace owner id.
+  subscription tier and no workspace owner id. The claims are built in cynthus-shared (`security/token_issuer.py`,
+  `token_verifier.py`, `token_claims.py`); Trust calls the issuer on four paths (`routes/token.py`, `oauth.py`,
+  `refresh.py`, `workspace.py`).
 - F13 (cynthus-core, inventory/lookup.py): a record in another workspace is reported as not found, never forbidden.
 - F14 (cynthus-trust, routes/workspace.py): `POST /auth/workspaces` and `POST /auth/workspaces/switch` exist and return
   a new token. cynthus-shared `security/require_permission.py` and `service/signal_access.py` already answer
@@ -114,7 +116,7 @@ owner), F14 (workspace creation needs no new Trust work), F16 (Places in Logisti
 - D10 (2026-11-19): Meals per slot are limited by a setting the service reads (default 1; a subscription lookup
   supplies more later). 409 `slot_full`. Meals half.
 - D11 (2026-11-19): All invitations are their own story sequence after this plan.
-- D12 (2026-11-20): S3 adds one claim, `workspace_owner_id`. `home_*` and `current_*` claims, the entitlements lookup,
+- D12 (2026-11-20): S2 (classes) and S3 (values) add one claim, `workspace_owner_id`. `home_*` and `current_*` claims, the entitlements lookup,
   the client cache and the write-behind cache are a later plan with an ADR on token claims.
 - Confirmed 2026-11-19: ADR-015 comes before any sharing slice; the sizes and groupings of the slices; the
   follow-up plan stubs are filed as issues now.
@@ -181,7 +183,9 @@ owner), F14 (workspace creation needs no new Trust work), F16 (Places in Logisti
 ### cynthus-trust
 
 - `role_permissions.py`: `meal:read` and `meal:write` on every role.
-- The token carries `workspace_owner_id` (additive; `TokenClaims` and the issuer).
+- The token carries `workspace_owner_id` (additive). Trust fills it on all four token-issuing paths from the
+  workspace's `owner_id`; empty for the nil workspace. The claim classes (`TokenClaims`, the issuer and the verifier)
+  are in cynthus-shared, delivered by S2.
 
 ### cynthus-core, module `meal` (in the default domain group)
 
@@ -221,10 +225,12 @@ No slice is bigger than M. Subtype is Infrastructure for documentation and Appli
   access-request flow, recurrence, seams for invitations), registry and Signal Catalog entries, and the #130 re-scope
   text. Gates S6 and S7.
 - S1 cynthus-shared (messaging package), size S, applies to Shared: the signals and payload fields. A tagged release gates S4 to S8.
-- S2 cynthus-shared, size M, applies to Shared: the classes, events, `MealService`, fixtures. A tagged release gates
-  S4 to S8.
-- S3 cynthus-trust, size S, applies to Trust: `meal:read`, `meal:write` and the `workspace_owner_id` claim.
-- S4 cynthus-core, size M, applies to Core: module skeleton and registration, migration 0001, `PlanService`,
+- S2 cynthus-shared, size M, applies to Shared: the classes, events, `MealService`, fixtures, and the shared part of the
+  `workspace_owner_id` claim (`TokenClaims`, issuer, verifier). A tagged release gates S3 and S4 to S8.
+- S3 cynthus-trust, size S, applies to Trust: `meal:read`, `meal:write`, and the `workspace_owner_id` value on all four
+  token-issuing paths. Depends on S2 (released).
+- S4 cynthus-core, size M, applies to Core: module skeleton (`containers/meal/`) and registration (`MODULES`,
+  `DEFAULT_SERVICES`, the three compose mounts that `startup.sh` migrates from), migration 0001, `PlanService`,
   `PlanAccess` (owner and visibility), handler, routes, signals, soft delete, create-as rules, `workspace_required`,
   lint and boundary rules. Depends on S1, S2, S3.
 - S5 cynthus-core, size S: templates. Depends on S4.
@@ -236,7 +242,7 @@ No slice is bigger than M. Subtype is Infrastructure for documentation and Appli
   delete, idempotency). Depends on S4.
 - S9 cynthus-core tests/integration, size S: the end-to-end scenario. Depends on S5, S7, S8.
 
-Order: S0, S1, S2, S3 in parallel; then S4; then S5, S6 and S8 in parallel; then S7; then S9. S1 and S2 are in the same repository and each needs a
+Order: S0, S1, S2 in parallel; then S3 (after the S2 release); then S4 (after S1, S2, S3 are released and pinned); then S5, S6 and S8 in parallel; then S7; then S9. S1 and S2 are in the same repository and each needs a
 tagged release (or one release covers both) and a pin bump in cynthus-core (core pins `cynthus-shared@v0.16.0` per container); S3 needs a Trust
 deploy. Each deploy needs the owner's explicit yes.
 
@@ -332,6 +338,8 @@ When a risk happens the coder stops and reports; the coordinator brings it to th
 - R12: Concurrency: two answers to one request, two recurrence signals. Unique indexes, a transaction and a test each.
 - R13: The default group is one image, so bumping the `cynthus-shared` pin for `meal` bumps it for the other four
   modules too. S4 runs their suites.
+- R14: A token keeps the workspace owner it was issued with until it expires or is reissued, and ownership transfer is
+  not decided in ADR-010. A change of owner is not seen by the meal module until the next token. Recorded in ADR-015.
 
 ## Out of scope
 
