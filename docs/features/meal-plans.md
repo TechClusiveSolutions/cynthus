@@ -2,8 +2,7 @@
 
 Type: application feature. Repositories: cynthus-core (module `meal`), cynthus-shared, cynthus-trust, cynthus. Tracking issue: cynthus#90.
 Walked through with the owner section by section, 2026-11-18 to 2026-11-20. Slices: cynthus#91, cynthus-shared#162 and #163,
-cynthus-trust#86, cynthus-core#252 to #257. Follow-up plans: cynthus#92 (invitations), #93 (Places in Logistics), #94 (web pages),
-#95 (tokens and entitlements).
+cynthus-trust#86, cynthus-core#252 to #257. Follow-up plans: cynthus#92 (invitations), #93 (Places in Logistics), #94 (web pages), #95 (tokens and entitlements).
 
 ## Intent (binding)
 
