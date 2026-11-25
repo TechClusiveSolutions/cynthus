@@ -1,7 +1,7 @@
 # Signals by service
 
 **Version:** 1.0 (2026-11-03)  
-**Generated from:** `signal-catalog.md` v1.0 (204 signals with a publisher and consumers; 35 more features are synchronous or in-process and publish nothing). The tables are derived from the catalog: when the catalog changes, update them to match.  
+**Generated from:** `signal-catalog.md` v1.0 (206 signals with a publisher and consumers; 35 more features are synchronous or in-process and publish nothing). The tables are derived from the catalog: when the catalog changes, update them to match.  
 **Supersedes:** `signal-handling-matrix.md` (2026-06-01, topic-level), now in `archive/signals/`.
 
 ## How to read this
@@ -13,8 +13,8 @@
 ## Summary
 
 - `cynthus-core-api`
-  - Publishes: 69
-  - Consumes: 29
+  - Publishes: 70
+  - Consumes: 30
 - `cynthus-core-cache`
   - Publishes: 1
   - Consumes: 10
@@ -44,7 +44,7 @@
   - Consumes: 13
 - `cynthus-audit`
   - Publishes: 1
-  - Consumes: 152
+  - Consumes: 154
 - `cynthus-chat`
   - Publishes: 10
   - Consumes: 35
@@ -64,8 +64,8 @@
   - Publishes: 4
   - Consumes: 5
 - `cynthus-partner-api`
-  - Publishes: 11
-  - Consumes: 9
+  - Publishes: 12
+  - Consumes: 10
 - `spire-agent`
   - Publishes: 2
   - Consumes: 0
@@ -79,8 +79,11 @@
 
 Primary edge for user interactions; context assembly.
 
-**Publishes (69 signals)**
+**Publishes (70 signals)**
 
+- `public.partner.service_list.requested`
+  - Topic: public
+  - Consumers: `cynthus-partner-api`, `cynthus-audit`
 - `public.shopping_list.list.requested`
   - Topic: public
   - Consumers: `cynthus-shopping`
@@ -289,8 +292,9 @@ Primary edge for user interactions; context assembly.
   - Topic: public
   - Consumers: `cynthus-profile`, `cynthus-audit`
 
-**Consumes (29 signals)**
+**Consumes (30 signals)**
 
+- `public.partner.service_list.responded`: `cynthus-partner-api`
 - `public.shopping_list.list.responded`: `cynthus-shopping`
 - `public.meal.suggestion.generated`: `cynthus-chat`
 - `internal.meal.suggestion_schedule.triggered`: `cynthus-scheduler`
@@ -787,7 +791,7 @@ Auditing and compliance.
   - Topic: audit
   - Consumers: none
 
-**Consumes (152 signals)**, by domain: AI Companion 4; Access Control 5; Account Management 15; Billing Management 3; Clinical Monitoring 5; Contribution Management 1; Engagement Management 6; Group Management 8; Inventory Management 29; Live Companion 2; Meal Planning 12; Messaging 4; Rating Management 2; Recipe Management 13; Security and Identity 11; Service and Resource Management 11; Shopping List 18; Tag Management 3.
+**Consumes (154 signals)**, by domain: AI Companion 4; Access Control 5; Account Management 15; Billing Management 3; Clinical Monitoring 5; Contribution Management 1; Engagement Management 6; Group Management 8; Inventory Management 29; Live Companion 2; Meal Planning 12; Messaging 4; Partner 2; Rating Management 2; Recipe Management 13; Security and Identity 11; Service and Resource Management 11; Shopping List 18; Tag Management 3.
 
 ### `cynthus-trust-cache`
 
@@ -1035,8 +1039,11 @@ Subscriptions, booster packs, tier enforcement.
 
 Partner integrations.
 
-**Publishes (11 signals)**
+**Publishes (12 signals)**
 
+- `public.partner.service_list.responded`
+  - Topic: public
+  - Consumers: `cynthus-core-api`, `cynthus-audit`
 - `public.inventory.order.submitted`
   - Topic: public
   - Consumers: `cynthus-notification`, `cynthus-audit`
@@ -1071,8 +1078,9 @@ Partner integrations.
   - Topic: audit
   - Consumers: `cynthus-audit`, `cynthus-billing-api`
 
-**Consumes (9 signals)**
+**Consumes (10 signals)**
 
+- `public.partner.service_list.requested`: `cynthus-core-api`
 - `public.inventory.order.initiated`: `cynthus-core-api`
 - `internal.shopping_list.item.vendor_preference_set`: `cynthus-shopping`
 - `internal.shopping_list.promotional_data.requested`: `cynthus-chat`

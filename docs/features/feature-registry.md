@@ -873,6 +873,17 @@ Features are organized by functional domain. Each entry includes a stable featur
 
 ---
 
+**FT-SR-006 - List Partners**
+> As a user, I want the ability to see the list of partners.
+
+- Description: Lookup of the partner organizations known to the platform, with an optional name filter. A caller asks the Partner service over the signal bus and receives the matching partners (id and name) in the answer.
+- Priority: Medium
+- Implementation Phase: 6
+- Available To: All Account Types
+- Subscription Tiers: All Tiers
+
+---
+
 ### Domain: Contribution Management
 
 ---
@@ -1213,7 +1224,7 @@ Features are organized by functional domain. Each entry includes a stable featur
   - Domain Focus: B2B commercial launch: supplier/provider service registries, inventory ordering, business billing, provider usage reports. Astri becomes commerce-aware, able to initiate reorders and scale recipes commercially.
 - 6
   - Target: H1 2029
-  - Feature IDs: FT-LC-001, FT-SR-004-005, FT-AM-005-007, FT-RP-003-004
+  - Feature IDs: FT-LC-001, FT-SR-004-006, FT-AM-005-007, FT-RP-003-004
   - Astri Version: Astri v3.5
   - Domain Focus: Live companion, partner platform, device/hardware registry, partner reporting. Astri provides real-time step-by-step cooking guidance and coordinates with live human companions.
 - 7
