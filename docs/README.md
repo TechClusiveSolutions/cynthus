@@ -22,6 +22,9 @@
 - [features/meal-plans.md](features/meal-plans.md)
   - What it is: Design of meal plans: durations, frequencies, templates, sharing and plan roles, private plans, recurrence
   - Version: 1.0
+- [features/partner-service-list.md](features/partner-service-list.md)
+  - What it is: Design of the Partner service list request: signals, events, a decorator router with dependency injection, and the partner:read check
+  - Version: 1.0
 - [signals/signal-catalog.md](signals/signal-catalog.md)
   - What it is: Signal map: every signal by domain, with publishers and consumers
   - Version: 1.0

@@ -10,6 +10,7 @@ version and date.
 
 ## [Unreleased]
 
+- Design document `docs/features/partner-service-list.md` (issue 98): the Partner service answers `public.partner.service_list.requested` through a shared decorator `SignalRouter` with dependency injection, an id-based `SignalEvent`, `SignalEventReader`, `EventHooks` and a `partner:read` check; slices cynthus-shared 176 to 181, cynthus-trust 87, cynthus-commerce 15 and cynthus 99.
 - Meal plans design review (issue 90): the `workspace_owner_id` claim is split between cynthus-shared (S2) and Trust (S3, four token paths, after S2); S4 names the compose mounts; risk R14 (a token keeps its workspace owner until reissued).
 - Design document `docs/features/meal-plans.md` (issue 90): meal plans with durations, frequencies, recurrence, templates, sharing by access request, plan roles and private plans, in a new `meal` module of cynthus-core; slices in cynthus 91, cynthus-shared 162 and 163, cynthus-trust 86, cynthus-core 252 to 257.
 - Design document `docs/features/ecosystem-bootstrap.md` (issue 84): the cynthus-env script (install-prereqs, build, configure, run, test, remove, bus backend, accept-all); slices in cynthus-tools 5 to 10, cynthus-testing 23, cynthus-core 246.
