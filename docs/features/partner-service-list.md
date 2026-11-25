@@ -105,6 +105,7 @@ router, the dependencies) go in Design.
 ## Design
 
 cynthus-shared:
+
 - Signals (S1): `SignalDomainType.PARTNER`, `PublicPartnerSignalBase`, `PublicPartnerServiceListSignalBase`
   (aggregate `service_list`), `PublicPartnerServiceListRequestedSignal` and `...RespondedSignal`; in
   `cynthus.messaging.component.partner`: payloads `PartnerServiceListRequestedPayload` (`filters:
@@ -137,6 +138,7 @@ cynthus-shared:
 cynthus-trust (S7): `PARTNER_READ = 'partner:read'` in `auth/role_permissions.py`, granted as in A5.
 
 cynthus-commerce (S8), containers/partner/src/partner:
+
 - `service.py`: one `partner_database = Database()`, `signal_access`, `hooks = EventHooks()`, and
   `ServiceModule(subscription=PartnerApiPublicSubscription(), handler=event.dispatch, signal_access=signal_access,
   database=partner_database)`.
@@ -144,7 +146,6 @@ cynthus-commerce (S8), containers/partner/src/partner:
   'partner')`, rolls back on error and always closes.
 - `routes/event.py`: `event = SignalRouter()`; `@event.exception_handler(Forbidden)` returns a responded event with
   status 403, `TokenError` 401, `ValidationError` 422; and the handler:
-
 
 ```text
 @event.subscriber(PublicPartnerServiceListRequestedSignal.name)
