@@ -1764,6 +1764,43 @@ The signal classes in `cynthus-shared` repeat the aggregate in the name, as the 
 
 ---
 
+## Domain: Partner
+
+- FT-SR-006
+  - Signal Namespace: `public.partner.service_list.requested`
+  - Topic: public
+  - Publisher: `cynthus-core-api`
+  - Consumers: `cynthus-partner-api`, `cynthus-audit`
+  - Synopsis: A caller asked for the list of partners, with an optional name filter; the caller token travels as a message property (the Core API route that publishes it does not exist yet)
+- FT-SR-006
+  - Signal Namespace: `public.partner.service_list.responded`
+  - Topic: public
+  - Publisher: `cynthus-partner-api`
+  - Consumers: `cynthus-core-api`, `cynthus-audit`
+  - Synopsis: The Partner service's answer with an HTTP-style status (200, 401, 403 or 422) and the partners or the error
+
+### Sample Payloads - Partner
+
+```json
+// public.partner.service_list.requested
+{
+  "schema_version": 1,
+  "filters": {"name": "acme"}
+}
+
+// public.partner.service_list.responded
+{
+  "schema_version": 1,
+  "status": 200,
+  "result": [
+    {"id": "0b9e6c1a-52f4-4c43-9f0e-6a1d2d3c4b5a", "name": "Acme Devices"}
+  ],
+  "error": null
+}
+```
+
+---
+
 ## Domain: Contribution Management
 
 - FT-CO-001
